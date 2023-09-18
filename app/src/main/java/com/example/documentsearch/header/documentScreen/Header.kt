@@ -35,15 +35,17 @@ fun Header() {
         Image(
             painter = painterResource(id = icon.intValue),
             contentDescription = "",
-            contentScale = ContentScale.FillWidth,
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier
+                .height(160.dp)
                 .fillMaxWidth()
         )
         Column(
             horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp),
+                .height(150.dp)
+                .padding(bottom = 10.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
             SearchDocument()

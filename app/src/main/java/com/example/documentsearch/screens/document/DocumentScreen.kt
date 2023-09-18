@@ -86,11 +86,13 @@ fun DocumentScreen() {
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 2.dp),
+            .fillMaxWidth(),
         state = rememberLazyScrollState
     ) {
         items(listDocumet.size) { index ->
+            if (index == 0)
+                Spacer(modifier = Modifier.height(10.dp))
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -360,12 +362,6 @@ fun Document(document: DocumentWithPercentage, rememberLazyScrollState: LazyList
             Column(modifier = Modifier.padding(21.dp, 100.dp, 15.dp, 0.dp)) {
                 Text(
                     text = "Описание",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
                     modifier = Modifier.padding(bottom = 5.dp)
                 )
                 Text(

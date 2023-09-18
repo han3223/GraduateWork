@@ -45,7 +45,7 @@ fun FilterActive() {
                 .background(MainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp))
         ) {
             Column(
-                modifier = Modifier.padding(20.dp, 160.dp, 20.dp, 15.dp),
+                modifier = Modifier.padding(20.dp, 150.dp, 20.dp, 15.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Дата

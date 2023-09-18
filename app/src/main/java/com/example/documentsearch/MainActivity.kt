@@ -23,7 +23,6 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.documentsearch.header.documentScreen.Header
 import com.example.documentsearch.header.documentScreen.icon
 import com.example.documentsearch.navbar.Navbar
 import com.example.documentsearch.navbar.NavigationItem
@@ -45,45 +44,60 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
             Scaffold(
-                modifier = Modifier.fillMaxSize().pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            if (icon.intValue != R.drawable.active_filter)
-                                icon.intValue = R.drawable.header
-                        },
-                    )
-                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                if (icon.intValue != R.drawable.active_filter)
+                                    icon.intValue = R.drawable.header
+                            },
+                        )
+                    },
                 content = { padding ->
                     Box(modifier = Modifier.fillMaxSize()) {
-                        Box(
-                            modifier = Modifier
-                                .zIndex(100f)
-                                .align(Alignment.TopCenter)
-                        ) { Header() }
-                        Box(
-                            modifier = Modifier
-                                .padding(top = 140.dp)
-                                .zIndex(0f)
-                                .fillMaxHeight()
-                                .align(Alignment.Center)
+                        NavHost(
+                            navController,
+                            startDestination = NavigationItem.Documents.route
                         ) {
-                            NavHost(
-                                navController,
-                                startDestination = NavigationItem.Documents.route
-                            ) {
-                                composable(NavigationItem.Documents.route) {
+                            composable(NavigationItem.Documents.route) {
+                                Box(
+                                    modifier = Modifier
+                                        .zIndex(100f)
+                                        .align(Alignment.TopCenter)
+                                ) { com.example.documentsearch.header.documentScreen.Header() }
+                                Box(
+                                    modifier = Modifier
+                                        .padding(5.dp, 120.dp, 5.dp, 0.dp)
+                                        .zIndex(0f)
+                                        .fillMaxHeight()
+                                        .align(Alignment.Center)
+                                ) {
                                     DocumentScreen()
                                 }
+                            }
 
-                                composable(NavigationItem.Messenger.route) {
-                                    MessengerScreen()
-                                }
+                            composable(NavigationItem.Messenger.route) {
+                                MessengerScreen()
+                            }
 
-                                composable(NavigationItem.AddUser.route) {
-                                    AddUserScreen()
-                                }
+                            composable(NavigationItem.AddUser.route) {
+                                AddUserScreen()
+                            }
 
-                                composable(NavigationItem.Profile.route) {
+                            composable(NavigationItem.Profile.route) {
+                                Box(
+                                    modifier = Modifier
+                                        .zIndex(100f)
+                                        .align(Alignment.TopCenter)
+                                ) { com.example.documentsearch.header.profile.Header() }
+                                Box(
+                                    modifier = Modifier
+                                        .zIndex(0f)
+                                        .padding(5.dp, 85.dp, 5.dp, 0.dp)
+                                        .fillMaxHeight()
+                                        .align(Alignment.Center)
+                                ) {
                                     ProfileScreen()
                                 }
                             }

@@ -71,7 +71,7 @@ fun SortActive() {
                 .fillMaxWidth(0.7f)
                 .background(MainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 0.dp))
         ) {
-            Column(modifier = Modifier.padding(top = 160.dp, bottom = 15.dp)) {
+            Column(modifier = Modifier.padding(top = 150.dp, bottom = 15.dp)) {
                 listSort.forEach { sortItem ->
                     val sizeMultiplier = remember { Animatable(1f) }
                     LaunchedEffect(sizeMultiplier) {
