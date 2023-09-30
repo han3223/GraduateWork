@@ -1,4 +1,4 @@
-package com.example.documentsearch.patterns
+package com.example.documentsearch.patterns.authentication
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

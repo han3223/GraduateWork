@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -38,10 +40,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.patterns.PhoneInput
-import com.example.documentsearch.patterns.StandardInput
-import com.example.documentsearch.screens.profile.profileScreen
+import com.example.documentsearch.navbar.NavigationItem
+import com.example.documentsearch.patterns.authentication.PhoneInput
+import com.example.documentsearch.patterns.authentication.StandardInput
+import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
@@ -52,7 +56,7 @@ import com.example.documentsearch.ui.theme.TextColor
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ForgotPassword() {
+fun ForgotPassword(navController: NavHostController) {
     var fullName by remember { mutableStateOf("") }
     var numberPhone by remember { mutableStateOf("") }
 
@@ -95,6 +99,7 @@ fun ForgotPassword() {
                             .fillMaxWidth(),
                         horizontalAlignment = CenterHorizontally
                     ) {
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
                         // ФИО
                         StandardInput(
                             value = fullName,
@@ -107,9 +112,17 @@ fun ForgotPassword() {
                                     numberPhoneFocusRequester.requestFocus()
                                 }
                             ),
-                            modifier = Modifier
+                            mainBoxModifier = Modifier
+                                .fillMaxWidth()
+                                .padding(30.dp, 10.dp, 30.dp, 0.dp),
+                            textFieldModifier = Modifier
                                 .focusRequester(fullNameFocusRequester)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(color = Color.Transparent)
+                                .onFocusChanged { }
                         )
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
                         // Номер телефона
                         PhoneInput(
                             phoneNumber = numberPhone,
@@ -121,12 +134,20 @@ fun ForgotPassword() {
                                     keyboardController?.hide()
                                 }
                             ),
-                            modifier = Modifier
+                            mainBoxModifier = Modifier
+                                .fillMaxWidth()
+                                .padding(30.dp, 10.dp, 30.dp, 0.dp),
+                            textFieldModifier = Modifier
                                 .focusRequester(numberPhoneFocusRequester)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(color = Color.Transparent)
+                                .onFocusChanged { }
                         )
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
                         Button(
                             onClick = {
-                                profileScreen.value = "forgot code"
+                                navController.navigate(NavigationItem.ForgotCode.route)
                                 /*TODO(Сделать рассылку кода для пользователя)*/
                             },
                             modifier = Modifier
@@ -160,7 +181,7 @@ fun ForgotPassword() {
                             ),
                             modifier = Modifier
                                 .padding(top = 20.dp, bottom = 30.dp)
-                                .clickable { profileScreen.value = "another forgot password" }
+                                .clickable { navController.navigate(NavigationItem.AnotherForgotPassword.route) }
                         )
                     }
                 }

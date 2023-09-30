@@ -27,12 +27,14 @@ import androidx.navigation.NavController
 import com.example.documentsearch.R
 import com.example.documentsearch.ui.theme.MainColorDark
 
+var activeItem = mutableStateOf(NavigationItem.Documents.route)
+
 /**
  * Функция отображает navbar для приложения
  */
 @Composable
 fun Navbar(navController: NavController) {
-    var activeItem by remember { mutableStateOf(NavigationItem.Documents.route) }
+
     var height by remember { mutableStateOf(0.dp) }
     var width by remember { mutableStateOf(0.dp) }
 
@@ -52,7 +54,7 @@ fun Navbar(navController: NavController) {
             verticalAlignment = Alignment.Bottom
         ) {
             navigationItems.forEach { item ->
-                val isActive = item.route == activeItem
+                val isActive = item.route == activeItem.value
                 val weight = when (item.route) {
                     "documents" -> 0.2f
                     "messenger" -> 0.3f
@@ -97,7 +99,6 @@ fun Navbar(navController: NavController) {
                                     detectTapGestures(
                                         onTap = {
                                             navController.navigate(item.route)
-                                            activeItem = item.route
                                         },
                                     )
                                 },

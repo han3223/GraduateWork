@@ -26,9 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.patterns.ResendVerificationCode
-import com.example.documentsearch.patterns.VerificationCodeInput
+import com.example.documentsearch.patterns.authentication.ResendVerificationCode
+import com.example.documentsearch.patterns.authentication.VerificationCodeInput
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 
@@ -37,7 +38,7 @@ import com.example.documentsearch.ui.theme.TextColor
  * Форма кода для регистрации пользователя
  */
 @Composable
-fun VerificationRegistration() {
+fun VerificationRegistration(navController: NavHostController) {
     var code by remember { mutableStateOf("") }
 
     LazyColumn(

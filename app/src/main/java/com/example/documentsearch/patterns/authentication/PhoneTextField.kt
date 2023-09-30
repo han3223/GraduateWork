@@ -1,4 +1,4 @@
-package com.example.documentsearch.patterns
+package com.example.documentsearch.patterns.authentication
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -14,6 +14,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -51,14 +55,20 @@ fun PhoneTextField(
     mask: String = "000 000 00 00",
     maskNumber: Char = '0',
     validColor: Color,
+    activeTextField: Boolean,
+    textStyle: TextStyle
 ) {
+    var active by remember { mutableStateOf(true) }
     BasicTextField(
         value = phoneNumber,
         onValueChange = { value -> onPhoneNumberChanged(value.take(mask.count { it == maskNumber })) },
-        modifier = modifier.onFocusChanged { onFocusChange(it.isFocused) },
+        modifier = modifier.onFocusChanged {
+            onFocusChange(it.isFocused)
+            active = it.isFocused
+        },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         visualTransformation = PhoneVisualTransformation(mask, maskNumber),
-        textStyle = TextStyle(color = TextColor, fontSize = 16.sp),
+        textStyle = textStyle,
         singleLine = true,
         keyboardActions = keyboardActions,
         decorationBox = { innerTextField ->
@@ -68,7 +78,7 @@ fun PhoneTextField(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.LightGray,
-                    modifier = Modifier.padding(start = 5.dp)
+                    modifier = Modifier.padding(start = 2.dp)
                 )
             }
             Column(
@@ -78,16 +88,18 @@ fun PhoneTextField(
                 Row(
                     modifier = Modifier
                         .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 5.dp)
+                        .padding(horizontal = 2.dp)
                 ) {
                     innerTextField()
                 }
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(validColor)
-                )
+                if (activeTextField || active) {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(validColor)
+                    )
+                }
             }
         },
         cursorBrush = SolidColor(TextColor)

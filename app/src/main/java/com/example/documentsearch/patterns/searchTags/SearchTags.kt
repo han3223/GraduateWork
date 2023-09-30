@@ -1,4 +1,4 @@
-package com.example.documentsearch.header.documentScreen.filter
+package com.example.documentsearch.patterns.searchTags
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,21 +33,18 @@ import androidx.compose.ui.unit.dp
 import com.example.documentsearch.ui.theme.TextColor
 import kotlinx.coroutines.launch
 
-var searchTagsValue = mutableStateOf(TextFieldValue(""))
-
-
 /**
  * Функция отображает поиск тегов из списка тегов в фильтре
  */
 @Composable
-fun SearchTags() {
+fun SearchTags(searchTagsValue: TextFieldValue, onSearchTagValueChange: (TextFieldValue) -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     BasicTextField(
-        value = searchTagsValue.value,
+        value = searchTagsValue,
         onValueChange = { newTextFieldValue ->
-            searchTagsValue.value = newTextFieldValue
+            onSearchTagValueChange(newTextFieldValue)
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -62,12 +59,12 @@ fun SearchTags() {
             LaunchedEffect(isFocused) {
                 if (!isFocused) {
                     // Проверяем, является ли курсор в конце текста
-                    val isCursorAtEnd = searchTagsValue.value.selection.collapsed && searchTagsValue.value.selection.start == searchTagsValue.value.text.length
+                    val isCursorAtEnd = searchTagsValue.selection.collapsed && searchTagsValue.selection.start == searchTagsValue.text.length
                     if (!isCursorAtEnd) {
                         // Прокручиваем курсор в конец
                         coroutineScope.launch {
-                            val newSelection = TextRange(searchTagsValue.value.text.length)
-                            searchTagsValue.value = searchTagsValue.value.copy(selection = newSelection)
+                            val newSelection = TextRange(searchTagsValue.text.length)
+                            onSearchTagValueChange(searchTagsValue.copy(selection = newSelection))
                         }
                     }
                 }

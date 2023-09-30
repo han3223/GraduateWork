@@ -27,10 +27,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.patterns.ResendVerificationCode
-import com.example.documentsearch.patterns.VerificationCodeInput
-import com.example.documentsearch.screens.profile.profileScreen
+import com.example.documentsearch.navbar.NavigationItem
+import com.example.documentsearch.patterns.authentication.ResendVerificationCode
+import com.example.documentsearch.patterns.authentication.VerificationCodeInput
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 
@@ -39,7 +40,7 @@ import com.example.documentsearch.ui.theme.TextColor
  * Форма кода для обновления пароля пользователя
  */
 @Composable
-fun ForgotCode() {
+fun ForgotCode(navController: NavHostController) {
     var code by remember { mutableStateOf("") }
 
     LazyColumn(
@@ -79,7 +80,7 @@ fun ForgotCode() {
                     ) {
                         VerificationCodeInput(onCodeEntered = {
                             code = it
-                            profileScreen.value = "new password"
+                            navController.navigate(NavigationItem.NewPassword.route)
                         })
                     }
                     Box(

@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -37,9 +39,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.patterns.StandardInput
-import com.example.documentsearch.screens.profile.profileScreen
+import com.example.documentsearch.navbar.NavigationItem
+import com.example.documentsearch.patterns.authentication.StandardInput
+import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
@@ -50,7 +54,7 @@ import com.example.documentsearch.ui.theme.TextColor
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun AnotherForgotPassword() {
+fun AnotherForgotPassword(navController: NavHostController) {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
 
@@ -75,82 +79,99 @@ fun AnotherForgotPassword() {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-        Text(
-            text = "Восстановление пароля",
-            style = TextStyle(
-                fontSize = 25.sp,
-                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                fontWeight = FontWeight(600),
-                textAlign = TextAlign.Center,
-                color = TextColor,
-            ),
-            modifier = Modifier
-                .padding(20.dp, 20.dp, 20.dp, 30.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // ФИО
-            StandardInput(
-                value = fullName,
-                label = "ФИО:",
-                placeholder = "Иванов Иван Иванович",
-                onValueChanged = { fullName = it },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        emailFocusRequester.requestFocus()
+                    Text(
+                        text = "Восстановление пароля",
+                        style = TextStyle(
+                            fontSize = 25.sp,
+                            fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                            fontWeight = FontWeight(600),
+                            textAlign = TextAlign.Center,
+                            color = TextColor,
+                        ),
+                        modifier = Modifier
+                            .padding(20.dp, 20.dp, 20.dp, 30.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
+                        // ФИО
+                        StandardInput(
+                            value = fullName,
+                            label = "ФИО:",
+                            placeholder = "Иванов Иван Иванович",
+                            onValueChanged = { fullName = it },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    emailFocusRequester.requestFocus()
+                                }
+                            ),
+                            mainBoxModifier = Modifier
+                                .fillMaxWidth()
+                                .padding(30.dp, 10.dp, 30.dp, 0.dp),
+                            textFieldModifier = Modifier
+                                .focusRequester(fullNameFocusRequester)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(color = Color.Transparent)
+                                .onFocusChanged { }
+                        )
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
+                        // Email
+                        StandardInput(
+                            value = email,
+                            label = "Email:",
+                            placeholder = "ivan.ivanov@gmail.com",
+                            onValueChanged = { email = it },
+                            visualTransformation = PasswordVisualTransformation('*'),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    emailFocusRequester.freeFocus()
+                                    keyboardController?.hide()
+                                }
+                            ),
+                            mainBoxModifier = Modifier
+                                .fillMaxWidth()
+                                .padding(30.dp, 10.dp, 30.dp, 0.dp),
+                            textFieldModifier = Modifier
+                                .focusRequester(emailFocusRequester)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(color = Color.Transparent)
+                                .onFocusChanged { }
+                        )
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
+                        Button(
+                            onClick = {
+                                navController.navigate(NavigationItem.ForgotCode.route)
+                                /*TODO(Сделать рассылку кода для пользователя)*/
+                            },
+                            modifier = Modifier
+                                .padding(top = 20.dp, bottom = 30.dp)
+                                .fillMaxWidth(0.8f)
+                                .clip(RoundedCornerShape(10.dp)),
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MainColor,
+                                contentColor = TextColor
+                            )
+                        ) {
+                            Text(
+                                text = "Получить код",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                                    fontWeight = FontWeight(600),
+                                    color = TextColor,
+                                ),
+                                modifier = Modifier.padding(vertical = 7.dp)
+                            )
+                        }
                     }
-                ),
-                modifier = Modifier
-                    .focusRequester(fullNameFocusRequester)
-            )
-            // Email
-            StandardInput(
-                value = email,
-                label = "Email:",
-                placeholder = "ivan.ivanov@gmail.com",
-                onValueChanged = { email = it },
-                visualTransformation = PasswordVisualTransformation('*'),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        emailFocusRequester.freeFocus()
-                        keyboardController?.hide()
-                    }
-                ),
-                modifier = Modifier
-                    .focusRequester(emailFocusRequester)
-            )
-            Button(
-                onClick = {
-                    profileScreen.value = "forgot code"
-                    /*TODO(Сделать рассылку кода для пользователя)*/
-                },
-                modifier = Modifier
-                    .padding(top = 20.dp, bottom = 30.dp)
-                    .fillMaxWidth(0.8f)
-                    .clip(RoundedCornerShape(10.dp)),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MainColor,
-                    contentColor = TextColor
-                )
-            ) {
-                Text(
-                    text = "Получить код",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    modifier = Modifier.padding(vertical = 7.dp)
-                )
-            }
-        }
-    }
+                }
             }
             Spacer(modifier = Modifier.height(75.dp))
         }

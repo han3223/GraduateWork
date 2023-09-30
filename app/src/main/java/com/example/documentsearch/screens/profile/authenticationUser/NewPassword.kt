@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
@@ -36,8 +37,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.patterns.StandardInput
+import com.example.documentsearch.navbar.NavigationItem
+import com.example.documentsearch.patterns.authentication.StandardInput
+import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
@@ -50,7 +54,7 @@ import com.example.documentsearch.validation.ValidationText
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun NewPassword() {
+fun NewPassword(navController: NavHostController) {
     var password by remember { mutableStateOf("") }
     var repeatPassword by remember { mutableStateOf("") }
 
@@ -85,88 +89,110 @@ fun NewPassword() {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-        Text(
-            text = "Восстановление пароля",
-            style = TextStyle(
-                fontSize = 25.sp,
-                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                fontWeight = FontWeight(600),
-                textAlign = TextAlign.Center,
-                color = TextColor,
-            ),
-            modifier = Modifier
-                .padding(20.dp, 20.dp, 20.dp, 30.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Пароль
-            StandardInput(
-                value = password,
-                label = "Пароль:",
-                placeholder = "*********",
-                onValueChanged = { password = it },
-                visualTransformation = PasswordVisualTransformation('*'),
-                validColor = if (validation.isValidPassword(password) || password.isEmpty()) TextColor else Color.Red,
-                invalidList = passwordValidationText,
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        repeatPasswordFocusRequester.requestFocus()
-                    }
-                ),
-                modifier = Modifier
-                    .focusRequester(passwordFocusRequester)
-            )
-            // Повторите пароль
-            StandardInput(
-                value = repeatPassword,
-                label = "Повторите пароль:",
-                placeholder = "*********",
-                onValueChanged = { repeatPassword = it },
-                visualTransformation = PasswordVisualTransformation('*'),
-                validColor = if (password == repeatPassword || repeatPassword.isEmpty()) TextColor else Color.Red,
-                invalidList = listOf(
-                    ValidationText(
-                        password != repeatPassword,
-                        "Пароли должны совпадать"
+                    Text(
+                        text = "Восстановление пароля",
+                        style = TextStyle(
+                            fontSize = 25.sp,
+                            fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                            fontWeight = FontWeight(600),
+                            textAlign = TextAlign.Center,
+                            color = TextColor,
+                        ),
+                        modifier = Modifier
+                            .padding(20.dp, 20.dp, 20.dp, 30.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        repeatPasswordFocusRequester.freeFocus()
-                        keyboardController?.hide()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
+                        // Пароль
+                        StandardInput(
+                            value = password,
+                            label = "Пароль:",
+                            placeholder = "*********",
+                            onValueChanged = { password = it },
+                            visualTransformation = PasswordVisualTransformation('*'),
+                            validColor = if (validation.isValidPassword(password) || password.isEmpty()) TextColor else Color.Red,
+                            invalidList = passwordValidationText,
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    repeatPasswordFocusRequester.requestFocus()
+                                }
+                            ),
+                            mainBoxModifier = Modifier
+                                .fillMaxWidth()
+                                .padding(30.dp, 10.dp, 30.dp, 0.dp),
+                            textFieldModifier = Modifier
+                                .focusRequester(passwordFocusRequester)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(color = Color.Transparent)
+                                .onFocusChanged { },
+                            isCheckValue = true
+                        )
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
+                        // Повторите пароль
+                        StandardInput(
+                            value = repeatPassword,
+                            label = "Повторите пароль:",
+                            placeholder = "*********",
+                            onValueChanged = { repeatPassword = it },
+                            visualTransformation = PasswordVisualTransformation('*'),
+                            validColor = if (password == repeatPassword || repeatPassword.isEmpty()) TextColor else Color.Red,
+                            invalidList = listOf(
+                                ValidationText(
+                                    password != repeatPassword,
+                                    "Пароли должны совпадать"
+                                )
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    repeatPasswordFocusRequester.freeFocus()
+                                    keyboardController?.hide()
+                                }
+                            ),
+                            mainBoxModifier = Modifier
+                                .fillMaxWidth()
+                                .padding(30.dp, 10.dp, 30.dp, 0.dp),
+                            textFieldModifier = Modifier
+                                .focusRequester(repeatPasswordFocusRequester)
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .background(color = Color.Transparent)
+                                .onFocusChanged { },
+                            isCheckValue = true
+                        )
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
+                        Button(
+                            onClick = {
+                                navController.navigate(NavigationItem.Profile.route)
+                                /*TODO(Сделать обработку входа пользователя после смены пароля)*/
+                            },
+                            modifier = Modifier
+                                .padding(top = 20.dp)
+                                .fillMaxWidth(0.8f)
+                                .clip(RoundedCornerShape(10.dp)),
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MainColor,
+                                contentColor = TextColor
+                            )
+                        ) {
+                            Text(
+                                text = "Создать пароль",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                                    fontWeight = FontWeight(600),
+                                    color = TextColor,
+                                ),
+                                modifier = Modifier.padding(vertical = 7.dp)
+                            )
+                        }
                     }
-                ),
-                modifier = Modifier
-                    .focusRequester(repeatPasswordFocusRequester)
-            )
-            Button(
-                onClick = { /*TODO(Сделать обработку входа пользователя после смены пароля)*/ },
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .fillMaxWidth(0.8f)
-                    .clip(RoundedCornerShape(10.dp)),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = MainColor,
-                    contentColor = TextColor
-                )
-            ) {
-                Text(
-                    text = "Создать пароль",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    modifier = Modifier.padding(vertical = 7.dp)
-                )
-            }
-        }
-    }
+                }
             }
             Spacer(modifier = Modifier.height(75.dp))
         }

@@ -1,4 +1,4 @@
-package com.example.documentsearch.patterns
+package com.example.documentsearch.patterns.authentication
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
