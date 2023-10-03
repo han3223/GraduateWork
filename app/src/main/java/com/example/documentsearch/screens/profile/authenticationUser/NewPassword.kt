@@ -51,18 +51,22 @@ import com.example.documentsearch.validation.ValidationText
 
 /**
  * Форма для обновления пароля пользователя
+ * @param navController Контроллер навигации
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NewPassword(navController: NavHostController) {
-    var password by remember { mutableStateOf("") }
-    var repeatPassword by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") } // Пароль пользователя
+    var repeatPassword by remember { mutableStateOf("") } // Повтор пароля
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val passwordFocusRequester = remember { FocusRequester() }
-    val repeatPasswordFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current // Контроллер клавиатуры
+    val passwordFocusRequester = remember { FocusRequester() } // Обработчик фокуса для пароля пользователя
+    val repeatPasswordFocusRequester = remember { FocusRequester() } // Обработчик фокуса для повтора пароля
 
-    val validation = Validation()
+
+    val validation = Validation() // Класс для валидации
+
+    // Текст для валидации пароля
     val passwordValidationText = listOf(
         ValidationText(validation.isMinLenght(password), "Минимум 8 символов"),
         ValidationText(validation.isWhitespace(password), "Не допускаются пробелы"),

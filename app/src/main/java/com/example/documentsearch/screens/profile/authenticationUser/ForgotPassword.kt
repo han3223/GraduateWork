@@ -53,16 +53,17 @@ import com.example.documentsearch.ui.theme.TextColor
 
 /**
  * Форма восстановления пароля по номеру телефона
+ * @param navController Контроллер навигации
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ForgotPassword(navController: NavHostController) {
-    var fullName by remember { mutableStateOf("") }
-    var numberPhone by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf("") } // Полное имя пользователя
+    var numberPhone by remember { mutableStateOf("") } // Номер телефона пользователя
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val numberPhoneFocusRequester = remember { FocusRequester() }
-    val fullNameFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current // Контроллер клавиатуры
+    val fullNameFocusRequester = remember { FocusRequester() } // Обработчик фокуса для полного имени пользователя
+    val numberPhoneFocusRequester = remember { FocusRequester() } // Обработчик фокуса для номера телефона пользователя
 
     LazyColumn(
         modifier = Modifier

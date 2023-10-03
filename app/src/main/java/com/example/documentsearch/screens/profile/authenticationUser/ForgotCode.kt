@@ -38,10 +38,11 @@ import com.example.documentsearch.ui.theme.TextColor
 
 /**
  * Форма кода для обновления пароля пользователя
+ * @param navController Контроллер навигации
  */
 @Composable
 fun ForgotCode(navController: NavHostController) {
-    var code by remember { mutableStateOf("") }
+    var codeForgotPassword by remember { mutableStateOf("") } // Код для восстановления пароля
 
     LazyColumn(
         modifier = Modifier
@@ -79,7 +80,7 @@ fun ForgotCode(navController: NavHostController) {
                         contentAlignment = Alignment.TopCenter
                     ) {
                         VerificationCodeInput(onCodeEntered = {
-                            code = it
+                            codeForgotPassword = it
                             navController.navigate(NavigationItem.NewPassword.route)
                         })
                     }

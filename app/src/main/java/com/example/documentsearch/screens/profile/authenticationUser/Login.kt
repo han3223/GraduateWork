@@ -51,20 +51,20 @@ import com.example.documentsearch.ui.theme.TextColor
 
 /**
  * Форма для входа пользователя в свой аккаунт
+ * @param navController Контроллер для навигации
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Login(navController: NavHostController) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") } // email
+    var password by remember { mutableStateOf("") } // Пароль
 
     val keyboardController = LocalSoftwareKeyboardController.current
-    val emailFocusRequester = remember { FocusRequester() }
-    val passwordFocusRequester = remember { FocusRequester() }
+    val emailFocusRequester = remember { FocusRequester() } // Обработчик фокуса поля для email
+    val passwordFocusRequester = remember { FocusRequester() } // Обработчик фокуса поля для пароля
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         state = rememberLazyListState()
     ) {
         item(0) {

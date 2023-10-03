@@ -51,20 +51,20 @@ import com.example.documentsearch.ui.theme.TextColor
 
 /**
  * Форма восстановления пароля по почте
+ * @param navController Контроллер навигации
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AnotherForgotPassword(navController: NavHostController) {
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf("") } // Полное имя пользователя
+    var email by remember { mutableStateOf("") } // Email пользователя
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val fullNameFocusRequester = remember { FocusRequester() }
-    val emailFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current // Контроллер клавиатуры
+    val fullNameFocusRequester = remember { FocusRequester() } // Обработчик фокуса для полного имени пользователя
+    val emailFocusRequester = remember { FocusRequester() } // Обработчик фокуса для email пользователя
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         state = rememberLazyListState()
     ) {
         item(0) {

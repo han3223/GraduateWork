@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,8 +29,9 @@ import com.example.documentsearch.ui.theme.TextColor
 
 /**
  * Функция отображает выбранные теги из списка тегов в фильтре
+ * @param selectedTags Список выбранных тегов
+ * @param onSelectedTagChanged Обработчик изменения списка выбранных тегов
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SelectedTags(selectedTags: SnapshotStateList<String>, onSelectedTagChanged: (String) -> Unit) {
     if (selectedTags.isNotEmpty()) {
@@ -80,10 +80,7 @@ fun SelectedTags(selectedTags: SnapshotStateList<String>, onSelectedTagChanged: 
                                 horizontal = 10.dp
                             )
                         )
-//                        Spacer(modifier = Modifier.width(5.dp))
-//                        Spacer(modifier = Modifier.width(5.dp))
                     }
-
                 }
             }
         }

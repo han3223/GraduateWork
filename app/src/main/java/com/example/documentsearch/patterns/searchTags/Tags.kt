@@ -29,6 +29,10 @@ import com.example.documentsearch.ui.theme.TextColor
 // TODO(Надо подумать над реализацией дизайна тегов)
 /**
  * Функция отображает теги для фильтра прогруженные из базы данных
+ * @param tags Список тегов
+ * @param searchTagsValue Значение в текстовом поле поиска
+ * @param selectedTags Список выбранных тегов
+ * @param onSelectedTagChanged Обработчик изменения списка выбранных тегов
  */
 @Composable
 fun Tags(
@@ -57,7 +61,9 @@ fun Tags(
             .padding(bottom = 15.dp)
             .horizontalScroll(rememberScrollState())
     ) {
-        tags.minus(selectedTags).filter { it.contains(searchTagsValue.text, true) }
+        tags
+            .minus(selectedTags)
+            .filter { it.contains(searchTagsValue.text, true) }
             .forEach {
                 Box(modifier = Modifier.padding(2.dp)) {
                     Box(

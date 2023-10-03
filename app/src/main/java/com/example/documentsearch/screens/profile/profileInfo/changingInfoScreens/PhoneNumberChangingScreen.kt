@@ -29,6 +29,16 @@ import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 import com.example.documentsearch.validation.ValidationText
 
+
+/**
+ * Экран смены номера телефона пользователя
+ *  @param value Значение для смены данных
+ *  @param valueChanged Обработчик смены данных
+ *  @param label Лейбел для текстового поля
+ *  @param validationText Текст для валидации
+ *  @param conditionValidation Нужна ли валидация для текстового поля
+ *  @param invalidList Список для валидации
+ */
 @Composable
 fun PhoneNumberChangingScreen(
     value: String,
@@ -38,7 +48,6 @@ fun PhoneNumberChangingScreen(
     conditionValidation: Boolean = true,
     invalidList: List<ValidationText> = listOf()
 ) {
-
     Column(
         modifier = Modifier
             .zIndex(2f)

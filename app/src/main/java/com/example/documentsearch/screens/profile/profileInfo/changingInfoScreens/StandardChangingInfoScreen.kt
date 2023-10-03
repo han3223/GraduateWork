@@ -29,6 +29,19 @@ import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 import com.example.documentsearch.validation.ValidationText
 
+/**
+ * Стандартный экран смены данных пользователя
+ * @param value Значение для смены данных
+ * @param valueChanged Обработчик смены данных
+ * @param helpText Вспомогательный текст
+ * @param label Лейбел для текстового поля
+ * @param placeholder Подсказка в текстовом поле
+ * @param singleLine Однострочное текстовое поле?
+ * @param conditionValidation Нужна ли валидация для текстового поля
+ * @param invalidList Список для валидации
+ * @param counter Ограничение на количество символов в текстовом поле
+ * @param count Максимальное количество символов в текстовом поле
+ */
 @Composable
 fun StandardChangingInfoScreen(
     value: String,

@@ -1,7 +1,8 @@
 package com.example.documentsearch.screens.profile.profileInfo
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -41,23 +45,27 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
+import com.example.documentsearch.dataClasses.Profile
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.profile.StandardBlock
 import com.example.documentsearch.ui.theme.AdditionalColor
+import com.example.documentsearch.ui.theme.AdditionalMainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 import kotlinx.coroutines.launch
 
-
+/**
+ * Функция отображает основную исформацию о пользователе
+ * @param navController Контроллер для навигации
+ * @param profile Профиль пользователя
+ * @param lazyListState Скролл на экране
+ */
 @Composable
 fun MainInfoProfile(
     navController: NavHostController,
-    personalName: String,
-    personalInfo: String,
-    numberPhone: String,
-    email: String,
-    lazyListState: LazyListState,
+    profile: Profile,
+    lazyListState: LazyListState
 ) {
     val density = LocalDensity.current // Нужен для определения длины контейнера
     var dragStart by remember { mutableFloatStateOf(0f) } // Начальная точка свайпа вниз
@@ -84,20 +92,24 @@ fun MainInfoProfile(
                 }
             }
         }
-    }
-    else {
+    } else {
         Modifier
     }
 
     // Длина аватарки с анимацией
     val animatedWidthProfilePicture: Dp by animateDpAsState(
         targetValue = if (widthProfilePicture <= 110.dp) widthProfilePicture else widthContent,
-        animationSpec = tween(durationMillis = 600),
+        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy),
+        label = ""
+    )
+
+    val animatedEditPhotoBox by animateDpAsState(
+        targetValue = if (animatedWidthProfilePicture - 110.dp <= 60.dp) (animatedWidthProfilePicture - 110.dp) else 60.dp,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy),
         label = ""
     )
 
     Spacer(modifier = Modifier.height(10.dp))
-
     // Основной контейнер с информацией о пользователе
     Box(
         modifier = pointerInput
@@ -117,8 +129,8 @@ fun MainInfoProfile(
                 modifier = Modifier
                     .padding(20.dp, 0.dp, 20.dp, 0.dp)
                     .onSizeChanged {
-                        widthContent =
-                            with(density) { it.width.toDp() } // Определение размера контента
+                        // Определение размера контента
+                        widthContent = with(density) { it.width.toDp() }
                     }
             ) {
                 Row(
@@ -130,11 +142,10 @@ fun MainInfoProfile(
                 ) {
                     // Контейнер с ФИО, Пользовательским именем
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
+                        modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text(
-                            text = "Важенин Иван \nАнатольевич",
+                            text = profile.fullName,
                             style = TextStyle(
                                 fontSize = 21.sp,
                                 fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
@@ -168,7 +179,7 @@ fun MainInfoProfile(
                                     fontWeight = FontWeight(600),
                                     color = TextColor,
                                 ),
-                                value = "@$personalName",
+                                value = "@${profile.personalName}",
                                 styleValue = TextStyle(
                                     fontSize = 15.sp,
                                     fontFamily = FontFamily(Font(R.font.montserrat_medium)),
@@ -217,16 +228,32 @@ fun MainInfoProfile(
                                         if (widthProfilePicture > 110.dp) 100.dp else widthContent
                                 }
 
-                                coroutineScope.launch {
-                                    lazyListState.animateScrollToItem(0)
-                                }
+                                coroutineScope.launch { lazyListState.animateScrollToItem(0) }
                             }
                         }
                         .background(
                             color = MainColorDark,
                             shape = RoundedCornerShape(55.dp - if ((animatedWidthProfilePicture - 110.dp) <= 50.dp) (animatedWidthProfilePicture - 110.dp) else 45.dp)
                         )
-                )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(animatedEditPhotoBox)
+                            .padding(end = 10.dp, bottom = 10.dp)
+                            .background(AdditionalMainColor, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (animatedWidthProfilePicture - 110.dp >= 30.dp) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.edit),
+                                contentDescription = null,
+                                tint = TextColor,
+                                modifier = Modifier.size(animatedEditPhotoBox/2)
+                            )
+                        }
+                    }
+                }
             }
 
             // Линия разделения
@@ -255,7 +282,7 @@ fun MainInfoProfile(
                         fontWeight = FontWeight(600),
                         color = TextColor,
                     ),
-                    value = personalInfo,
+                    value = profile.personalInfo,
                     styleValue = TextStyle(
                         fontSize = 15.sp,
                         fontFamily = FontFamily(Font(R.font.montserrat_medium)),
@@ -304,7 +331,7 @@ fun MainInfoProfile(
                         fontWeight = FontWeight(600),
                         color = TextColor,
                     ),
-                    value = getMaskNumberPhone(numberPhone),
+                    value = getMaskNumberPhone(profile.numberPhone),
                     styleValue = TextStyle(
                         fontSize = 15.sp,
                         fontFamily = FontFamily(Font(R.font.montserrat_medium)),
@@ -353,7 +380,7 @@ fun MainInfoProfile(
                         fontWeight = FontWeight(600),
                         color = TextColor,
                     ),
-                    value = email,
+                    value = profile.email,
                     styleValue = TextStyle(
                         fontSize = 15.sp,
                         fontFamily = FontFamily(Font(R.font.montserrat_medium)),

@@ -35,12 +35,15 @@ import kotlinx.coroutines.launch
 
 /**
  * Функция отображает поиск тегов из списка тегов в фильтре
+ * @param searchTagsValue Значение из текстового поля
+ * @param onSearchTagValueChange Возвращаемое значение
  */
 @Composable
 fun SearchTags(searchTagsValue: TextFieldValue, onSearchTagValueChange: (TextFieldValue) -> Unit) {
-    var isFocused by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+    var isFocused by remember { mutableStateOf(false) } // Фокус
+    val coroutineScope = rememberCoroutineScope() // Корутины
 
+    // Текстовое поле
     BasicTextField(
         value = searchTagsValue,
         onValueChange = { newTextFieldValue ->

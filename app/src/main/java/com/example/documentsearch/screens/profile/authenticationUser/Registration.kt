@@ -57,19 +57,31 @@ import com.example.documentsearch.validation.ValidationText
 
 /**
  * Форма для регистрации пользователя
+ * @param navController Контроллер для навигации
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Registration(navController: NavHostController) {
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var patronymic by remember { mutableStateOf("") }
-    var numberPhone by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var repeatPassword by remember { mutableStateOf("") }
+    var firstName by remember { mutableStateOf("") } // Имя
+    var lastName by remember { mutableStateOf("") } // Фамилия
+    var patronymic by remember { mutableStateOf("") } // Отчество
+    var numberPhone by remember { mutableStateOf("") } // Номер телефона
+    var email by remember { mutableStateOf("") } // Email
+    var password by remember { mutableStateOf("") } // Пароль
+    var repeatPassword by remember { mutableStateOf("") } // Повтор пароля
 
-    val validation = Validation()
+    val keyboardController = LocalSoftwareKeyboardController.current // Контроллер клавиатуры
+    val firstNameFocusRequester = remember { FocusRequester() } // Обработчик фокуса для имени пользователя
+    val lastNameFocusRequester = remember { FocusRequester() } // Обработчик фокуса для фамилии пользователя
+    val patronymicFocusRequester = remember { FocusRequester() } // Обработчик фокуса для отчества пользователя
+    val numberPhoneFocusRequester = remember { FocusRequester() } // Обработчик фокуса для номера телефона пользователя
+    val emailFocusRequester = remember { FocusRequester() } // Обработчик фокуса для email пользователя
+    val passwordFocusRequester = remember { FocusRequester() } // Обработчик фокуса для пароля пользователя
+    val repeatPasswordFocusRequester = remember { FocusRequester() } // Обработчик фокуса для повтора пароля
+
+    val validation = Validation() // Класс для валидации
+
+    // Текст для валидации пароля
     val passwordValidationText = listOf(
         ValidationText(validation.isMinLenght(password), "Минимум 8 символов"),
         ValidationText(validation.isWhitespace(password), "Не допускаются пробелы"),
@@ -78,15 +90,6 @@ fun Registration(navController: NavHostController) {
         ValidationText(validation.isDigit(password), "Минимум одна цифра"),
         ValidationText(validation.isSpecialCharacter(password), "Минимум один специальный символ"),
     )
-
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val firstNameFocusRequester = remember { FocusRequester() }
-    val lastNameFocusRequester = remember { FocusRequester() }
-    val patronymicFocusRequester = remember { FocusRequester() }
-    val numberPhoneFocusRequester = remember { FocusRequester() }
-    val emailFocusRequester = remember { FocusRequester() }
-    val passwordFocusRequester = remember { FocusRequester() }
-    val repeatPasswordFocusRequester = remember { FocusRequester() }
 
     LazyColumn(
         modifier = Modifier

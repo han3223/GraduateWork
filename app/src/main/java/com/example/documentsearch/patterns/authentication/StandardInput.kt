@@ -45,14 +45,23 @@ import com.example.documentsearch.validation.ValidationText
  * Функция отображает стандартную форму для приложения
  * @param value Значение для отображения
  * @param onValueChanged Обработчик, который возвращает значение из формы
+ * @param mainBoxModifier Внешний вид для контейнера
  * @param textFieldModifier Внешний вид текстового поля
  * @param keyboardOptions Модификации для клавиатуры
  * @param keyboardActions Обработчик событий клавиатуры
  * @param visualTransformation Трансформация введённых символов символов
  * @param label Лейбел для формы
+ * @param styleLabel Стиль лейбла
  * @param placeholder Подсказка для ввода
  * @param validColor Цвет валидации для формы
  * @param invalidList Список подсказок для пользователя в случе если он ввёл что-то неправильно
+ * @param activeTextField Активное ли текстовое поле изначально?
+ * @param textStyle Стиль текста в текстовом поле
+ * @param invalidList Список для валидации
+ * @param singleLine Однострочное текстовое поле?
+ * @param counter Ограничение на количество символов в текстовом поле
+ * @param count Максимальное количество символов в текстовом поле
+ * @param isCheckValue Проверка значения в текстовом поле
  */
 @Composable
 fun StandardInput(
@@ -111,6 +120,8 @@ fun StandardInput(
             )
         }
     }
+
+    // Блок с ошибкой валидации (текст с ошибкой валидации)
     AnimatedVisibility(
         visible = focused.value,
         enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),

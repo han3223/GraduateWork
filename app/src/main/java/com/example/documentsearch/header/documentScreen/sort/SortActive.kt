@@ -1,14 +1,7 @@
 package com.example.documentsearch.header.documentScreen.sort
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.pointer.pointerInput
@@ -38,8 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.example.documentsearch.R
-import com.example.documentsearch.header.documentScreen.icon
-import com.example.documentsearch.ui.theme.MainColorDark
+import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.SelectedColor
 import com.example.documentsearch.ui.theme.TextColor
 
@@ -58,60 +49,52 @@ fun SortActive() {
         SortDateOld,
     )
 
-    AnimatedVisibility(
-        visible = icon.intValue == R.drawable.active_sort,
-        enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-        exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+    Box(
         modifier = Modifier
             .zIndex(1f)
+            .fillMaxWidth(0.7f)
+            .background(AdditionalMainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 0.dp))
     ) {
-        Box(
-            modifier = Modifier
-                .zIndex(1f)
-                .fillMaxWidth(0.7f)
-                .background(MainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 0.dp))
-        ) {
-            Column(modifier = Modifier.padding(top = 150.dp, bottom = 15.dp)) {
-                listSort.forEach { sortItem ->
-                    val sizeMultiplier = remember { Animatable(1f) }
-                    LaunchedEffect(sizeMultiplier) {
-                        sizeMultiplier.animateTo(0.9f, animationSpec = spring())
-                        sizeMultiplier.animateTo(1f, animationSpec = spring())
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .padding(20.dp, 0.dp, 10.dp, 15.dp)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onPress = {
-                                        activeSortElement.value = sortItem
-                                        sizeMultiplier.animateTo(0.95f, animationSpec = spring())
-                                        awaitRelease()
-                                        sizeMultiplier.animateTo(1f, animationSpec = spring())
-                                    },
+        Column(modifier = Modifier.padding(top = 150.dp, bottom = 15.dp)) {
+            listSort.forEach { sortItem ->
+                val sizeMultiplier = remember { Animatable(1f) }
+                LaunchedEffect(sizeMultiplier) {
+                    sizeMultiplier.animateTo(0.9f, animationSpec = spring())
+                    sizeMultiplier.animateTo(1f, animationSpec = spring())
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(20.dp, 0.dp, 10.dp, 15.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    activeSortElement.value = sortItem
+                                    sizeMultiplier.animateTo(0.95f, animationSpec = spring())
+                                    awaitRelease()
+                                    sizeMultiplier.animateTo(1f, animationSpec = spring())
+                                },
 
                                 )
-                            }.scale(sizeMultiplier.value),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = sortItem.icon),
-                            contentDescription = sortItem.description,
-                            modifier = Modifier
-                                .size(24.dp),
-                            tint = if (sortItem != activeSortElement.value) TextColor else SelectedColor
-                        )
-                        Text(
-                            text = sortItem.title,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                                fontWeight = FontWeight(600),
-                                color = if (sortItem != activeSortElement.value) TextColor else SelectedColor,
-                            ),
-                        )
-                    }
+                        }
+                        .scale(sizeMultiplier.value),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = sortItem.icon),
+                        contentDescription = sortItem.description,
+                        modifier = Modifier
+                            .size(24.dp),
+                        tint = if (sortItem != activeSortElement.value) TextColor else SelectedColor
+                    )
+                    Text(
+                        text = sortItem.title,
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                            fontWeight = FontWeight(600),
+                            color = if (sortItem != activeSortElement.value) TextColor else SelectedColor,
+                        ),
+                    )
                 }
             }
         }

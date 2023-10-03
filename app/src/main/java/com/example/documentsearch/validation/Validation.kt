@@ -4,6 +4,8 @@ import android.util.Patterns
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+
+// Класс предназначен для валидации строк
 class Validation {
 
     fun isLowerCase(text: String): Boolean {

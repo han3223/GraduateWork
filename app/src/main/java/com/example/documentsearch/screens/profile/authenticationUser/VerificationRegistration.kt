@@ -36,10 +36,11 @@ import com.example.documentsearch.ui.theme.TextColor
 
 /**
  * Форма кода для регистрации пользователя
+ * @param navController Контроллер навигации
  */
 @Composable
 fun VerificationRegistration(navController: NavHostController) {
-    var code by remember { mutableStateOf("") }
+    var codeVerify by remember { mutableStateOf("") } // Код для верификации регистрации
 
     LazyColumn(
         modifier = Modifier
@@ -71,7 +72,7 @@ fun VerificationRegistration(navController: NavHostController) {
         )
         // Поле с вводом кода
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-            VerificationCodeInput(onCodeEntered = { code = it })
+            VerificationCodeInput(onCodeEntered = { codeVerify = it })
         }
         Box(
             modifier = Modifier

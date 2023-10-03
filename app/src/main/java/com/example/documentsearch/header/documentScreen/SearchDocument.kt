@@ -54,17 +54,18 @@ import kotlinx.coroutines.launch
 @SuppressLint("RememberReturnType")
 @Composable
 fun SearchDocument() {
-    val text = remember { mutableStateOf(TextFieldValue("")) }
-    var iconDocument by remember { mutableIntStateOf(R.drawable.pdf_add_white) }
-    var isFocused by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+    val text = remember { mutableStateOf(TextFieldValue("")) } // Текст в текстовом поле
+    var iconDocument by remember { mutableIntStateOf(R.drawable.pdf_add_white) } // Иконка документа(добавить статью)
+    var isFocused by remember { mutableStateOf(false) } // Проверка фокуса
+    val coroutineScope = rememberCoroutineScope() // Корутины
+
+    // Делает запрос в файлы телефона
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let { _ ->
                 iconDocument = R.drawable.pdf_added_white
             }
         }
-
 
     Row(
         modifier = Modifier
@@ -73,6 +74,7 @@ fun SearchDocument() {
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Column(modifier = Modifier.weight(1f)) {
+            // Текстовое поле с запросом
             BasicTextField(
                 value = text.value,
                 onValueChange = { newTextFieldValue ->
@@ -130,6 +132,7 @@ fun SearchDocument() {
             )
         }
 
+        // Контейнер с добавление собственной статьи
         Box(
             modifier = Modifier
                 .size(30.dp, 40.dp)
@@ -150,6 +153,8 @@ fun SearchDocument() {
                 tint = TextColor,
             )
         }
+
+        // Контейнер с иконкой поиска статьи
         Box(
             modifier = Modifier
                 .size(30.dp, 40.dp)
@@ -158,7 +163,7 @@ fun SearchDocument() {
         ) {
             Icon(
                 painter = painterResource(R.drawable.search_white),
-                contentDescription = "Добавить статью",
+                contentDescription = "Найти статьи",
                 modifier = Modifier
                     .size(25.dp)
                     .clickable {

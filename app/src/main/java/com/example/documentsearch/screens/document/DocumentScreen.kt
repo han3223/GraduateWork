@@ -42,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +63,6 @@ import androidx.compose.ui.zIndex
 import coil.compose.rememberImagePainter
 import com.example.documentsearch.R
 import com.example.documentsearch.dataClasses.DocumentWithPercentage
-import com.example.documentsearch.listDocumet
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
@@ -81,7 +81,7 @@ import com.google.android.material.animation.ArgbEvaluatorCompat
  */
 @ExperimentalAnimationApi
 @Composable
-fun DocumentScreen() {
+fun DocumentScreen(listDocumet: SnapshotStateList<DocumentWithPercentage>) {
     val rememberLazyScrollState = rememberLazyListState()
 
     LazyColumn(
@@ -150,8 +150,7 @@ fun Document(document: DocumentWithPercentage, rememberLazyScrollState: LazyList
                 ) {
                     Box(
                         modifier = Modifier
-                            .width(84.dp)
-                            .height(84.dp)
+                            .size(84.dp)
                             .background(
                                 color = AdditionalColor,
                                 shape = RoundedCornerShape(size = 22.dp)

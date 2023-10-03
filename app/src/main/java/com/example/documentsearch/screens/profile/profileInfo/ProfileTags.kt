@@ -28,54 +28,14 @@ import com.example.documentsearch.patterns.searchTags.SelectedTags
 import com.example.documentsearch.patterns.searchTags.Tags
 import com.example.documentsearch.ui.theme.MainColorLight
 
+/**
+ * Функция предназначена для выбора тегов пользователем
+ * @param tags Список тегов для пользователя
+ */
 @Composable
-fun ProfileTags() {
-    val tags = listOf(
-        "Исследования",
-        "Новые открытия",
-        "Наука",
-        "Биология",
-        "Физика",
-        "Химия",
-        "Медицина",
-        "Генетика",
-        "Астрономия",
-        "Геология",
-        "Археология",
-        "Экология",
-        "Психология",
-        "История",
-        "Технологии",
-        "Антропология",
-        "Социология",
-        "Математика",
-        "Электроника",
-        "Кибернетика",
-        "Робототехника",
-        "Инженерия",
-        "Геномика",
-        "Нейробиология",
-        "Квантовая физика",
-        "Гравитационные волны",
-        "Нанотехнологии",
-        "Молекулярная биология",
-        "Эволюционная биология",
-        "Астрофизика",
-        "Космология",
-        "Энергетика",
-        "Материаловедение",
-        "Оптика",
-        "Нефтегазовая индустрия",
-        "Геофизика",
-        "Термодинамика",
-        "Ядерная физика",
-        "Микробиология",
-        "Наноматериалы",
-        "Фармакология"
-    )
-
-    var searchTagsValue by remember { mutableStateOf(TextFieldValue("")) }
-    val selectedTags = remember { mutableStateListOf<String>() }
+fun ProfileTags(tags: List<String>) {
+    var searchTagsValue by remember { mutableStateOf(TextFieldValue("")) } // Значение в поиске
+    val selectedTags = remember { mutableStateListOf<String>() } // Выбранные теги
 
     Spacer(modifier = Modifier.height(10.dp))
     Box(

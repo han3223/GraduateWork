@@ -30,6 +30,16 @@ import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 import com.example.documentsearch.validation.Validation
 
+
+/**
+ * Экран для замены пароля пользователя
+ * @param oldPassword Старый пароль пользователя
+ * @param oldPasswordChanged Обработчик значения старого пароля в поле
+ * @param newPassword Новый пароль пользователя
+ * @param newPasswordChanged Обработчик значения нового пароля в поле
+ * @param repeatPassword Повтор пароля
+ * @param repeatPasswordChanged Обработчик значения повтора пароля в поле
+ */
 @Composable
 fun ReplacePasswordScreen(
     oldPassword: String,

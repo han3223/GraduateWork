@@ -51,6 +51,12 @@ import com.example.documentsearch.ui.theme.TextColor
  * @param onFocusChange Обработчик фокуса текстового поля
  * @param placeholder Подсказака для пользователя
  * @param validColor Цвет валидации текстового поля
+ * @param activeTextField Активное ли текстовое поле изначально?
+ * @param textStyle Стиль текста в текстовом поле
+ * @param singleLine Однострочное текстовое поле?
+ * @param counter Ограничение на количество символов в текстовом поле
+ * @param count Максимальное количество символов в текстовом поле
+ * @param isCheckValue Проверка значения в текстовом поле
  */
 @Composable
 fun StandardTextField(
@@ -70,8 +76,8 @@ fun StandardTextField(
     count: Int = -1,
     isCheckValue: Boolean = false
 ) {
-    var active by remember { mutableStateOf(true) }
-    var visualTransform by remember { mutableStateOf(visualTransformation) }
+    var active by remember { mutableStateOf(true) } // Активно ли сейчас текстовое поле
+    var visualTransform by remember { mutableStateOf(visualTransformation) } // Визуальная трансформация
     BasicTextField(
         value = if (value.length == count + 1 && counter) value.removeRange(
             value.length - 1,

@@ -44,6 +44,8 @@ import com.example.documentsearch.ui.theme.TextColor
  * @param mask Маска для номера телефона
  * @param maskNumber Символ, который будет меняться в маске
  * @param validColor Цвет валидации текстового поля
+ * @param activeTextField Активно ли текстовое поле изначально
+ * @param textStyle Стиль текста в текстовом поле
  */
 @Composable
 fun PhoneTextField(
@@ -58,7 +60,7 @@ fun PhoneTextField(
     activeTextField: Boolean,
     textStyle: TextStyle
 ) {
-    var active by remember { mutableStateOf(true) }
+    var active by remember { mutableStateOf(true) } // Проверяет текстовое поле на фокус
     BasicTextField(
         value = phoneNumber,
         onValueChange = { value -> onPhoneNumberChanged(value.take(mask.count { it == maskNumber })) },

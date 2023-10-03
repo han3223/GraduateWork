@@ -41,11 +41,15 @@ import com.example.documentsearch.validation.ValidationText
  * Функция отображает стандартную форму номера телефона для приложения
  * @param phoneNumber Номер телефона для отображения
  * @param onPhoneNumberChanged Обработчик, который возвращает значение из формы
+ * @param mainBoxModifier Внешний вид контенера
  * @param textFieldModifier Внешний вид текстового поля
  * @param keyboardActions Обработчик событий клавиатуры
  * @param label Лейбел для формы
+ * @param styleLabel Стиль для лейбла
  * @param validColor Цвет валидации для формы
  * @param invalidList Список подсказок для пользователя в случе если он ввёл что-то неправильно
+ * @param activeTextField Активно ли текстовое поле изначально
+ * @param textStyle Стиль текста в текстовом поле
  */
 @Composable
 fun PhoneInput(

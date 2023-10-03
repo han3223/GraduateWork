@@ -31,10 +31,18 @@ import com.example.documentsearch.R
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.ui.theme.TextColor
 
+/**
+ * Функция нужна для отображения header при смене данных пользователя
+ * @param navController Контроллер навигации
+ * @param title Заголовок
+ * @param value Значение в поле смены данных
+ * @param changeValue Обработчик изменения значения в поле
+ * @param conditionValidation Пройдена ли валидация
+ */
 @Composable
 fun HeaderProfileDataChanged(
     navController: NavHostController,
-    label: String,
+    title: String,
     value: String,
     changeValue: (String) -> Unit,
     conditionValidation: Boolean,
@@ -68,7 +76,7 @@ fun HeaderProfileDataChanged(
                         }
                 )
                 Text(
-                    text = label,
+                    text = title,
                     style = TextStyle(
                         fontSize = 19.sp,
                         fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
