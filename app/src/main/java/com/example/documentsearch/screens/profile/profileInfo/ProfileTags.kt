@@ -1,5 +1,6 @@
 package com.example.documentsearch.screens.profile.profileInfo
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,19 +24,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.example.documentsearch.api.apiRequests.ProfilesRequests
+import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.dataClasses.Tag
 import com.example.documentsearch.patterns.searchTags.SearchTags
 import com.example.documentsearch.patterns.searchTags.SelectedTags
 import com.example.documentsearch.patterns.searchTags.Tags
 import com.example.documentsearch.ui.theme.MainColorLight
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+// TODO(Разобраться с добавлением тегов, сейчас это выглядит ужасно)
 
 /**
  * Функция предназначена для выбора тегов пользователем
  * @param tags Список тегов для пользователя
+ * @param profile Профиль пользователя
  */
+@SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @Composable
-fun ProfileTags(tags: List<String>) {
+fun ProfileTags(tags: List<Tag>, profile: Profile) {
     var searchTagsValue by remember { mutableStateOf(TextFieldValue("")) } // Значение в поиске
-    val selectedTags = remember { mutableStateListOf<String>() } // Выбранные теги
+    val selectedTags = remember { mutableStateListOf<Tag>() } // Выбранные теги
+    profile.tags?.map { selectedTags.add(tags.first { tag -> tag.id == it }) }
+
+    val queueTags by remember { mutableStateOf(mutableListOf<QueueTags>()) }
 
     Spacer(modifier = Modifier.height(10.dp))
     Box(
@@ -58,10 +72,46 @@ fun ProfileTags(tags: List<String>) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(modifier = Modifier.padding(vertical = 10.dp)) {
-                    SearchTags(searchTagsValue = searchTagsValue, onSearchTagValueChange = { searchTagsValue = it })
+                    SearchTags(
+                        searchTagsValue = searchTagsValue,
+                        onSearchTagValueChange = { searchTagsValue = it })
                 }
-                SelectedTags(selectedTags = selectedTags, onSelectedTagChanged = { selectedTags.remove(it) })
-                Tags(tags = tags, searchTagsValue = searchTagsValue, selectedTags = selectedTags, onSelectedTagChanged = { selectedTags.add(it) })
+                SelectedTags(
+                    selectedTags = selectedTags,
+                    onSelectedTagChanged = {
+                        queueTags.add(QueueTags(tagId = it.id.toString(), delete = true))
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val isAdded: Boolean = ProfilesRequests().deleteTag(
+                                profile.email,
+                                it.id.toString()
+                            )
+
+                            if (isAdded) {
+                                selectedTags.remove(it)
+                                println("Удалён: ${it.id}")
+                                println("Всего добавлено: ${selectedTags.size}")
+                            }
+                        }
+                    })
+                Tags(
+                    tags = tags,
+                    searchTagsValue = searchTagsValue,
+                    selectedTags = selectedTags,
+                    onSelectedTagChanged = {
+                        queueTags.add(QueueTags(tagId = it.id.toString(), add = true))
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val isAdded: Boolean = ProfilesRequests().addTag(
+                                profile.email,
+                                it.id.toString()
+                            )
+
+                            if (isAdded) {
+                                selectedTags.add(it)
+                                println("Добавлен: ${it.id}")
+                                println("Всего добавлено: ${selectedTags.size}")
+                            }
+                        }
+                    })
             }
         }
     }

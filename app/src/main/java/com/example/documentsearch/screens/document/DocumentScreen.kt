@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.horizontalScroll
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -64,6 +66,7 @@ import coil.compose.rememberImagePainter
 import com.example.documentsearch.R
 import com.example.documentsearch.dataClasses.DocumentWithPercentage
 import com.example.documentsearch.ui.theme.AdditionalColor
+import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
@@ -219,14 +222,30 @@ fun Document(document: DocumentWithPercentage, rememberLazyScrollState: LazyList
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(11.dp, 10.dp, 16.dp, 5.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                    .padding(11.dp, 10.dp, 11.dp, 5.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .height(35.dp)
+                    .background(AdditionalMainColorDark),
             ) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(35.dp)
+                        .clip(RoundedCornerShape(17.dp))
+                        .shadow(
+                            40.dp,
+                            RoundedCornerShape(14.dp),
+                            ambientColor = Color.White,
+                            spotColor = Color.White
+                        )
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
                         .horizontalScroll(rememberScrollState())
                         .clip(RoundedCornerShape(14.dp))
+                        .padding(horizontal = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     document.document.tags.forEach { tagText ->
                         Box(
@@ -235,6 +254,7 @@ fun Document(document: DocumentWithPercentage, rememberLazyScrollState: LazyList
                                     color = MainColorDark,
                                     shape = RoundedCornerShape(size = 14.dp)
                                 )
+                                .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
                         ) {
                             Text(
                                 text = tagText,
@@ -269,46 +289,66 @@ fun Document(document: DocumentWithPercentage, rememberLazyScrollState: LazyList
                 /**
                  * Дата и категория
                  */
-                Row {
-                    Box {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(7.dp)
-                                    .background(color = MainColorDark, shape = CircleShape)
+                Box(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .height(16.dp)
+                        .background(MainColorDark)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(16.dp)
+                            .clip(RoundedCornerShape(17.dp))
+                            .shadow(
+                                1.dp,
+                                RoundedCornerShape(14.dp),
+                                ambientColor = Color.Gray,
+                                spotColor = Color.Gray
                             )
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Box {
-                                Text(
-                                    text = document.document.category,
-                                    style = TextStyle(
-                                        fontSize = 12.sp,
-                                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                                        fontWeight = FontWeight(600),
-                                        color = Color.White,
-                                    ),
+                    )
+                    Row(modifier = Modifier.padding(horizontal = 5.dp)) {
+                        Box {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(7.dp)
+                                        .background(color = MainColorDark, shape = CircleShape)
                                 )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Box {
+                                    Text(
+                                        text = document.document.category,
+                                        style = TextStyle(
+                                            fontSize = 12.sp,
+                                            fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                                            fontWeight = FontWeight(600),
+                                            color = Color.White,
+                                        ),
+                                    )
+                                }
                             }
                         }
+                        Text(
+                            text = "  |  ",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                                fontWeight = FontWeight(600),
+                                color = TextColor,
+                            ),
+                        )
+                        Text(
+                            text = document.document.date,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                                fontWeight = FontWeight(600),
+                                color = TextColor,
+                            ),
+                        )
                     }
-                    Text(
-                        text = "  |  ",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                            fontWeight = FontWeight(600),
-                            color = TextColor,
-                        ),
-                    )
-                    Text(
-                        text = document.document.date,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                            fontWeight = FontWeight(600),
-                            color = TextColor,
-                        ),
-                    )
                 }
 
                 /**
@@ -361,7 +401,13 @@ fun Document(document: DocumentWithPercentage, rememberLazyScrollState: LazyList
             Column(modifier = Modifier.padding(21.dp, 100.dp, 15.dp, 0.dp)) {
                 Text(
                     text = "Описание",
-                    modifier = Modifier.padding(bottom = 5.dp)
+                    modifier = Modifier.padding(bottom = 5.dp),
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
+                        fontWeight = FontWeight(600),
+                        color = TextColor,
+                    )
                 )
                 Text(
                     text = document.document.description,

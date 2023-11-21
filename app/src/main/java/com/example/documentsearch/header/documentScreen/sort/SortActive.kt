@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -52,7 +52,7 @@ fun SortActive() {
     Box(
         modifier = Modifier
             .zIndex(1f)
-            .fillMaxWidth(0.7f)
+            .width(255.dp)
             .background(AdditionalMainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 0.dp))
     ) {
         Column(modifier = Modifier.padding(top = 150.dp, bottom = 15.dp)) {

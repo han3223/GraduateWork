@@ -21,14 +21,14 @@ class Validation {
     }
 
     fun isSpecialCharacter(text: String): Boolean {
-        return !Regex("""[@#$%^&+-=]""").containsMatchIn(text)
+        return !Regex("""[@#$%^&+=-]""").containsMatchIn(text)
     }
 
     fun isWhitespace(text: String): Boolean {
         return Regex(""" """).containsMatchIn(text)
     }
 
-    fun isMinLenght(text: String): Boolean {
+    fun isMinLength(text: String): Boolean {
         val pattern: Pattern
         val passwordPattern = "^.{8,}$"
         pattern = Pattern.compile(passwordPattern)

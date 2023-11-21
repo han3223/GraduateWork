@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.ProfilesRequests
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.patterns.authentication.StandardInput
@@ -49,6 +50,9 @@ import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -57,8 +61,8 @@ import com.example.documentsearch.ui.theme.TextColor
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ForgotPassword(navController: NavHostController) {
-    var fullName by remember { mutableStateOf("") } // Полное имя пользователя
+fun ForgotPassword(navController: NavHostController, onForgotCodeChange: (Int) -> Unit, onPhoneNumberChange: (String) -> Unit) {
+    var lastName by remember { mutableStateOf("") } // Полное имя пользователя
     var numberPhone by remember { mutableStateOf("") } // Номер телефона пользователя
 
     val keyboardController = LocalSoftwareKeyboardController.current // Контроллер клавиатуры
@@ -103,10 +107,10 @@ fun ForgotPassword(navController: NavHostController) {
                         Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
                         // ФИО
                         StandardInput(
-                            value = fullName,
-                            label = "ФИО:",
-                            placeholder = "Иванов Иван Иванович",
-                            onValueChanged = { fullName = it },
+                            value = lastName,
+                            label = "Фамилия:",
+                            placeholder = "Иванов",
+                            onValueChanged = { lastName = it },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                             keyboardActions = KeyboardActions(
                                 onDone = {
@@ -148,7 +152,15 @@ fun ForgotPassword(navController: NavHostController) {
                         Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
                         Button(
                             onClick = {
-                                navController.navigate(NavigationItem.ForgotCode.route)
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val forgotCode: Int? = ProfilesRequests().getProfileByFullNameAndPhoneNumber(lastName, numberPhone)
+
+                                    if (forgotCode != null) {
+                                        onPhoneNumberChange(numberPhone)
+                                        onForgotCodeChange(forgotCode)
+                                    }
+                                    navController.navigate(NavigationItem.ForgotCode.route)
+                                }
                                 /*TODO(Сделать рассылку кода для пользователя)*/
                             },
                             modifier = Modifier

@@ -29,6 +29,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -42,12 +43,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.ProfilesRequests
+import com.example.documentsearch.dataClasses.Profile
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.StandardInput
+import com.example.documentsearch.preferences.PreferencesManager
+import com.example.documentsearch.preferences.emailKeyPreferences
+import com.example.documentsearch.preferences.passwordKeyPreferences
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Форма для входа пользователя в свой аккаунт
@@ -55,7 +64,10 @@ import com.example.documentsearch.ui.theme.TextColor
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Login(navController: NavHostController) {
+fun Login(navController: NavHostController, onProfileChange: (Profile) -> Unit) {
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+
     var email by remember { mutableStateOf("") } // email
     var password by remember { mutableStateOf("") } // Пароль
 
@@ -144,7 +156,18 @@ fun Login(navController: NavHostController) {
                         )
                         Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
                         Button(
-                            onClick = { /*TODO(Сделать обработку входа пользователя путём запроса через API)*/ },
+                            onClick = {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val logInProfile: Profile? = ProfilesRequests().getProfile(email, password)
+
+                                    if (logInProfile != null) {
+                                        preferencesManager.saveData(emailKeyPreferences, email)
+                                        preferencesManager.saveData(passwordKeyPreferences, password)
+                                        onProfileChange(logInProfile)
+                                        navController.navigate(NavigationItem.Profile.route)
+                                    }
+                                }
+                            },
                             modifier = Modifier
                                 .padding(top = 20.dp)
                                 .fillMaxWidth(0.8f)

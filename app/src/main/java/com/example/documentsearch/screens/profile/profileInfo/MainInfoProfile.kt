@@ -145,7 +145,7 @@ fun MainInfoProfile(
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text(
-                            text = profile.fullName,
+                            text = "${profile.lastName} ${profile.firstName} ${profile.patronymic}",
                             style = TextStyle(
                                 fontSize = 21.sp,
                                 fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
@@ -282,7 +282,7 @@ fun MainInfoProfile(
                         fontWeight = FontWeight(600),
                         color = TextColor,
                     ),
-                    value = profile.personalInfo,
+                    value = profile.personalInfo?: "",
                     styleValue = TextStyle(
                         fontSize = 15.sp,
                         fontFamily = FontFamily(Font(R.font.montserrat_medium)),
@@ -331,7 +331,7 @@ fun MainInfoProfile(
                         fontWeight = FontWeight(600),
                         color = TextColor,
                     ),
-                    value = getMaskNumberPhone(profile.numberPhone),
+                    value = getMaskNumberPhone(profile.telephoneNumber),
                     styleValue = TextStyle(
                         fontSize = 15.sp,
                         fontFamily = FontFamily(Font(R.font.montserrat_medium)),

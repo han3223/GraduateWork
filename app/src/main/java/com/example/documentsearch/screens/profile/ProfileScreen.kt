@@ -15,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -26,7 +27,10 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
 import com.example.documentsearch.dataClasses.Profile
-import com.example.documentsearch.navbar.NavigationItem
+import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.preferences.PreferencesManager
+import com.example.documentsearch.preferences.emailKeyPreferences
+import com.example.documentsearch.preferences.passwordKeyPreferences
 import com.example.documentsearch.screens.profile.profileInfo.MainInfoProfile
 import com.example.documentsearch.screens.profile.profileInfo.PersonalDocumentation
 import com.example.documentsearch.screens.profile.profileInfo.ProfileTags
@@ -40,8 +44,11 @@ import com.example.documentsearch.ui.theme.TextColor
 fun ProfileScreen(
     navController: NavHostController,
     profile: Profile,
-    tags: List<String>
+    onExitProfileChange: (Boolean) -> Unit,
+    tags: List<Tag>
 ) {
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
     val lazyListState = rememberLazyListState()
 
     LazyColumn(
@@ -59,7 +66,7 @@ fun ProfileScreen(
         }
         // Теги пользователя
         item(1) {
-            ProfileTags(tags = tags)
+            ProfileTags(tags = tags, profile)
         }
         // Документация пользователя
         item(2) {
@@ -89,7 +96,9 @@ fun ProfileScreen(
                         .padding(7.dp)
                         .fillMaxWidth()
                         .clickable {
-                            navController.navigate(NavigationItem.Login.route)
+                            preferencesManager.removeData(emailKeyPreferences)
+                            preferencesManager.removeData(passwordKeyPreferences)
+                            onExitProfileChange(true)
                         }
                 )
             }

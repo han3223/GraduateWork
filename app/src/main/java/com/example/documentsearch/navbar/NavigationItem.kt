@@ -7,136 +7,133 @@ import com.example.documentsearch.R
  */
 sealed class NavigationItem(
     var route: String,
-    var background: Int,
-    var backgroundActive: Int,
     var icon: Int,
     var title: String,
+    var selectionNavbar: String?
 ) {
     object Documents : NavigationItem(
         "documents",
-        R.drawable.scientific_articles,
-        R.drawable.scientific_articles_focused,
         R.drawable.page_white,
         "Document",
+        "documents"
     )
 
     object Messenger : NavigationItem(
         "messenger",
-        R.drawable.messanger,
-        R.drawable.messanger_focused,
         R.drawable.message_white,
         "Messenger",
+        "messenger"
+    )
+
+    object Communication: NavigationItem(
+        "communication",
+        R.drawable.message_white,
+        "Communication",
+        null
     )
 
     object AddUser : NavigationItem(
         "add user",
-        R.drawable.scientific_supervisor,
-        R.drawable.scientific_supervisor_focused,
         R.drawable.add_user_white,
-        "Add User"
+        "Add User",
+        "add user"
+    )
+
+    object ProfileInfo : NavigationItem(
+        "profile info",
+        R.drawable.add_user_white,
+        "Profile info",
+        "add user"
     )
 
     object Profile : NavigationItem(
         "profile",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Profile"
+        "Profile",
+        "profile"
     )
 
     object Login : NavigationItem(
         "login",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Login"
+        "Login",
+        "profile"
     )
 
     object Registration : NavigationItem(
         "registration",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Registration"
+        "Registration",
+        "profile"
     )
 
     object VerificationRegistration : NavigationItem(
         "verify registration",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Verify registration"
+        "Verify registration",
+        "profile"
     )
 
     object ForgotPassword : NavigationItem(
         "forgot password",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Forgot password"
+        "Forgot password",
+        "profile"
     )
 
     object AnotherForgotPassword : NavigationItem(
         "another forgot password",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Another forgot password"
+        "Another forgot password",
+        "profile"
     )
 
     object ForgotCode : NavigationItem(
         "forgot code",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "forgot code"
+        "forgot code",
+        "profile"
     )
 
     object NewPassword : NavigationItem(
         "new password",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "New password"
+        "New password",
+        "profile"
     )
 
     object ChangePersonalName : NavigationItem(
         "change personal name",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Change personal name"
+        "Change personal name",
+        null
     )
 
     object ChangePersonalInfo : NavigationItem(
         "change personal info",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Change personal info"
+        "Change personal info",
+        null
     )
 
     object ChangeNumberPhone : NavigationItem(
         "change personal phone",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Change personal phone"
+        "Change personal phone",
+        null
     )
 
     object ChangeEmail : NavigationItem(
         "change personal email",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Change personal email"
+        "Change personal email",
+        null
     )
 
     object ChangePassword : NavigationItem(
         "change personal password",
-        R.drawable.profile,
-        R.drawable.profile_focused,
         R.drawable.profile_white,
-        "Change personal password"
+        "Change personal password",
+        null
     )
 }

@@ -74,7 +74,9 @@ fun StandardTextField(
     singleLine: Boolean,
     counter: Boolean = false,
     count: Int = -1,
-    isCheckValue: Boolean = false
+    isCheckValue: Boolean = false,
+    alwaysDisable: Boolean = false,
+    modifierText: Modifier = Modifier
 ) {
     var active by remember { mutableStateOf(true) } // Активно ли сейчас текстовое поле
     var visualTransform by remember { mutableStateOf(visualTransformation) } // Визуальная трансформация
@@ -114,7 +116,7 @@ fun StandardTextField(
                         .padding(horizontal = 2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box(modifier = modifierText.weight(1f)) {
                         innerTextField()
                     }
                     if (visualTransformation != VisualTransformation.None && value.isNotEmpty() && isCheckValue) {
@@ -153,7 +155,7 @@ fun StandardTextField(
                     }
                 }
 
-                if (activeTextField || active) {
+                if (activeTextField || active && !alwaysDisable) {
                     Spacer(
                         modifier = Modifier
                             .fillMaxWidth()

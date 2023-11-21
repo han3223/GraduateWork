@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.ProfilesRequests
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -47,6 +48,9 @@ import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 import com.example.documentsearch.validation.Validation
 import com.example.documentsearch.validation.ValidationText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -55,7 +59,7 @@ import com.example.documentsearch.validation.ValidationText
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun NewPassword(navController: NavHostController) {
+fun NewPassword(navController: NavHostController, forgotEmail: String?, forgotPhoneNumber: String?) {
     var password by remember { mutableStateOf("") } // Пароль пользователя
     var repeatPassword by remember { mutableStateOf("") } // Повтор пароля
 
@@ -68,7 +72,7 @@ fun NewPassword(navController: NavHostController) {
 
     // Текст для валидации пароля
     val passwordValidationText = listOf(
-        ValidationText(validation.isMinLenght(password), "Минимум 8 символов"),
+        ValidationText(validation.isMinLength(password), "Минимум 8 символов"),
         ValidationText(validation.isWhitespace(password), "Не допускаются пробелы"),
         ValidationText(validation.isLowerCase(password), "Минимум один строчной символ"),
         ValidationText(validation.isUpperCase(password), "Минимум один заглавный символ"),
@@ -171,12 +175,32 @@ fun NewPassword(navController: NavHostController) {
                         )
                         Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(AdditionalColor))
                         Button(
+                            enabled = !validation.isMinLength(password) &&
+                                    !validation.isWhitespace(password) &&
+                                    !validation.isLowerCase(password) &&
+                                    !validation.isUpperCase(password) &&
+                                    !validation.isDigit(password) &&
+                                    !validation.isSpecialCharacter(password) &&
+                                    password == repeatPassword,
                             onClick = {
-                                navController.navigate(NavigationItem.Profile.route)
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val updatePassword: String? = if(forgotEmail != null)
+                                        ProfilesRequests().updatePasswordUsingEmail(forgotEmail, password)
+                                    else if(forgotPhoneNumber != null)
+                                        ProfilesRequests().updatePasswordUsingPhoneNumber(forgotPhoneNumber, password)
+                                    else
+                                        null
+
+                                    if (updatePassword != null)
+                                        navController.navigate(NavigationItem.Login.route)
+                                    else
+                                        navController.navigate(NavigationItem.ForgotPassword.route)
+                                }
+
                                 /*TODO(Сделать обработку входа пользователя после смены пароля)*/
                             },
                             modifier = Modifier
-                                .padding(top = 20.dp)
+                                .padding(top = 20.dp, bottom = 30.dp)
                                 .fillMaxWidth(0.8f)
                                 .clip(RoundedCornerShape(10.dp)),
                             colors = ButtonDefaults.buttonColors(

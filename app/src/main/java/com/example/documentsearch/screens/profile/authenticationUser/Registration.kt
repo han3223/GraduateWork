@@ -1,5 +1,6 @@
 package com.example.documentsearch.screens.profile.authenticationUser
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -44,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.ProfilesRequests
+import com.example.documentsearch.dataClasses.Profile
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.patterns.authentication.StandardInput
@@ -53,6 +57,9 @@ import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.TextColor
 import com.example.documentsearch.validation.Validation
 import com.example.documentsearch.validation.ValidationText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -61,7 +68,9 @@ import com.example.documentsearch.validation.ValidationText
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Registration(navController: NavHostController) {
+fun Registration(navController: NavHostController, onProfileDataChange: (Profile) -> Unit) {
+    val context = LocalContext.current
+
     var firstName by remember { mutableStateOf("") } // Имя
     var lastName by remember { mutableStateOf("") } // Фамилия
     var patronymic by remember { mutableStateOf("") } // Отчество
@@ -71,19 +80,26 @@ fun Registration(navController: NavHostController) {
     var repeatPassword by remember { mutableStateOf("") } // Повтор пароля
 
     val keyboardController = LocalSoftwareKeyboardController.current // Контроллер клавиатуры
-    val firstNameFocusRequester = remember { FocusRequester() } // Обработчик фокуса для имени пользователя
-    val lastNameFocusRequester = remember { FocusRequester() } // Обработчик фокуса для фамилии пользователя
-    val patronymicFocusRequester = remember { FocusRequester() } // Обработчик фокуса для отчества пользователя
-    val numberPhoneFocusRequester = remember { FocusRequester() } // Обработчик фокуса для номера телефона пользователя
-    val emailFocusRequester = remember { FocusRequester() } // Обработчик фокуса для email пользователя
-    val passwordFocusRequester = remember { FocusRequester() } // Обработчик фокуса для пароля пользователя
-    val repeatPasswordFocusRequester = remember { FocusRequester() } // Обработчик фокуса для повтора пароля
+    val firstNameFocusRequester =
+        remember { FocusRequester() } // Обработчик фокуса для имени пользователя
+    val lastNameFocusRequester =
+        remember { FocusRequester() } // Обработчик фокуса для фамилии пользователя
+    val patronymicFocusRequester =
+        remember { FocusRequester() } // Обработчик фокуса для отчества пользователя
+    val numberPhoneFocusRequester =
+        remember { FocusRequester() } // Обработчик фокуса для номера телефона пользователя
+    val emailFocusRequester =
+        remember { FocusRequester() } // Обработчик фокуса для email пользователя
+    val passwordFocusRequester =
+        remember { FocusRequester() } // Обработчик фокуса для пароля пользователя
+    val repeatPasswordFocusRequester =
+        remember { FocusRequester() } // Обработчик фокуса для повтора пароля
 
     val validation = Validation() // Класс для валидации
 
     // Текст для валидации пароля
     val passwordValidationText = listOf(
-        ValidationText(validation.isMinLenght(password), "Минимум 8 символов"),
+        ValidationText(validation.isMinLength(password), "Минимум 8 символов"),
         ValidationText(validation.isWhitespace(password), "Не допускаются пробелы"),
         ValidationText(validation.isLowerCase(password), "Минимум один строчной символ"),
         ValidationText(validation.isUpperCase(password), "Минимум один заглавный символ"),
@@ -435,8 +451,47 @@ fun Registration(navController: NavHostController) {
                                 .background(AdditionalColor)
                         )
                         Button(
+                            enabled = firstName.isNotEmpty() &&
+                                    !firstName.any { it.isDigit() } &&
+                                    lastName.isNotEmpty() &&
+                                    !lastName.any { it.isDigit() } &&
+                                    !patronymic.any { it.isDigit() } &&
+                                    validation.isValidPhone(numberPhone) &&
+                                    numberPhone.length == 11 &&
+                                    validation.isValidEmail(email) &&
+                                    !validation.isMinLength(password) &&
+                                    !validation.isWhitespace(password) &&
+                                    !validation.isLowerCase(password) &&
+                                    !validation.isUpperCase(password) &&
+                                    !validation.isDigit(password) &&
+                                    !validation.isSpecialCharacter(password) &&
+                                    password == repeatPassword,
                             onClick = {
-                                navController.navigate(NavigationItem.VerificationRegistration.route)
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val checkProfileByEmail =
+                                        ProfilesRequests().getProfileByEmail(email)
+                                    val checkProfileByPhoneNumber =
+                                        ProfilesRequests().getProfileByPhoneNumber(numberPhone)
+
+                                    if (checkProfileByEmail == null && checkProfileByPhoneNumber == null) {
+                                        onProfileDataChange(
+                                            Profile(
+                                                lastName = lastName,
+                                                firstName = firstName,
+                                                patronymic = patronymic,
+                                                telephoneNumber = numberPhone,
+                                                email = email,
+                                                password = password
+                                            )
+                                        )
+                                        navController.navigate(NavigationItem.VerificationRegistration.route)
+                                    } else
+                                        Toast.makeText(
+                                            context,
+                                            "Такой пользователь уже существет!",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                }
                                 /*TODO(Сделать рассылку кода пользователю для регистрации)*/
                             },
                             modifier = Modifier
