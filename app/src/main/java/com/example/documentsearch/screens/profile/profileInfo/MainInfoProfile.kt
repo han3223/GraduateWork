@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.profile.StandardBlock
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainInfoProfile(
     navController: NavHostController,
-    profile: Profile,
+    profile: ProfilePrototype,
     lazyListState: LazyListState
 ) {
     val density = LocalDensity.current // Нужен для определения длины контейнера

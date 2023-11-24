@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.Message
+import com.example.documentsearch.prototypes.MessagePrototype
 import com.example.documentsearch.navbar.GetShapeFromSVG
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
@@ -33,7 +33,7 @@ import com.example.documentsearch.ui.theme.rightIndicator
 
 @Composable
 fun Message(
-    message: Message,
+    message: MessagePrototype,
     isRepeatMyMessage: Boolean,
 ) {
     // TODO(Разобраться с тем как поставить время, также доделать галочки при прочтении и редектирование сообщения)

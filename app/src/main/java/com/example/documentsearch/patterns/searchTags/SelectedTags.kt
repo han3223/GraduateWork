@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.TextColor
@@ -41,7 +41,7 @@ import com.example.documentsearch.ui.theme.TextColor
  * @param onSelectedTagChanged Обработчик изменения списка выбранных тегов
  */
 @Composable
-fun SelectedTags(selectedTags: SnapshotStateList<Tag>, onSelectedTagChanged: (Tag) -> Unit) {
+fun SelectedTags(selectedTags: SnapshotStateList<TagPrototype>, onSelectedTagChanged: (TagPrototype) -> Unit) {
     if (selectedTags.isNotEmpty()) {
         Text(
             text = "Выбранные теги",

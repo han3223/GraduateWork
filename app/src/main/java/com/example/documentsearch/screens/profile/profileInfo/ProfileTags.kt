@@ -24,9 +24,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
-import com.example.documentsearch.dataClasses.Profile
-import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.prototypes.ProfilePrototype
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.patterns.searchTags.SearchTags
 import com.example.documentsearch.patterns.searchTags.SelectedTags
 import com.example.documentsearch.patterns.searchTags.Tags
@@ -44,9 +44,9 @@ import kotlinx.coroutines.launch
  */
 @SuppressLint("MutableCollectionMutableState", "CoroutineCreationDuringComposition")
 @Composable
-fun ProfileTags(tags: List<Tag>, profile: Profile) {
+fun ProfileTags(tags: List<TagPrototype>, profile: ProfilePrototype) {
     var searchTagsValue by remember { mutableStateOf(TextFieldValue("")) } // Значение в поиске
-    val selectedTags = remember { mutableStateListOf<Tag>() } // Выбранные теги
+    val selectedTags = remember { mutableStateListOf<TagPrototype>() } // Выбранные теги
     profile.tags?.map { selectedTags.add(tags.first { tag -> tag.id == it }) }
 
     val queueTags by remember { mutableStateOf(mutableListOf<QueueTags>()) }
@@ -81,7 +81,7 @@ fun ProfileTags(tags: List<Tag>, profile: Profile) {
                     onSelectedTagChanged = {
                         queueTags.add(QueueTags(tagId = it.id.toString(), delete = true))
                         CoroutineScope(Dispatchers.Main).launch {
-                            val isAdded: Boolean = ProfilesRequests().deleteTag(
+                            val isAdded: Boolean = ProfileRequestServicesImpl().deleteTagUsingEmail(
                                 profile.email,
                                 it.id.toString()
                             )
@@ -100,7 +100,7 @@ fun ProfileTags(tags: List<Tag>, profile: Profile) {
                     onSelectedTagChanged = {
                         queueTags.add(QueueTags(tagId = it.id.toString(), add = true))
                         CoroutineScope(Dispatchers.Main).launch {
-                            val isAdded: Boolean = ProfilesRequests().addTag(
+                            val isAdded: Boolean = ProfileRequestServicesImpl().addTagUsingEmail(
                                 profile.email,
                                 it.id.toString()
                             )

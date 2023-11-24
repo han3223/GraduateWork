@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.TextColor
@@ -46,10 +46,10 @@ import com.example.documentsearch.ui.theme.TextColor
  */
 @Composable
 fun Tags(
-    tags: List<Tag>,
+    tags: List<TagPrototype>,
     searchTagsValue: TextFieldValue,
-    selectedTags: SnapshotStateList<Tag>,
-    onSelectedTagChanged: (Tag) -> Unit
+    selectedTags: SnapshotStateList<TagPrototype>,
+    onSelectedTagChanged: (TagPrototype) -> Unit
 ) {
     val sortedTags = tags.minus(selectedTags).filter { it.title.contains(searchTagsValue.text, true) }
 
@@ -93,7 +93,7 @@ fun Tags(
             verticalAlignment = Alignment.CenterVertically,
             state = rememberLazyListState()
         ) {
-            itemsIndexed(sortedTags) { index: Int, item: Tag ->
+            itemsIndexed(sortedTags) { index: Int, item: TagPrototype ->
                 Spacer(modifier = Modifier.width(2.5.dp))
                 Box(
                     modifier = Modifier

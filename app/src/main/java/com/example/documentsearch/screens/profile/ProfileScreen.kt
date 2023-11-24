@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.Profile
-import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.prototypes.ProfilePrototype
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
@@ -43,9 +43,9 @@ import com.example.documentsearch.ui.theme.TextColor
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
-    profile: Profile,
+    profile: ProfilePrototype,
     onExitProfileChange: (Boolean) -> Unit,
-    tags: List<Tag>
+    tags: List<TagPrototype>
 ) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)

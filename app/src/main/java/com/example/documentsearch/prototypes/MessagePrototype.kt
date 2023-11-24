@@ -1,9 +1,9 @@
-package com.example.documentsearch.dataClasses
+package com.example.documentsearch.prototypes
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Message(
+data class MessagePrototype(
     val date: String,
     val time: String,
     val message: String,

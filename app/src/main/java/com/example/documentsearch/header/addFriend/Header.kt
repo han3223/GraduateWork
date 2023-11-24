@@ -27,7 +27,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.header.addFriend.filter.FilterActive
 import com.example.documentsearch.header.documentScreen.filter.Filter
 import com.example.documentsearch.patterns.HeaderPrototype
@@ -37,7 +37,7 @@ import com.example.documentsearch.ui.theme.filter
 import com.example.documentsearch.ui.theme.sort
 
 @Composable
-fun Header(tags: List<Tag>) {
+fun Header(tags: List<TagPrototype>) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp
 

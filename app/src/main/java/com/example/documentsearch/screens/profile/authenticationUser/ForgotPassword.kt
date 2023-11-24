@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.patterns.authentication.StandardInput
@@ -153,7 +153,7 @@ fun ForgotPassword(navController: NavHostController, onForgotCodeChange: (Int) -
                         Button(
                             onClick = {
                                 CoroutineScope(Dispatchers.Main).launch {
-                                    val forgotCode: Int? = ProfilesRequests().getProfileByFullNameAndPhoneNumber(lastName, numberPhone)
+                                    val forgotCode: Int? = ProfileRequestServicesImpl().getProfileRecoveryCodeUsingLastNameAndPhoneNumber(lastName, numberPhone)
 
                                     if (forgotCode != null) {
                                         onPhoneNumberChange(numberPhone)

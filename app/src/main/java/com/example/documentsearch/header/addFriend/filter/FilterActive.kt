@@ -20,16 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.patterns.searchTags.SearchTags
 import com.example.documentsearch.patterns.searchTags.SelectedTags
 import com.example.documentsearch.patterns.searchTags.Tags
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 
 @Composable
-fun FilterActive(tags: List<Tag>) {
+fun FilterActive(tags: List<TagPrototype>) {
     var searchTagsValue by remember { mutableStateOf(TextFieldValue("")) }
-    val selectedTags = remember { mutableStateListOf<Tag>() }
+    val selectedTags = remember { mutableStateListOf<TagPrototype>() }
 
     // Контейнер для фильтра
     Box(

@@ -1,4 +1,4 @@
-package com.example.documentsearch.colorsChange
+package com.example.documentsearch.workWithColors
 
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.ImageBitmap

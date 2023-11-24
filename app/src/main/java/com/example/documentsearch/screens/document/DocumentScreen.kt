@@ -1,49 +1,21 @@
 package com.example.documentsearch.screens.document
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,12 +36,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberImagePainter
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.DocumentWithPercentage
-import com.example.documentsearch.ui.theme.AdditionalColor
-import com.example.documentsearch.ui.theme.AdditionalMainColorDark
-import com.example.documentsearch.ui.theme.MainColorDark
-import com.example.documentsearch.ui.theme.MainColorLight
-import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.prototypes.DocumentWithPercentage
+import com.example.documentsearch.ui.theme.*
 import com.google.android.material.animation.ArgbEvaluatorCompat
 
 
@@ -84,7 +52,7 @@ import com.google.android.material.animation.ArgbEvaluatorCompat
  */
 @ExperimentalAnimationApi
 @Composable
-fun DocumentScreen(listDocumet: SnapshotStateList<DocumentWithPercentage>) {
+fun DocumentScreen(listDocumet: MutableList<DocumentWithPercentage>) {
     val rememberLazyScrollState = rememberLazyListState()
 
     LazyColumn(

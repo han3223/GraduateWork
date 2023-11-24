@@ -43,8 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.preferences.PreferencesManager
@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Login(navController: NavHostController, onProfileChange: (Profile) -> Unit) {
+fun Login(navController: NavHostController, onProfileChange: (ProfilePrototype) -> Unit) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
 
@@ -158,7 +158,7 @@ fun Login(navController: NavHostController, onProfileChange: (Profile) -> Unit) 
                         Button(
                             onClick = {
                                 CoroutineScope(Dispatchers.Main).launch {
-                                    val logInProfile: Profile? = ProfilesRequests().getProfile(email, password)
+                                    val logInProfile: ProfilePrototype? = ProfileRequestServicesImpl().getProfileUsingEmailAndPassword(email, password)
 
                                     if (logInProfile != null) {
                                         preferencesManager.saveData(emailKeyPreferences, email)

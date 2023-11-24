@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.patterns.authentication.ResendVerificationCode
 import com.example.documentsearch.patterns.authentication.VerificationCodeInput
 import com.example.documentsearch.preferences.PreferencesManager
@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
  */
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun VerificationRegistration(navController: NavHostController, registrationData: Profile, onProfileChange: (Profile) -> Unit) {
+fun VerificationRegistration(navController: NavHostController, registrationData: ProfilePrototype, onProfileChange: (ProfilePrototype) -> Unit) {
     var codeVerify by remember { mutableStateOf("") } // Код для верификации регистрации
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
@@ -59,7 +59,7 @@ fun VerificationRegistration(navController: NavHostController, registrationData:
     if (codeVerify == "0000") {
         codeVerify = ""
         CoroutineScope(Dispatchers.Main).launch {
-            val signInProfile: Profile? = ProfilesRequests().addProfile(
+            val signInProfile: ProfilePrototype? = ProfileRequestServicesImpl().addProfile(
                 profile = registrationData
             )
 

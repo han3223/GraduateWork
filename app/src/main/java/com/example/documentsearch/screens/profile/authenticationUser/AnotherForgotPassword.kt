@@ -34,14 +34,13 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -151,7 +150,7 @@ fun AnotherForgotPassword(navController: NavHostController, onForgotCodeChange: 
                         Button(
                             onClick = {
                                 CoroutineScope(Dispatchers.Main).launch {
-                                    val forgotCode: Int? = ProfilesRequests().getProfileByFullNameAndEmail(lastName, email)
+                                    val forgotCode: Int? = ProfileRequestServicesImpl().getProfileRecoveryCodeUsingLastNameAndEmail(lastName, email)
 
                                     if (forgotCode != null) {
                                         onEmailChange(email)

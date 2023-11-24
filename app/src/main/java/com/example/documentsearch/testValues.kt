@@ -1,11 +1,7 @@
 package com.example.documentsearch
 
-import androidx.compose.runtime.mutableStateListOf
-import com.example.documentsearch.dataClasses.AnotherUser
-import com.example.documentsearch.dataClasses.Document
-import com.example.documentsearch.dataClasses.DocumentWithPercentage
-import com.example.documentsearch.dataClasses.Message
-import com.example.documentsearch.dataClasses.Messenger
+import com.example.documentsearch.prototypes.DocumentPrototype
+import com.example.documentsearch.prototypes.DocumentWithPercentage
 
 val tags = listOf(
     "Исследования",
@@ -51,9 +47,9 @@ val tags = listOf(
     "Фармакология"
 )
 
-val listDocumet = mutableStateListOf(
+val listDocumet = mutableListOf(
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи1",
             "Научная статья",
@@ -67,7 +63,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_1
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи2",
             "Научная статья",
@@ -81,7 +77,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_2
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи3",
             "Научная статья",
@@ -95,7 +91,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_3
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи4",
             "Научная статья",
@@ -109,7 +105,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_4
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи5",
             "Научная статья",
@@ -123,7 +119,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_5
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи6",
             "Научная статья",
@@ -137,7 +133,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_6
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи7",
             "Научная статья",
@@ -151,7 +147,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_8
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи8",
             "Научная статья",
@@ -165,7 +161,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_9
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи9",
             "Научная статья",
@@ -179,7 +175,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_10
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи10",
             "Научная статья",
@@ -193,7 +189,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_11
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи11",
             "Научная статья",
@@ -207,7 +203,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_12
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи12",
             "Научная статья",
@@ -221,7 +217,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_13
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи13",
             "Научная статья",
@@ -235,7 +231,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_14
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи14",
             "Научная статья",
@@ -249,7 +245,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_15
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи15",
             "Научная статья",
@@ -263,7 +259,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_16
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи16",
             "Научная статья",
@@ -277,7 +273,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_17
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи17",
             "Научная статья",
@@ -291,7 +287,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_18
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи18",
             "Научная статья",
@@ -305,7 +301,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_19
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи19",
             "Научная статья",
@@ -319,7 +315,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_20
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи20",
             "Научная статья",
@@ -333,7 +329,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_21
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи21",
             "Научная статья",
@@ -347,7 +343,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_22
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи22",
             "Научная статья",
@@ -361,7 +357,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_23
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи23",
             "Научная статья",
@@ -375,7 +371,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_24
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи24",
             "Научная статья",
@@ -389,7 +385,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_25
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи25",
             "Научная статья",
@@ -403,7 +399,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_26
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи26",
             "Научная статья",
@@ -417,7 +413,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_27
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи27",
             "Научная статья",
@@ -431,7 +427,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_28
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи28",
             "Научная статья",
@@ -445,7 +441,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_29
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи29",
             "Научная статья",
@@ -459,7 +455,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_30
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи30",
             "Научная статья",
@@ -473,7 +469,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_31
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи31",
             "Научная статья",
@@ -487,7 +483,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_32
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи32",
             "Научная статья",
@@ -501,7 +497,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_33
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи33",
             "Научная статья",
@@ -515,7 +511,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_34
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи34",
             "Научная статья",
@@ -529,7 +525,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_35
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи35",
             "Научная статья",
@@ -543,7 +539,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_36
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи36",
             "Научная статья",
@@ -557,7 +553,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_37
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи37",
             "Научная статья",
@@ -571,7 +567,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_38
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи38",
             "Научная статья",
@@ -585,7 +581,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_39
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи39",
             "Научная статья",
@@ -599,7 +595,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_40
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи40",
             "Научная статья",
@@ -613,7 +609,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_41
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи41",
             "Научная статья",
@@ -627,7 +623,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_42
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи42",
             "Научная статья",
@@ -641,7 +637,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_43
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи43",
             "Научная статья",
@@ -655,7 +651,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_44
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи44",
             "Научная статья",
@@ -669,7 +665,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_45
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи45",
             "Научная статья",
@@ -683,7 +679,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_46
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи46",
             "Научная статья",
@@ -697,7 +693,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_47
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи47",
             "Научная статья",
@@ -711,7 +707,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_48
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи48",
             "Научная статья",
@@ -725,7 +721,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_49
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи49",
             "Научная статья",
@@ -739,7 +735,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_50
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи50",
             "Научная статья",
@@ -753,7 +749,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_51
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи51",
             "Научная статья",
@@ -767,7 +763,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_52
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи52",
             "Научная статья",
@@ -781,7 +777,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_53
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи53",
             "Научная статья",
@@ -795,7 +791,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_54
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи54",
             "Научная статья",
@@ -809,7 +805,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_55
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи55",
             "Научная статья",
@@ -823,7 +819,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_56
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи56",
             "Научная статья",
@@ -837,7 +833,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_57
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи57",
             "Научная статья",
@@ -851,7 +847,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_58
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи58",
             "Научная статья",
@@ -865,7 +861,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_59
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи59",
             "Научная статья",
@@ -879,7 +875,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_60
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи60",
             "Научная статья",
@@ -893,7 +889,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_61
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи61",
             "Научная статья",
@@ -907,7 +903,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_62
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи62",
             "Научная статья",
@@ -921,7 +917,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_63
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи63",
             "Научная статья",
@@ -935,7 +931,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_64
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи64",
             "Научная статья",
@@ -949,7 +945,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_65
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи65",
             "Научная статья",
@@ -963,7 +959,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_66
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи66",
             "Научная статья",
@@ -977,7 +973,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_67
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи67",
             "Научная статья",
@@ -991,7 +987,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_68
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи68",
             "Научная статья",
@@ -1005,7 +1001,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_69
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи69",
             "Научная статья",
@@ -1019,7 +1015,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_70
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи70",
             "Научная статья",
@@ -1033,7 +1029,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_71
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи71",
             "Научная статья",
@@ -1047,7 +1043,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_72
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи72",
             "Научная статья",
@@ -1061,7 +1057,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_73
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи73",
             "Научная статья",
@@ -1075,7 +1071,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_74
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи74",
             "Научная статья",
@@ -1089,7 +1085,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_75
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи75",
             "Научная статья",
@@ -1103,7 +1099,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_76
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи76",
             "Научная статья",
@@ -1117,7 +1113,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_77
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи77",
             "Научная статья",
@@ -1131,7 +1127,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_78
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи78",
             "Научная статья",
@@ -1145,7 +1141,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_79
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи79",
             "Научная статья",
@@ -1159,7 +1155,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_80
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи80",
             "Научная статья",
@@ -1173,7 +1169,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_81
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи81",
             "Научная статья",
@@ -1187,7 +1183,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_82
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи82",
             "Научная статья",
@@ -1201,7 +1197,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_83
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи83",
             "Научная статья",
@@ -1215,7 +1211,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_84
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи84",
             "Научная статья",
@@ -1229,7 +1225,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_85
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи85",
             "Научная статья",
@@ -1243,7 +1239,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_86
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи86",
             "Научная статья",
@@ -1257,7 +1253,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_87
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи87",
             "Научная статья",
@@ -1271,7 +1267,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_88
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи88",
             "Научная статья",
@@ -1285,7 +1281,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_89
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи89",
             "Научная статья",
@@ -1299,7 +1295,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_90
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи90",
             "Научная статья",
@@ -1313,7 +1309,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_91
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи91",
             "Научная статья",
@@ -1327,7 +1323,7 @@ val listDocumet = mutableStateListOf(
         ), R.drawable.percent_92
     ),
     DocumentWithPercentage(
-        Document(
+        DocumentPrototype(
             48,
             "Наименование научной статьи92",
             "Научная статья",

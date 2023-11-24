@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.AnotherUser
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.prototypes.AnotherUserPrototype
+import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColorLight
@@ -38,9 +38,9 @@ import com.example.documentsearch.ui.theme.TextColor
 @Composable
 fun AddUserScreen(
     navController: NavHostController,
-    users: List<AnotherUser>?,
+    users: List<AnotherUserPrototype>?,
     onUserChange: (Long) -> Unit,
-    profile: Profile?
+    profile: ProfilePrototype?
 ) {
     if (profile != null) {
 

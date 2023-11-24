@@ -1,9 +1,9 @@
-package com.example.documentsearch.dataClasses
+package com.example.documentsearch.prototypes
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AnotherUser(
+data class AnotherUserPrototype(
     val id: Long,
     val lastName: String,
     val firstName: String,

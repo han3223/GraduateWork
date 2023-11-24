@@ -8,38 +8,39 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.caverock.androidsvg.BuildConfig
-import com.example.documentsearch.api.apiRequests.MessageRequests
-import com.example.documentsearch.api.apiRequests.MessengersRequests
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
-import com.example.documentsearch.api.apiRequests.TagsRequests
-import com.example.documentsearch.dataClasses.AnotherUser
-import com.example.documentsearch.dataClasses.Messenger
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.api.apiRequests.message.MessageRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
 import com.example.documentsearch.navbar.NavigationScreens
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
+import com.example.documentsearch.prototypes.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.serialization.ExperimentalSerializationApi
 
-
+@SuppressLint("CoroutineCreationDuringComposition", "MutableCollectionMutableState")
 class MainActivity : ComponentActivity() {
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    private var savedEmail: String? = null
+    private var savedPassword: String? = null
 
-    @SuppressLint("CoroutineCreationDuringComposition", "MutableCollectionMutableState")
-    @OptIn(ExperimentalSerializationApi::class)
+    private val profileRequestService = ProfileRequestServicesImpl()
+    private val messengerRequestService = MessengersRequestServicesImpl()
+    private val messageRequestService = MessageRequestServicesImpl()
+    private val tagRequestService = TagRequestServicesImpl()
+
+    private var userProfile: ProfilePrototype? = null
+    private var userMessengers = mutableListOf<MessengerPrototype>()
+    private var allUsersProfile = listOf<AnotherUserPrototype>()
+    private var profileTags = listOf<TagPrototype>()
+    private var documentTags = listOf<TagPrototype>()
+    private var documents = mutableListOf<DocumentWithPercentage>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,86 +55,84 @@ class MainActivity : ComponentActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContent {
             val context = LocalContext.current
-            val preferencesManager = PreferencesManager(context)
-
             val systemUiController = rememberSystemUiController()
-            SideEffect {
-                systemUiController.setStatusBarColor(color = Color.Transparent)
-            }
-
-            // Контроллер для навигации
-            val navController = rememberNavController()
-
-            // Обработчик back жеста
-            onBackPressedCallback = object : OnBackPressedCallback(true) {
+            val navigationController = rememberNavController()
+            val onBackPressedCallback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    navController.navigateUp()
+                    navigationController.navigateUp()
                 }
             }
             onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
-            // TODO(Пользователь должен быть получен из базы данных)
-            var profile by remember { mutableStateOf<Profile?>(null) }
+            val preferencesManager = PreferencesManager(context)
+            savedEmail = preferencesManager.getData(emailKeyPreferences)
+            savedPassword = preferencesManager.getData(passwordKeyPreferences)
 
-            // TODO(Переписки должны быть получены из базы данных)
-            var listMessenger by remember { mutableStateOf<MutableList<Messenger>>(mutableListOf()) }
-
-            var users by remember { mutableStateOf<List<AnotherUser>?>(null) }
-            CoroutineScope(Dispatchers.Main).launch {
-                val signInProfile: List<AnotherUser>? =
-                    ProfilesRequests().getAllProfileWithoutPassword()
-
-                if (signInProfile != null) {
-                    users = signInProfile
-                }
+            SideEffect {
+                systemUiController.setStatusBarColor(color = Color.Transparent)
             }
 
-            val email = preferencesManager.getData(emailKeyPreferences)
-            val password = preferencesManager.getData(passwordKeyPreferences)
-            if (email != null && password != null) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    val signInProfile: Profile? = ProfilesRequests().getProfile(email, password)
-
-                    if (signInProfile != null) {
-                        profile = signInProfile
-                        println("Это профиль $profile")
-                        val getMessenger = MessengersRequests().getAllMessengersFromUser(profile!!.id!!)
-                        getMessenger?.forEach {
-                            val anotherUser = ProfilesRequests().getAnotherProfileById(it.interlocutor)
-                            println("Это другой пользователь $anotherUser")
-                            val listMessage = MessageRequests().getMessagesByMessenger(it.id)
-                            println("Это переписка $listMessage")
-                            if (anotherUser != null)
-                                listMessenger.add(Messenger(it.id, anotherUser, listMessage))
-                        }
-
-                        println("Это полученный список переписок $listMessenger")
-                    }
-                }
-            }
-
-            // TODO(Документы должны быть получены из базы данных)
-            val listDocumets = listDocumet
-
-            // TODO(Теги должны быть получены из базы данных)
-            val documentTags = TagsRequests().getDocumentTags()
-            val profileTags = TagsRequests().getProfileTags()
+            getUserProfilePrototype()
+            getMessengersPrototype()
+            getAllUsersProfile()
+            getProfileTags()
+            getDocumentTags()
+            getDocuments()
 
             NavigationScreens(
-                navController = navController,
-                profile = profile,
-                anotherUsers = users,
+                navController = navigationController,
+                profile = userProfile,
+                anotherUsers = allUsersProfile,
                 onProfileChange = {
-                    profile = it
+                    userProfile = it
                 },
-                listDocuments = listDocumets,
+                listDocuments = documents,
                 tagsDocumentation = documentTags,
                 tagsProfile = profileTags,
-                listMessenger = listMessenger,
+                listMessenger = userMessengers,
                 onListMessenger = {
-                    listMessenger = it
+                    userMessengers = it
                 }
             )
         }
+    }
+
+    private fun getUserProfilePrototype() {
+        if (savedEmail != null && savedPassword != null) {
+            userProfile = profileRequestService.getProfileUsingEmailAndPassword(savedEmail!!, savedPassword!!)
+        }
+    }
+
+    private fun getMessengersPrototype() {
+        if (userProfile != null) {
+            val messengerPrototypeDataBase = messengerRequestService.getAllMessengersUsingUserId(userProfile!!.id!!)
+            messengerPrototypeDataBase?.forEach { messenger ->
+                val anotherUser = profileRequestService.getAnotherProfileUsingId(messenger.interlocutor)
+                if (anotherUser != null) {
+                    val messages = messageRequestService.getMessagesFromMessenger(messenger.id)
+                    val messengerPrototype = MessengerPrototype(messenger.id, anotherUser, messages)
+                    userMessengers.add(messengerPrototype)
+                }
+            }
+        }
+    }
+
+
+    private fun getAllUsersProfile() {
+        allUsersProfile = profileRequestService.getAllAnotherProfile()
+    }
+
+
+    private fun getProfileTags() {
+        profileTags = tagRequestService.getProfileTags()
+    }
+
+
+    private fun getDocumentTags() {
+        documentTags = tagRequestService.getDocumentTags()
+    }
+
+    private fun getDocuments() {
+        documents = listDocumet
     }
 }

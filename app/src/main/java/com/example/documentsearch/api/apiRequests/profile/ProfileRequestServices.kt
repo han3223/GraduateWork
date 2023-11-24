@@ -1,104 +1,92 @@
-package com.example.documentsearch.api.apiRequests
+package com.example.documentsearch.api.apiRequests.profile
 
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Query
+import retrofit2.http.*
 
-interface IProfileRequests {
+interface ProfileRequestServices {
     @POST("requests/profile/addProfile")
-    suspend fun addProfile(@Body jsonProfile: RequestBody): Response<ResponseBody>
-
-    @GET("requests/profile/getProfileByEmailAndPassword")
-    suspend fun getProfile(
-        @Query("email") email: String,
-        @Query("password") password: String
-    ): Response<ResponseBody>
+    suspend fun addProfile(@Body jsonPrototypeProfile: RequestBody): Response<ResponseBody>
 
     @GET("requests/profile/getAllProfileWithoutPassword")
     suspend fun getAllProfileWithoutPassword(): Response<ResponseBody>
 
-    @GET("requests/profile/getAnotherProfileById")
-    suspend fun getAnotherProfileById(
-        @Query("id") id: String,
+    @GET("requests/profile/getProfileByEmailAndPassword")
+    suspend fun getProfileUsingEmailAndPassword(
+        @Query("email") email: String,
+        @Query("password") password: String
     ): Response<ResponseBody>
+
+    @GET("requests/profile/getAnotherProfileById")
+    suspend fun getAnotherProfileUsingId(@Query("id") idProfile: Long): Response<ResponseBody>
 
     @GET("requests/profile/getProfileByEmail")
-    suspend fun getProfileByEmail(
-        @Query("email") email: String,
-    ): Response<ResponseBody>
+    suspend fun getProfileUsingEmail(@Query("email") email: String): Response<ResponseBody>
 
     @GET("requests/profile/getProfileByTelephoneNumber")
-    suspend fun getProfileByPhoneNumber(
-        @Query("telephoneNumber") phoneNumber: String,
-    ): Response<ResponseBody>
+    suspend fun getProfileUsingPhoneNumber(@Query("telephoneNumber") phoneNumber: String): Response<ResponseBody>
 
     @GET("requests/profile/getProfileByPersonalName")
-    suspend fun getProfileByPersonalName(
-        @Query("personalName") personalName: String,
-    ): Response<ResponseBody>
+    suspend fun getProfileUsingPersonalName(@Query("personalName") personalName: String): Response<ResponseBody>
 
-    @GET("requests/profile/getProfileByFullNameAndTelephoneNumber")
-    suspend fun getProfileByFullNameAndPhoneNumber(
+    @GET("requests/profile/getProfileRecoveryCodeUsingLastNameAndPhoneNumber")
+    suspend fun getProfileRecoveryCodeUsingLastNameAndPhoneNumber(
         @Query("lastName") lastName: String,
         @Query("telephoneNumber") phoneNumber: String,
     ): Response<ResponseBody>
 
-    @GET("requests/profile/getProfileByFullNameAndEmail")
-    suspend fun getProfileByFullNameAndEmail(
+    @GET("requests/profile/getProfileRecoveryCodeUsingLastNameAndEmail")
+    suspend fun getProfileRecoveryCodeUsingLastNameAndEmail(
         @Query("lastName") lastName: String,
         @Query("email") email: String,
     ): Response<ResponseBody>
 
     @PUT("requests/profile/updatePersonalName")
-    suspend fun updatePersonalName(
+    suspend fun updatePersonalNameUsingEmail(
         @Query("email") email: String,
         @Query("personalName") personalName: String
     ): Response<ResponseBody>
 
     @PUT("requests/profile/updatePersonalInfo")
-    suspend fun updatePersonalInfo(
+    suspend fun updatePersonalInfoUsingEmail(
         @Query("email") email: String,
         @Query("personalInfo") personalInfo: String
     ): Response<ResponseBody>
 
     @PUT("requests/profile/updateNumberPhone")
-    suspend fun updateNumberPhone(
+    suspend fun updateNumberPhoneUsingEmail(
         @Query("email") email: String,
         @Query("telephoneNumber") phoneNumber: String
     ): Response<ResponseBody>
 
     @PUT("requests/profile/updateEmail")
-    suspend fun updateEmail(
+    suspend fun updateEmailUsingOldEmail(
         @Query("oldEmail") oldEmail: String,
         @Query("newEmail") newEmail: String
     ): Response<ResponseBody>
 
     @PUT("requests/profile/updatePassword")
-    suspend fun updatePassword(
+    suspend fun updatePasswordUsingEmail(
         @Query("email") email: String,
         @Query("oldPassword") oldPassword: String,
         @Query("newPassword") newPassword: String
     ): Response<ResponseBody>
 
     @PUT("requests/profile/updateTags")
-    suspend fun updateTags(
+    suspend fun updateTagsUsingEmail(
         @Query("email") email: String,
         @Query("tags") tags: String,
     ): Response<ResponseBody>
 
     @PUT("requests/profile/addTag")
-    suspend fun addTag(
+    suspend fun addTagUsingEmail(
         @Query("email") email: String,
         @Query("tag") tag: String,
     ): Response<ResponseBody>
 
     @PUT("requests/profile/deleteTag")
-    suspend fun deleteTag(
+    suspend fun deleteTagUsingEmail(
         @Query("email") email: String,
         @Query("tag") tag: String,
     ): Response<ResponseBody>
@@ -116,9 +104,8 @@ interface IProfileRequests {
     ): Response<ResponseBody>
 
     @PUT("requests/profile/addFriend")
-    suspend fun addFriend(
+    suspend fun addFriendUsingEmail(
         @Query("email") email: String,
         @Query("friends") friend: String,
     ): Response<ResponseBody>
-
 }

@@ -43,12 +43,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.api.apiRequests.MessengersRequests
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
-import com.example.documentsearch.dataClasses.AddMessenger
-import com.example.documentsearch.dataClasses.AnotherUser
-import com.example.documentsearch.dataClasses.Messenger
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.prototypes.AddMessengerPrototypeDataBase
+import com.example.documentsearch.prototypes.AnotherUserPrototype
+import com.example.documentsearch.prototypes.MessengerPrototype
+import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.patterns.profile.StandardBlock
 import com.example.documentsearch.screens.profile.profileInfo.getMaskNumberPhone
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -65,9 +65,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileInfo(
     navController: NavHostController,
-    anotherProfile: AnotherUser,
-    profile: Profile,
-    onMessengerChange: (Messenger) -> Unit
+    anotherProfile: AnotherUserPrototype,
+    profile: ProfilePrototype,
+    onMessengerChange: (MessengerPrototype) -> Unit
 ) {
     val density = LocalDensity.current // Нужен для определения длины контейнера
     var widthContent by remember { mutableStateOf(0.dp) } // Длина контента в контейнере
@@ -172,11 +172,11 @@ fun ProfileInfo(
                                 .pointerInput(Unit) {
                                     detectTapGestures(onTap = {
                                         CoroutineScope(Dispatchers.Main).launch {
-                                            val request = MessengersRequests().addMessenger(
-                                                AddMessenger(user = profile.id!!, interlocutor = anotherProfile.id)
+                                            val request = MessengersRequestServicesImpl().addMessenger(
+                                                AddMessengerPrototypeDataBase(user = profile.id!!, interlocutor = anotherProfile.id)
                                             )
                                             if (request != null) {
-                                                val messenger = Messenger(request.id, anotherProfile, mutableListOf())
+                                                val messenger = MessengerPrototype(request.id, anotherProfile, mutableListOf())
                                                 onMessengerChange(messenger)
                                             }
                                         }
@@ -199,7 +199,7 @@ fun ProfileInfo(
                                 .pointerInput(Unit) {
                                     detectTapGestures(onTap = {
                                         CoroutineScope(Dispatchers.Main).launch {
-                                            val request = ProfilesRequests().addFriend(profile.email, anotherProfile.id.toString())
+                                            val request = ProfileRequestServicesImpl().addFriendUsingEmail(profile.email, anotherProfile.id.toString())
                                         }
                                     })
                                 },

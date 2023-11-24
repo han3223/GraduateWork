@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.documentsearch.R
-import com.example.documentsearch.dataClasses.Messenger
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.prototypes.MessengerPrototype
+import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.MainColorLight
@@ -40,9 +40,9 @@ import com.example.documentsearch.ui.theme.TextColor
 @Composable
 fun MessengerScreen(
     navController: NavController,
-    listMessenger: List<Messenger>?,
-    onMessengerChange: (Messenger) -> Unit,
-    profile: Profile?
+    listMessenger: List<MessengerPrototype>?,
+    onMessengerChange: (MessengerPrototype) -> Unit,
+    profile: ProfilePrototype?
 ) {
     if (profile != null) {
         Column(

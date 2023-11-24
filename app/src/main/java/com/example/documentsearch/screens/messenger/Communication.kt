@@ -11,13 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.documentsearch.dataClasses.Messenger
+import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.patterns.messenger.Message
 
 @Composable
 fun Communication(
     navController: NavHostController,
-    messenger: Messenger,
+    messenger: MessengerPrototype,
     rememberScrollState: ScrollState
 ) {
     Box(

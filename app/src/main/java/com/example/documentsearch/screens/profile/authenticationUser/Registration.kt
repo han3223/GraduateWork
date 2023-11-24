@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.documentsearch.R
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
-import com.example.documentsearch.dataClasses.Profile
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.patterns.authentication.StandardInput
@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Registration(navController: NavHostController, onProfileDataChange: (Profile) -> Unit) {
+fun Registration(navController: NavHostController, onProfileDataChange: (ProfilePrototype) -> Unit) {
     val context = LocalContext.current
 
     var firstName by remember { mutableStateOf("") } // Имя
@@ -469,13 +469,13 @@ fun Registration(navController: NavHostController, onProfileDataChange: (Profile
                             onClick = {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     val checkProfileByEmail =
-                                        ProfilesRequests().getProfileByEmail(email)
+                                        ProfileRequestServicesImpl().getProfileUsingEmail(email)
                                     val checkProfileByPhoneNumber =
-                                        ProfilesRequests().getProfileByPhoneNumber(numberPhone)
+                                        ProfileRequestServicesImpl().getProfileUsingPhoneNumber(numberPhone)
 
                                     if (checkProfileByEmail == null && checkProfileByPhoneNumber == null) {
                                         onProfileDataChange(
-                                            Profile(
+                                            ProfilePrototype(
                                                 lastName = lastName,
                                                 firstName = firstName,
                                                 patronymic = patronymic,

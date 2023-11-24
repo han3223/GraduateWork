@@ -28,13 +28,13 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.documentsearch.api.apiRequests.ProfilesRequests
-import com.example.documentsearch.dataClasses.AnotherUser
-import com.example.documentsearch.dataClasses.DocumentWithPercentage
-import com.example.documentsearch.dataClasses.Message
-import com.example.documentsearch.dataClasses.Messenger
-import com.example.documentsearch.dataClasses.Profile
-import com.example.documentsearch.dataClasses.Tag
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.prototypes.AnotherUserPrototype
+import com.example.documentsearch.prototypes.DocumentWithPercentage
+import com.example.documentsearch.prototypes.MessagePrototype
+import com.example.documentsearch.prototypes.MessengerPrototype
+import com.example.documentsearch.prototypes.ProfilePrototype
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.header.profile.HeaderProfileDataChanged
 import com.example.documentsearch.header.profile.HeaderProfilePasswordChanged
 import com.example.documentsearch.screens.addUser.AddUserScreen
@@ -73,16 +73,16 @@ import java.time.LocalTime
 @Composable
 fun NavigationScreens(
     navController: NavHostController,
-    profile: Profile?,
-    anotherUsers: List<AnotherUser>?,
-    onProfileChange: (Profile?) -> Unit,
-    listDocuments: SnapshotStateList<DocumentWithPercentage>,
-    tagsDocumentation: List<Tag>,
-    tagsProfile: List<Tag>,
-    listMessenger: MutableList<Messenger>?,
-    onListMessenger: (MutableList<Messenger>) -> Unit
+    profile: ProfilePrototype?,
+    anotherUsers: List<AnotherUserPrototype>?,
+    onProfileChange: (ProfilePrototype?) -> Unit,
+    listDocuments: MutableList<DocumentWithPercentage>,
+    tagsDocumentation: List<TagPrototype>,
+    tagsProfile: List<TagPrototype>,
+    listMessenger: MutableList<MessengerPrototype>?,
+    onListMessenger: (MutableList<MessengerPrototype>) -> Unit
 ) {
-    var registrationData by remember { mutableStateOf<Profile?>(null) }
+    var registrationData by remember { mutableStateOf<ProfilePrototype?>(null) }
     var changedPersonalName by remember { mutableStateOf(profile?.personalName ?: "") }
     var changedPersonalInfo by remember { mutableStateOf(profile?.personalInfo ?: "") } // Значение информации о пользователе в поле
     var changedNumberPhone by remember { mutableStateOf(profile?.telephoneNumber ?: "") } // Значение номера телефона в поле
@@ -99,7 +99,7 @@ fun NavigationScreens(
     var forgotPhoneNumber by remember { mutableStateOf<String?>(null) }
     var forgotEmail by remember { mutableStateOf<String?>(null) }
 
-    var selectedMessenger by remember { mutableStateOf<Messenger?>(null) }
+    var selectedMessenger by remember { mutableStateOf<MessengerPrototype?>(null) }
     var selectedUser by remember { mutableLongStateOf(-1L) }
     val rememberScrollState = rememberScrollState()
 
@@ -180,7 +180,7 @@ fun NavigationScreens(
                         BottomBar(
                             onMessageChange = { message ->
                                 listMessenger?.first { it == selectedMessenger }?.listMessage!!.add(
-                                    Message(
+                                    MessagePrototype(
                                         LocalDate.now().toString(),
                                         "${LocalTime.now().hour}.${LocalTime.now().minute}",
                                         message,
@@ -442,7 +442,7 @@ fun NavigationScreens(
                         changeValue = {
                             CoroutineScope(Dispatchers.Main).launch {
                                 val personalName: String? =
-                                    ProfilesRequests().updatePersonalName(profile!!.email, it)
+                                    ProfileRequestServicesImpl().updatePersonalNameUsingEmail(profile!!.email, it)
                                 if (personalName != null) {
                                     profile.personalName = it
                                     navController.navigate(NavigationItem.Profile.route)
@@ -465,7 +465,7 @@ fun NavigationScreens(
                             changedPersonalName = it
                             CoroutineScope(Dispatchers.Main).launch {
                                 val profileByPersonalName =
-                                    ProfilesRequests().getProfileByPersonalName(it)
+                                    ProfileRequestServicesImpl().getProfileUsingPersonalName(it)
                                 isValidPersonalName =
                                     !(profileByPersonalName != null && it.isNotEmpty() && profileByPersonalName != profile)
                             }
@@ -495,7 +495,7 @@ fun NavigationScreens(
                         changeValue = {
                             CoroutineScope(Dispatchers.Main).launch {
                                 val personalInfo: String? =
-                                    ProfilesRequests().updatePersonalInfo(profile!!.email, it)
+                                    ProfileRequestServicesImpl().updatePersonalInfoUsingEmail(profile!!.email, it)
                                 if (personalInfo != null) {
                                     profile.personalInfo = it
                                     navController.navigate(NavigationItem.Profile.route)
@@ -538,7 +538,7 @@ fun NavigationScreens(
                         changeValue = {
                             CoroutineScope(Dispatchers.Main).launch {
                                 val phoneNumber: String? =
-                                    ProfilesRequests().updatePhoneNumber(profile!!.email, it)
+                                    ProfileRequestServicesImpl().updateNumberPhoneUsingEmail(profile!!.email, it)
                                 if (phoneNumber != null) {
                                     profile.telephoneNumber = it
                                     navController.navigate(NavigationItem.Profile.route)
@@ -561,7 +561,7 @@ fun NavigationScreens(
                             changedNumberPhone = it
                             CoroutineScope(Dispatchers.Main).launch {
                                 val profileByPhoneNumber =
-                                    ProfilesRequests().getProfileByPhoneNumber(it)
+                                    ProfileRequestServicesImpl().getProfileUsingPhoneNumber(it)
                                 isValidNumberPhone =
                                     !(profileByPhoneNumber != null && it.isNotEmpty() && profileByPhoneNumber != profile)
                             }
@@ -590,7 +590,7 @@ fun NavigationScreens(
                         changeValue = {
                             CoroutineScope(Dispatchers.Main).launch {
                                 val email: String? =
-                                    ProfilesRequests().updateEmail(profile!!.email, it)
+                                    ProfileRequestServicesImpl().updateEmailUsingOldEmail(profile!!.email, it)
                                 if (email != null) {
                                     profile.email = it
                                     navController.navigate(NavigationItem.Profile.route)
@@ -610,7 +610,7 @@ fun NavigationScreens(
                         valueChanged = {
                             changedEmail = it
                             CoroutineScope(Dispatchers.Main).launch {
-                                val profileByEmail = ProfilesRequests().getProfileByEmail(it)
+                                val profileByEmail = ProfileRequestServicesImpl().getProfileUsingEmail(it)
                                 isValidEmail =
                                     !(profileByEmail != null && it.isNotEmpty() && profileByEmail != profile)
                             }
@@ -640,7 +640,7 @@ fun NavigationScreens(
                         changeValue = {
                             CoroutineScope(Dispatchers.Main).launch {
                                 val password: String? =
-                                    ProfilesRequests().updatePassword(
+                                    ProfileRequestServicesImpl().updatePasswordUsingEmail(
                                         profile.email,
                                         changedOldPassword,
                                         it
