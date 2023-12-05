@@ -14,11 +14,11 @@ class MessengersRequestServicesImpl : ClientAPI() {
     private val receivingServiceInMessengerDelegate = ReceivingServiceInMessenger()
     private val updateServiceInMessengerDelegate = UpdateServiceInMessenger()
 
-    fun getAllMessengersUsingUserId(userId: Long): MutableList<GetMessengerPrototypeDataBase>? {
+    suspend fun getAllMessengersUsingUserId(userId: Long): MutableList<GetMessengerPrototypeDataBase>? {
         return receivingServiceInMessengerDelegate.getAllMessengersUsingUserId(userId)
     }
 
-    fun addMessenger(messenger: AddMessengerPrototypeDataBase): GetMessengerPrototypeDataBase? {
+    suspend fun addMessenger(messenger: AddMessengerPrototypeDataBase): GetMessengerPrototypeDataBase? {
         return additionsServiceInMessengerDelegate.addMessenger(messenger)
     }
 }

@@ -1,6 +1,7 @@
 package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,100 +10,123 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.documentsearch.R
+import androidx.navigation.NavController
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.patterns.authentication.PhoneInput
-import com.example.documentsearch.ui.theme.AdditionalColor
+import com.example.documentsearch.screens.profile.HeadersProfile
 import com.example.documentsearch.ui.theme.AdditionalMainColor
+import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
+import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.validation.Validation
 import com.example.documentsearch.validation.ValidationText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
+class PhoneNumberChangingScreen(navigationController: NavController) : HeadersProfile() {
+    private val navigationController: NavController
 
-/**
- * Экран смены номера телефона пользователя
- *  @param value Значение для смены данных
- *  @param valueChanged Обработчик смены данных
- *  @param label Лейбел для текстового поля
- *  @param validationText Текст для валидации
- *  @param conditionValidation Нужна ли валидация для текстового поля
- *  @param invalidList Список для валидации
- */
-@Composable
-fun PhoneNumberChangingScreen(
-    value: String,
-    valueChanged: (String) -> Unit,
-    validationText: String,
-    label: String,
-    conditionValidation: Boolean = true,
-    invalidList: List<ValidationText> = listOf()
-) {
-    Column(
-        modifier = Modifier
-            .zIndex(2f)
-            .fillMaxWidth()
-            .height(10000.dp)
-            .background(color = MainColorLight),
+    init {
+        this.navigationController = navigationController
+    }
+
+    @Composable
+    fun Screen(onValueChange: (String) -> Unit) {
+        var changedValue by remember { mutableStateOf("") }
+
+        val title = "Номер телефона"
+        var isValidNumberPhone by remember { mutableStateOf(true) }
+        val validation = Validation()
+        val validationNumberPhone =
+            validation.isValidPhone(changedValue) && changedValue.length == 11 && isValidNumberPhone
+
+        Box {
+            super.HeaderProfileDataChanged(
+                navigationController = navigationController,
+                title = title,
+                value = changedValue,
+                onValueChange = { onValueChange(it) },
+                conditionValidation = validationNumberPhone
+            )
+            Body(
+                value = changedValue,
+                valueChanged = {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val profileRequestServices = ProfileRequestServicesImpl()
+                        val profileByPhoneNumber = profileRequestServices.getProfileUsingPhoneNumber(it)
+                        isValidNumberPhone = !(profileByPhoneNumber != null && it.isNotEmpty())
+                    }
+
+                    changedValue = it
+                },
+                conditionValue = validationNumberPhone
+            )
+        }
+    }
+
+    @Composable
+    private fun Body(
+        value: String,
+        valueChanged: (String) -> Unit,
+        conditionValue: Boolean = true,
+        invalidList: List<ValidationText> = listOf()
     ) {
-        PhoneInput(
-            phoneNumber = value,
-            onPhoneNumberChanged = { valueChanged(it) },
-            mainBoxModifier = Modifier
-                .fillMaxWidth()
-                .background(AdditionalMainColor)
-                .padding(20.dp, 20.dp, 20.dp, 5.dp),
-            textFieldModifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp)
-                .background(color = Color.Transparent)
-                .onFocusChanged { },
-            keyboardActions = KeyboardActions.Default,
-            label = label,
-            activeTextField = false,
-            styleLabel = TextStyle(
-                fontSize = 17.sp,
-                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                fontWeight = FontWeight(600),
-                color = TextColor,
-            ),
-            textStyle = TextStyle(
-                fontSize = 15.sp,
-                fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                fontWeight = FontWeight(600),
-                color = TextColor,
-            ),
-            validColor = if (conditionValidation) TextColor else Color.Red,
-            invalidList = invalidList
-        )
-        Spacer(
+        val helpText = "Здесь вы можете ввести свой новый номер телефона. \nНомер телефона должен использовать международный формат."
+        val label = "Напишите свой номер"
+
+        Column(
             modifier = Modifier
+                .zIndex(2f)
                 .fillMaxWidth()
-                .height(1.dp)
-                .background(MainColor)
-        )
-        Text(
-            text = validationText,
-            style = TextStyle(
-                fontSize = 15.sp,
-                fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                fontWeight = FontWeight(500),
-                color = AdditionalColor,
-                textAlign = TextAlign.Center
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(7.dp, 10.dp, 7.dp, 0.dp)
-        )
+                .padding(0.dp, super.getHeightHeader() - 33.dp, 0.dp, 0.dp)
+                .height(10000.dp)
+                .background(color = MainColorLight),
+        ) {
+            val phoneInput = PhoneInput(
+                mainBoxModifier = Modifier
+                    .fillMaxWidth()
+                    .background(AdditionalMainColor)
+                    .padding(20.dp, 20.dp, 20.dp, 5.dp),
+                textFieldModifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
+                    .background(color = Color.Transparent)
+                    .onFocusChanged { },
+                keyboardActions = KeyboardActions.Default,
+                label = label,
+                activeTextField = false,
+                styleLabel = HIGHLIGHTING_BOLD_TEXT,
+                textStyle = ORDINARY_TEXT,
+                validColor = if (conditionValue) TextColor else Color.Red,
+                invalidList = invalidList
+            )
+
+            phoneInput.Input(phoneNumber = value, onPhoneNumberChanged = { valueChanged(it) })
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(MainColor)
+            )
+            Text(
+                text = helpText,
+                style = ORDINARY_TEXT,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(7.dp, 10.dp, 7.dp, 0.dp)
+            )
+        }
     }
 }

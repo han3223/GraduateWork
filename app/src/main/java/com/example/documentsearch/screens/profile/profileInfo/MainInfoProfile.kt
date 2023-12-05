@@ -34,457 +34,357 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.documentsearch.R
-import com.example.documentsearch.prototypes.ProfilePrototype
 import com.example.documentsearch.navbar.NavigationItem
-import com.example.documentsearch.patterns.profile.StandardBlock
+import com.example.documentsearch.patterns.EditSize
+import com.example.documentsearch.patterns.EditText
+import com.example.documentsearch.patterns.profile.ProfileFactory
+import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColor
+import com.example.documentsearch.ui.theme.HEADING_TEXT
+import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
+import com.example.documentsearch.ui.theme.ORDINARY_TEXT
+import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 import kotlinx.coroutines.launch
 
-/**
- * Функция отображает основную исформацию о пользователе
- * @param navController Контроллер для навигации
- * @param profile Профиль пользователя
- * @param lazyListState Скролл на экране
- */
-@Composable
-fun MainInfoProfile(
-    navController: NavHostController,
-    profile: ProfilePrototype,
-    lazyListState: LazyListState
-) {
-    val density = LocalDensity.current // Нужен для определения длины контейнера
-    var dragStart by remember { mutableFloatStateOf(0f) } // Начальная точка свайпа вниз
-    var widthProfilePicture by remember { mutableStateOf(110.dp) } // Длина аватарки
-    var widthContent by remember { mutableStateOf(0.dp) } // Длина контента в контейнере
-    var isOpen by remember { mutableStateOf(false) } // Длина контента в контейнере
-    val coroutineScope = rememberCoroutineScope()
 
-    val pointerInput: Modifier = if (isOpen) {
-        Modifier.pointerInput(Unit) {
-            detectVerticalDragGestures(
-                onDragStart = {
-                    dragStart = it.y
+// TODO(Нужно переписать и наладить работу)
+class MainInfoProfile(navigationController: NavController, userProfile: UserProfilePrototype) {
+    private val navigationController: NavController
+    private val profile: UserProfilePrototype
 
-                },
-            ) { change, dragAmount ->
-                // Обработка свайпа и изменение длины аватарки
-                if (isOpen && dragAmount < 0 && widthProfilePicture > 110.dp) {
-                    if (widthContent - widthProfilePicture > 50.dp) {
-                        isOpen = !isOpen
-                        widthProfilePicture = 110.dp
-                    } else
-                        widthProfilePicture -= ((dragStart - 0 + change.pressure) / 100).dp
-                }
-            }
-        }
-    } else {
-        Modifier
+    private var widthContent: Dp = 0.dp
+    private val editSize = EditSize()
+    private val profileFactory = ProfileFactory()
+
+    init {
+        this.navigationController = navigationController
+        this.profile = userProfile
     }
 
-    // Длина аватарки с анимацией
-    val animatedWidthProfilePicture: Dp by animateDpAsState(
-        targetValue = if (widthProfilePicture <= 110.dp) widthProfilePicture else widthContent,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy),
-        label = ""
-    )
+    @Composable
+    fun Info(lazyListState: LazyListState) {
+        val density = LocalDensity.current // Нужен для определения длины контейнера
+        var dragStart by remember { mutableFloatStateOf(0f) } // Начальная точка свайпа вниз
+        var widthProfilePicture by remember { mutableStateOf(110.dp) } // Длина аватарки
 
-    val animatedEditPhotoBox by animateDpAsState(
-        targetValue = if (animatedWidthProfilePicture - 110.dp <= 60.dp) (animatedWidthProfilePicture - 110.dp) else 60.dp,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy),
-        label = ""
-    )
+        var widthContent by remember { mutableStateOf(0.dp) } // Длина контента в контейнере
+        this.widthContent = widthContent
 
-    Spacer(modifier = Modifier.height(10.dp))
-    // Основной контейнер с информацией о пользователе
-    Box(
-        modifier = pointerInput
-            .zIndex(2f)
-            .fillMaxWidth()
-            .clip(shape = RoundedCornerShape(size = 33.dp))
-            .background(color = MainColorLight)
+        var isOpen by remember { mutableStateOf(false) } // Длина контента в контейнере
+        val coroutineScope = rememberCoroutineScope()
 
-    ) {
-        // Список информации о пользователе
-        Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(top = 10.dp, bottom = 30.dp)
-        ) {
-            // Контейнер с ФИО, Пользовательским именем и аватаркой
-            Box(
-                modifier = Modifier
-                    .padding(20.dp, 0.dp, 20.dp, 0.dp)
-                    .onSizeChanged {
-                        // Определение размера контента
-                        widthContent = with(density) { it.width.toDp() }
-                    }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .zIndex(2f)
-                        .fillMaxWidth()
-                        .align(Alignment.BottomStart),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    // Контейнер с ФИО, Пользовательским именем
-                    Column(
-                        modifier = Modifier.fillMaxWidth(0.6f)
-                    ) {
-                        Text(
-                            text = "${profile.lastName} ${profile.firstName} ${profile.patronymic}",
-                            style = TextStyle(
-                                fontSize = 21.sp,
-                                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                                fontWeight = FontWeight(600),
-                                color = TextColor,
-                            ),
-                            modifier = Modifier
-                                .padding(
-                                    start = getPaddingAfterAnimation(
-                                        widthContent = widthContent,
-                                        animatedWidth = animatedWidthProfilePicture,
-                                        afterPadding = 10
-                                    )
-                                )
-                        )
-                        Column(modifier = Modifier.pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    navController.navigate(NavigationItem.ChangePersonalName.route)
-                                },
-                            )
-                        }) {
-                            StandardBlock(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 10.dp),
-                                label = "Пользовательское имя:",
-                                styleLabel = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                                    fontWeight = FontWeight(600),
-                                    color = TextColor,
-                                ),
-                                value = "@${profile.personalName}",
-                                styleValue = TextStyle(
-                                    fontSize = 15.sp,
-                                    fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                                    fontWeight = FontWeight(600),
-                                    color = TextColor,
-                                )
-                            )
-                            Text(
-                                text = "Нажмите чтобы изменить",
-                                style = TextStyle(
-                                    fontSize = 11.sp,
-                                    fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                                    fontWeight = FontWeight(500),
-                                    color = AdditionalColor,
-                                    textAlign = TextAlign.Start
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 7.dp, bottom = 5.dp)
-                            )
-                        }
+        val pointerInput: Modifier = if (isOpen) {
+            Modifier.pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = { dragStart = it.y }
+                ) { change, dragAmount ->
+                    // Обработка свайпа и изменение длины аватарки
+                    if (isOpen && dragAmount < 0 && widthProfilePicture > 110.dp) {
+                        if (widthContent - widthProfilePicture > 50.dp) {
+                            isOpen = !isOpen
+                            widthProfilePicture = 110.dp
+                        } else
+                            widthProfilePicture -= ((dragStart - 0 + change.pressure) / 100).dp
                     }
                 }
-                // Аватарка
+            }
+        } else {
+            Modifier
+        }
+
+        // Длина аватарки с анимацией
+        val animatedWidthProfilePicture: Dp by animateDpAsState(
+            targetValue = if (widthProfilePicture <= 110.dp) widthProfilePicture else widthContent,
+            animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy),
+            label = ""
+        )
+
+        val animatedEditPhotoBox by animateDpAsState(
+            targetValue = if (animatedWidthProfilePicture - 110.dp <= 60.dp) (animatedWidthProfilePicture - 110.dp) else 60.dp,
+            animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy),
+            label = ""
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+        // Основной контейнер с информацией о пользователе
+        Box(
+            modifier = pointerInput
+                .zIndex(2f)
+                .fillMaxWidth()
+                .clip(shape = RoundedCornerShape(size = 33.dp))
+                .background(color = MainColorLight)
+
+        ) {
+            // Список информации о пользователе
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.padding(top = 10.dp, bottom = 30.dp)
+            ) {
+                // Контейнер с ФИО, Пользовательским именем и аватаркой
                 Box(
                     modifier = Modifier
-                        .zIndex(1f)
-                        .padding(
-                            top = 10.dp,
-                            bottom = 10.dp + getPaddingAfterAnimation(
-                                widthContent = widthContent,
-                                animatedWidth = animatedWidthProfilePicture,
-                                afterPadding = 60
-                            )
-                        )
-                        .align(Alignment.TopEnd)
-                        .size(
-                            110.dp + (animatedWidthProfilePicture - 110.dp),
-                            110.dp + (animatedWidthProfilePicture - 110.dp) / 2
-                        )
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                if (!isOpen) {
-                                    isOpen = true
-                                    widthProfilePicture =
-                                        if (widthProfilePicture > 110.dp) 100.dp else widthContent
-                                }
-
-                                coroutineScope.launch { lazyListState.animateScrollToItem(0) }
-                            }
+                        .padding(20.dp, 0.dp, 20.dp, 0.dp)
+                        .onSizeChanged {
+                            widthContent = with(density) { it.width.toDp() }
                         }
-                        .background(
-                            color = MainColorDark,
-                            shape = RoundedCornerShape(55.dp - if ((animatedWidthProfilePicture - 110.dp) <= 50.dp) (animatedWidthProfilePicture - 110.dp) else 45.dp)
-                        )
                 ) {
+                    Row(
+                        modifier = Modifier
+                            .zIndex(2f)
+                            .fillMaxWidth()
+                            .align(Alignment.BottomStart),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Контейнер с ФИО, Пользовательским именем
+                        Column(
+                            modifier = Modifier.fillMaxWidth(0.6f)
+                        ) {
+                            FullName(animatedWidthProfilePicture)
+                            PersonalName()
+                        }
+                    }
+                    // Аватарка
                     Box(
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .size(animatedEditPhotoBox)
-                            .padding(end = 10.dp, bottom = 10.dp)
-                            .background(AdditionalMainColor, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (animatedWidthProfilePicture - 110.dp >= 30.dp) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.edit),
-                                contentDescription = null,
-                                tint = TextColor,
-                                modifier = Modifier.size(animatedEditPhotoBox/2)
+                            .zIndex(1f)
+                            .align(Alignment.TopEnd)
+                            .padding(
+                                top = 10.dp,
+                                bottom = 10.dp + editSize.getPaddingAfterAnimation(
+                                    widthContent = widthContent,
+                                    animatedWidth = animatedWidthProfilePicture,
+                                    afterPadding = 60
+                                )
                             )
+                            .size(
+                                110.dp + (animatedWidthProfilePicture - 110.dp),
+                                110.dp + (animatedWidthProfilePicture - 110.dp) / 2
+                            )
+                            .pointerInput(Unit) {
+                                detectTapGestures {
+                                    if (!isOpen) {
+                                        isOpen = true
+                                        widthProfilePicture =
+                                            if (widthProfilePicture > 110.dp) 100.dp else widthContent
+                                    }
+                                    coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+                                }
+                            }
+                            .background(
+                                color = MainColorDark,
+                                shape = RoundedCornerShape(55.dp - if ((animatedWidthProfilePicture - 110.dp) <= 50.dp) (animatedWidthProfilePicture - 110.dp) else 45.dp)
+                            )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(animatedEditPhotoBox)
+                                .padding(end = 10.dp, bottom = 10.dp)
+                                .background(AdditionalMainColor, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (animatedWidthProfilePicture - 110.dp >= 30.dp) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.edit),
+                                    contentDescription = null,
+                                    tint = TextColor,
+                                    modifier = Modifier.size(animatedEditPhotoBox / 2)
+                                )
+                            }
                         }
                     }
                 }
+                Separator()
+
+                ProfileInfo()
+                Separator()
+
+                PhoneNumber()
+                Separator()
+
+                Email()
+                Separator()
+
+                Password()
+                Separator()
             }
-
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
-            // Информация о пользователе
-            Column(modifier = Modifier.pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        navController.navigate(NavigationItem.ChangePersonalInfo.route)
-                    },
-                )
-            }) {
-                StandardBlock(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 10.dp, end = 20.dp),
-                    label = "Информация:",
-                    styleLabel = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    value = profile.personalInfo?: "",
-                    styleValue = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    )
-                )
-                Text(
-                    text = "Нажмите, чтобы добавить информацию о себе",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(500),
-                        color = AdditionalColor,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-                )
-            }
-
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
-            // Номер телефона
-            Column(modifier = Modifier.pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        navController.navigate(NavigationItem.ChangeNumberPhone.route)
-                    },
-                )
-            }) {
-                StandardBlock(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 10.dp, end = 20.dp),
-                    label = "Номер телефона:",
-                    styleLabel = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    value = getMaskNumberPhone(profile.telephoneNumber),
-                    styleValue = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    )
-                )
-                Text(
-                    text = "Нажмите, чтобы сменить номер телефона",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(500),
-                        color = AdditionalColor,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-                )
-            }
-
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
-            // Email
-            Column(modifier = Modifier.pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        navController.navigate(NavigationItem.ChangeEmail.route)
-                    },
-                )
-            }) {
-                StandardBlock(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 10.dp, end = 20.dp),
-                    label = "Email:",
-                    styleLabel = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    value = profile.email,
-                    styleValue = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    )
-                )
-                Text(
-                    text = "Нажмите, чтобы сменить email",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(500),
-                        color = AdditionalColor,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-                )
-            }
-
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
-            // Пароль
-            Column(modifier = Modifier.pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        navController.navigate(NavigationItem.ChangePassword.route)
-                    },
-                )
-            }) {
-                StandardBlock(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 10.dp, end = 20.dp),
-                    label = "Пароль:",
-                    styleLabel = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    value = "*********",
-                    styleValue = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    )
-                )
-                Text(
-                    text = "Нажмите, чтобы создать новый пароль",
-                    style = TextStyle(
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(500),
-                        color = AdditionalColor,
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-                )
-            }
-
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
-        }
-    }
-}
-
-fun getMaskNumberPhone(numberPhone: String): String {
-    var maskedNumber = ""
-    numberPhone.forEachIndexed { index, char ->
-        when (index) {
-            0 -> maskedNumber = "+$char"
-            1 -> maskedNumber += " ($char"
-            4 -> maskedNumber += ") $char"
-            7, 9 -> maskedNumber += "-$char"
-            else -> maskedNumber += char
         }
     }
 
-    return maskedNumber
-}
+    @Composable
+    private fun FullName(animatedWidthProfilePicture: Dp) {
+        Text(
+            text = "${profile.lastName} ${profile.firstName} ${profile.patronymic}",
+            style = HEADING_TEXT,
+            modifier = Modifier
+                .padding(
+                    start = editSize.getPaddingAfterAnimation(
+                        widthContent = widthContent,
+                        animatedWidth = animatedWidthProfilePicture,
+                        afterPadding = 10
+                    )
+                )
+        )
+    }
 
-/**
- * Функция позволяет расчитать конечный отступ и после анимации
- * @param widthContent Длина контейнера
- * @param animatedWidth Длина увеличиваемого блока
- * @param afterPadding Конечный отступ
- */
-@Composable
-fun getPaddingAfterAnimation(widthContent: Dp, animatedWidth: Dp, afterPadding: Int): Dp {
-    return kotlin.math.abs(((1 - ((widthContent - animatedWidth) / (widthContent - 110.dp))).dp * afterPadding).value.toInt()).dp
+    @Composable
+    private fun PersonalName() {
+        Column(modifier = Modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        navigationController.navigate(NavigationItem.ChangePersonalName.route)
+                    }
+                )
+            }
+        ) {
+            profileFactory.StandardBlock(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                label = "Пользовательское имя:",
+                styleLabel = HIGHLIGHTING_BOLD_TEXT,
+                value = "@${profile.personalName}",
+                styleValue = ORDINARY_TEXT
+            )
+            Text(
+                text = "Нажмите чтобы изменить",
+                style = SECONDARY_TEXT,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 7.dp, bottom = 5.dp)
+            )
+        }
+    }
+
+    @Composable
+    private fun ProfileInfo() {
+        Column(modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    navigationController.navigate(NavigationItem.ChangePersonalInfo.route)
+                }
+            )
+        }) {
+            profileFactory.StandardBlock(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 10.dp, end = 20.dp),
+                label = "Информация:",
+                styleLabel = HIGHLIGHTING_BOLD_TEXT,
+                value = profile.personalInfo ?: "",
+                styleValue = ORDINARY_TEXT
+            )
+            Text(
+                text = "Нажмите, чтобы добавить информацию о себе",
+                style = SECONDARY_TEXT,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
+            )
+        }
+    }
+
+    @Composable
+    private fun PhoneNumber() {
+        Column(modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    navigationController.navigate(NavigationItem.ChangeNumberPhone.route)
+                }
+            )
+        }) {
+            profileFactory.StandardBlock(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 10.dp, end = 20.dp),
+                label = "Номер телефона:",
+                styleLabel = HIGHLIGHTING_BOLD_TEXT,
+                value = EditText().getMaskNumberPhone(profile.telephoneNumber),
+                styleValue = ORDINARY_TEXT
+            )
+            Text(
+                text = "Нажмите, чтобы сменить номер телефона",
+                style = SECONDARY_TEXT,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
+            )
+        }
+    }
+
+    @Composable
+    private fun Email() {
+        Column(modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    navigationController.navigate(NavigationItem.ChangeEmail.route)
+                },
+            )
+        }) {
+            profileFactory.StandardBlock(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 10.dp, end = 20.dp),
+                label = "Email:",
+                styleLabel = HIGHLIGHTING_BOLD_TEXT,
+                value = profile.email,
+                styleValue = ORDINARY_TEXT
+            )
+            Text(
+                text = "Нажмите, чтобы сменить email",
+                style = SECONDARY_TEXT,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
+            )
+        }
+    }
+
+    @Composable
+    private fun Password() {
+        Column(modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    navigationController.navigate(NavigationItem.ChangePassword.route)
+                },
+            )
+        }) {
+            profileFactory.StandardBlock(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 10.dp, end = 20.dp),
+                label = "Пароль:",
+                styleLabel = HIGHLIGHTING_BOLD_TEXT,
+                value = "*********",
+                styleValue = ORDINARY_TEXT
+            )
+            Text(
+                text = "Нажмите, чтобы создать новый пароль",
+                style = SECONDARY_TEXT,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
+            )
+        }
+    }
+
+    @Composable
+    private fun Separator() {
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(AdditionalColor)
+        )
+    }
 }

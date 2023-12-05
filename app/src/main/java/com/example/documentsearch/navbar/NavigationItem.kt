@@ -2,9 +2,6 @@ package com.example.documentsearch.navbar
 
 import com.example.documentsearch.R
 
-/**
- * Класс предоставляет список элементов для navbar
- */
 sealed class NavigationItem(
     var route: String,
     var icon: Int,

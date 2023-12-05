@@ -16,96 +16,98 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavHostController
-import com.example.documentsearch.R
-import com.example.documentsearch.prototypes.ProfilePrototype
-import com.example.documentsearch.prototypes.TagPrototype
+import androidx.navigation.NavController
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
+import com.example.documentsearch.prototypes.TagPrototype
+import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.example.documentsearch.screens.profile.profileInfo.MainInfoProfile
 import com.example.documentsearch.screens.profile.profileInfo.PersonalDocumentation
 import com.example.documentsearch.screens.profile.profileInfo.ProfileTags
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
-import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
 
-/**
- * Функция отображает блок профиля пользователя
- */
-@Composable
-fun ProfileScreen(
-    navController: NavHostController,
-    profile: ProfilePrototype,
-    onExitProfileChange: (Boolean) -> Unit,
+class ProfileScreen(
+    navigationController: NavController,
+    userProfile: UserProfilePrototype,
     tags: List<TagPrototype>
-) {
-    val context = LocalContext.current
-    val preferencesManager = PreferencesManager(context)
-    val lazyListState = rememberLazyListState()
+) : HeadersProfile() {
+    private val navigationController: NavController
+    private val profile: UserProfilePrototype
+    private val tags: List<TagPrototype>
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth(),
-        state = lazyListState
-    ) {
-        // Основная информация о пользователе
-        item(0) {
-            MainInfoProfile(
-                navController = navController,
-                profile = profile,
-                lazyListState = lazyListState
-            )
+    private lateinit var preferencesManager: PreferencesManager
+
+    init {
+        this.navigationController = navigationController
+        this.profile = userProfile
+        this.tags = tags
+    }
+
+    @Composable
+    fun Screen(onExitProfileChange: (Unit) -> Unit) {
+        Box {
+            super.BasicHeader()
+            Body { onExitProfileChange(it) }
         }
-        // Теги пользователя
-        item(1) {
-            ProfileTags(tags = tags, profile)
-        }
-        // Документация пользователя
-        item(2) {
-            PersonalDocumentation()
-        }
-        // Выйти из аккаунта
-        item(3) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Box(
-                modifier = Modifier
-                    .zIndex(2f)
-                    .fillMaxWidth()
-                    .heightIn(0.dp, 350.dp)
-                    .clip(shape = RoundedCornerShape(size = 33.dp))
-                    .background(color = AdditionalMainColorDark)
-            ) {
-                Text(
-                    text = "Выйти из аккаунта",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                        textAlign = TextAlign.Center,
-                    ),
-                    modifier = Modifier
-                        .padding(7.dp)
-                        .fillMaxWidth()
-                        .clickable {
-                            preferencesManager.removeData(emailKeyPreferences)
-                            preferencesManager.removeData(passwordKeyPreferences)
-                            onExitProfileChange(true)
-                        }
-                )
+    }
+
+    @Composable
+    private fun Body(onExitProfileChange: (Unit) -> Unit) {
+        val context = LocalContext.current
+        this.preferencesManager = PreferencesManager(context)
+        val lazyListState = rememberLazyListState()
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp, super.getHeightHeader() - 33.dp, 5.dp, 0.dp),
+            state = lazyListState
+        ) {
+            item(0) {
+                MainInfoProfile(navigationController, profile).Info(lazyListState = lazyListState)
+            }
+            item(1) {
+                ProfileTags(tags = tags, profile).Tags()
+            }
+            item(2) {
+                PersonalDocumentation().Documentation()
+            }
+            item(3) {
+                Spacer(modifier = Modifier.height(10.dp))
+                ExitProfile { onExitProfileChange(it) }
+            }
+            item(4) {
+                Spacer(modifier = Modifier.height(90.dp))
             }
         }
-        // Отступ от нижней границы
-        item(4) {
-            Spacer(modifier = Modifier.height(90.dp))
+    }
+
+    @Composable
+    private fun ExitProfile(onExitProfileChange: (Unit) -> Unit) {
+        Box(
+            modifier = Modifier
+                .zIndex(2f)
+                .fillMaxWidth()
+                .heightIn(0.dp, 350.dp)
+                .clip(shape = RoundedCornerShape(size = 33.dp))
+                .background(color = AdditionalMainColorDark)
+        ) {
+            Text(
+                text = "Выйти из аккаунта",
+                style = HIGHLIGHTING_BOLD_TEXT,
+                modifier = Modifier
+                    .padding(7.dp)
+                    .fillMaxWidth()
+                    .clickable {
+                        preferencesManager.removeData(emailKeyPreferences)
+                        preferencesManager.removeData(passwordKeyPreferences)
+                        onExitProfileChange(Unit)
+                    }
+            )
         }
     }
 }

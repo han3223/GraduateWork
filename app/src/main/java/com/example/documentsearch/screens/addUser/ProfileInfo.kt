@@ -34,339 +34,334 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.patterns.EditText
+import com.example.documentsearch.patterns.HeaderFactory
+import com.example.documentsearch.patterns.profile.ProfileFactory
 import com.example.documentsearch.prototypes.AddMessengerPrototypeDataBase
-import com.example.documentsearch.prototypes.AnotherUserPrototype
+import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
 import com.example.documentsearch.prototypes.MessengerPrototype
-import com.example.documentsearch.prototypes.ProfilePrototype
-import com.example.documentsearch.patterns.profile.StandardBlock
-import com.example.documentsearch.screens.profile.profileInfo.getMaskNumberPhone
+import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColor
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
+import com.example.documentsearch.ui.theme.HEADING_TEXT
+import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
+import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
-@Composable
-fun ProfileInfo(
-    navController: NavHostController,
-    anotherProfile: AnotherUserPrototype,
-    profile: ProfilePrototype,
-    onMessengerChange: (MessengerPrototype) -> Unit
+class ProfileInfo(
+    navigationController: NavController,
+    anotherProfile: AnotherUserProfilePrototype,
+    userProfile: UserProfilePrototype
 ) {
-    val density = LocalDensity.current // Нужен для определения длины контейнера
-    var widthContent by remember { mutableStateOf(0.dp) } // Длина контента в контейнере
+    private val navigationController: NavController
+    private val anotherProfile: AnotherUserProfilePrototype
+    private val userProfile: UserProfilePrototype
 
+    private val heightHeader = 120.dp
+    private val headerFactory = HeaderFactory()
+    private val profileFactory = ProfileFactory()
 
-    Spacer(modifier = Modifier.height(10.dp))
-    // Основной контейнер с информацией о пользователе
-    Box(
-        modifier = Modifier
-            .zIndex(2f)
-            .fillMaxWidth()
-            .clip(shape = RoundedCornerShape(size = 33.dp))
-            .background(color = MainColorLight)
-    ) {
-        // Список информации о пользователе
+    init {
+        this.navigationController = navigationController
+        this.anotherProfile = anotherProfile
+        this.userProfile = userProfile
+    }
+
+    @Composable
+    fun Screen(onMessengerChange: (MessengerPrototype) -> Unit) {
+        Box {
+            Header()
+            Body { onMessengerChange(it) }
+        }
+    }
+
+    @Composable
+    fun Header() {
+        headerFactory.HeaderPrototype(height = heightHeader)
+    }
+
+    @Composable
+    fun Body(onMessengerChange: (MessengerPrototype) -> Unit) {
+        val density = LocalDensity.current
+        var widthContent by remember { mutableStateOf(0.dp) }
+
         Column(
             horizontalAlignment = Alignment.Start,
-            modifier = Modifier.padding(top = 10.dp, bottom = 30.dp)
+            modifier = Modifier
+                .padding(5.dp, 93.dp, 5.dp, 30.dp)
+                .zIndex(0f)
+                .fillMaxWidth()
+                .clip(shape = RoundedCornerShape(size = 33.dp))
+                .background(color = MainColorLight)
         ) {
-            // Контейнер с ФИО, Пользовательским именем и аватаркой
             Box(
                 modifier = Modifier
-                    .padding(20.dp, 0.dp, 20.dp, 0.dp)
-                    .onSizeChanged {
-                        // Определение размера контента
-                        widthContent = with(density) { it.width.toDp() }
-                    }
+                    .padding(20.dp, 20.dp, 20.dp, 0.dp)
+                    .onSizeChanged { widthContent = with(density) { it.width.toDp() } }
             ) {
-                Row(
-                    modifier = Modifier
-                        .zIndex(2f)
-                        .fillMaxWidth()
-                        .align(Alignment.BottomStart),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    // Контейнер с ФИО, Пользовательским именем
-                    Column(
-                        modifier = Modifier.fillMaxWidth(0.6f)
-                    ) {
-                        Text(
-                            text = "${anotherProfile.lastName} ${anotherProfile.firstName} ${anotherProfile.patronymic}",
-                            style = TextStyle(
-                                fontSize = 21.sp,
-                                fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                                fontWeight = FontWeight(600),
-                                color = TextColor,
-                            ),
-                            modifier = Modifier.padding(start = 10.dp)
-                        )
-
-                        Column() {
-                            StandardBlock(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 10.dp),
-                                label = "Пользовательское имя:",
-                                styleLabel = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                                    fontWeight = FontWeight(600),
-                                    color = TextColor,
-                                ),
-                                value = "@${anotherProfile.personalName}",
-                                styleValue = TextStyle(
-                                    fontSize = 15.sp,
-                                    fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                                    fontWeight = FontWeight(600),
-                                    color = TextColor,
-                                )
-                            )
-                        }
-                    }
-                }
-                // Аватарка
                 Box(
                     modifier = Modifier
-                        .zIndex(1f)
-                        .padding(
-                            top = 10.dp,
-                            bottom = 45.dp
-                        )
+                        .padding(top = 0.dp, bottom = 45.dp)
                         .align(Alignment.TopEnd)
-                        .size(
-                            widthContent,
-                            widthContent / 1.5f
-                        )
-                        .background(
-                            color = MainColorDark,
-                            shape = RoundedCornerShape(10.dp)
-                        )
+                        .size(widthContent, widthContent / 1.5f)
+                        .background(color = MainColorDark, shape = RoundedCornerShape(10.dp))
                 ) {
+                    ProfilePicture()
                     Row(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(end = 10.dp, bottom = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(34.dp)
-                                .background(AdditionalMainColor, CircleShape)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(onTap = {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            val request = MessengersRequestServicesImpl().addMessenger(
-                                                AddMessengerPrototypeDataBase(user = profile.id!!, interlocutor = anotherProfile.id)
-                                            )
-                                            if (request != null) {
-                                                val messenger = MessengerPrototype(request.id, anotherProfile, mutableListOf())
-                                                onMessengerChange(messenger)
-                                            }
-                                        }
-                                    })
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.message_white),
-                                contentDescription = null,
-                                tint = TextColor,
-                                modifier = Modifier.size(17.dp)
-                            )
+                        Box(modifier = Modifier.width(widthContent - 100.dp)) {
+                            FullName("${anotherProfile.lastName} ${anotherProfile.firstName} ${anotherProfile.patronymic}")
                         }
-
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .size(34.dp)
-                                .background(AdditionalMainColor, CircleShape)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(onTap = {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            val request = ProfileRequestServicesImpl().addFriendUsingEmail(profile.email, anotherProfile.id.toString())
-                                        }
-                                    })
-                                },
-                            contentAlignment = Alignment.Center
+                                .width(100.dp)
+                                .align(Alignment.Bottom),
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.add_user_white),
-                                contentDescription = null,
-                                tint = TextColor,
-                                modifier = Modifier.size(17.dp)
-                            )
+                            Communication { onMessengerChange(it) }
+                            AddUser()
                         }
                     }
                 }
-            }
 
-            // Информация о пользователе
-            Column {
-                StandardBlock(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 20.dp, top = 10.dp, end = 20.dp),
-                    label = "Информация:",
-                    styleLabel = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    value = anotherProfile.personalInfo ?: "",
-                    styleValue = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    )
-                )
+                        .align(Alignment.BottomStart)
+                ) {
+                    PersonalName("@${anotherProfile.personalName}")
+                }
             }
 
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .padding(top = 5.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
-            // Номер телефона
-            Column {
-                StandardBlock(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 10.dp, end = 20.dp),
-                    label = "Номер телефона:",
-                    styleLabel = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    value = getMaskNumberPhone(anotherProfile.numberPhone),
-                    styleValue = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    )
-                )
-            }
-
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .padding(top = 5.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
-            // Email
-            Column {
-                StandardBlock(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, top = 10.dp, end = 20.dp),
-                    label = "Email:",
-                    styleLabel = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    ),
-                    value = anotherProfile.email,
-                    styleValue = TextStyle(
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                        fontWeight = FontWeight(600),
-                        color = TextColor,
-                    )
-                )
-            }
-            // Линия разделения
-            Spacer(
-                modifier = Modifier
-                    .padding(top = 5.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(AdditionalColor)
-            )
+            Info()
+            Separation()
+            NumberPhone()
+            Separation()
+            Email()
+            Separation()
 
             // Контейнер для тегов пользователя
             if (!anotherProfile.tags.isNullOrEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp, 10.dp, 20.dp, 10.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .height(35.dp)
-                        .background(AdditionalMainColorDark),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(35.dp)
-                            .clip(RoundedCornerShape(17.dp))
-                            .shadow(
-                                40.dp,
-                                RoundedCornerShape(14.dp),
-                                ambientColor = Color.White,
-                                spotColor = Color.White
-                            )
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .horizontalScroll(rememberScrollState())
-                            .clip(RoundedCornerShape(14.dp))
-                            .padding(horizontal = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        anotherProfile.tags.forEach {
-                            Box(
-                                modifier = Modifier
-                                    .background(
-                                        color = MainColorDark,
-                                        shape = RoundedCornerShape(size = 14.dp)
-                                    )
-                                    .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
-                            ) {
-                                Text(
-                                    text = it.toString(),
-                                    style = TextStyle(
-                                        fontSize = 15.sp,
-                                        fontFamily = FontFamily(Font(R.font.montserrat_semi_bold)),
-                                        fontWeight = FontWeight(600),
-                                        color = TextColor,
-                                    ),
-                                    modifier = Modifier.padding(
-                                        vertical = 5.dp,
-                                        horizontal = 10.dp
+                Tags(anotherProfile.tags)
+            }
+
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp))
+        }
+    }
+
+    @Composable
+    fun FullName(fullName: String) {
+        Text(
+            text = fullName,
+            style = HEADING_TEXT,
+            modifier = Modifier.padding(start = 10.dp)
+        )
+    }
+
+    @Composable
+    fun PersonalName(personalName: String) {
+        profileFactory.StandardBlock(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            label = "Пользовательское имя:",
+            styleLabel = HIGHLIGHTING_BOLD_TEXT,
+            value = personalName,
+            styleValue = ORDINARY_TEXT
+        )
+    }
+
+    @Composable
+    fun ProfilePicture() {
+
+    }
+
+    @Composable
+    fun Communication(onMessengerChange: (MessengerPrototype) -> Unit) {
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .background(AdditionalMainColor, CircleShape)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val request =
+                                MessengersRequestServicesImpl().addMessenger(
+                                    AddMessengerPrototypeDataBase(
+                                        user = userProfile.id!!,
+                                        interlocutor = anotherProfile.id
                                     )
                                 )
+                            if (request != null) {
+                                val messenger = MessengerPrototype(
+                                    request.id,
+                                    anotherProfile,
+                                    mutableListOf()
+                                )
+                                onMessengerChange(messenger)
                             }
-                            Spacer(modifier = Modifier.width(5.dp))
                         }
+                    })
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.message_white),
+                contentDescription = null,
+                tint = TextColor,
+                modifier = Modifier.size(17.dp)
+            )
+        }
+    }
+
+    @Composable
+    fun AddUser() {
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .background(AdditionalMainColor, CircleShape)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val profileRequestServices = ProfileRequestServicesImpl()
+                            profileRequestServices.addFriendUsingEmail(
+                                userProfile.email,
+                                anotherProfile.id.toString()
+                            )
+                        }
+                    })
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.add_user_white),
+                contentDescription = null,
+                tint = TextColor,
+                modifier = Modifier.size(17.dp)
+            )
+        }
+    }
+
+    @Composable
+    private fun Info() {
+        profileFactory.StandardBlock(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, top = 10.dp, end = 20.dp),
+            label = "Информация:",
+            styleLabel = HIGHLIGHTING_BOLD_TEXT,
+            value = anotherProfile.personalInfo ?: "",
+            styleValue = ORDINARY_TEXT
+        )
+    }
+
+    @Composable
+    private fun NumberPhone() {
+        profileFactory.StandardBlock(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, top = 10.dp, end = 20.dp),
+            label = "Номер телефона:",
+            styleLabel = HIGHLIGHTING_BOLD_TEXT,
+            value = EditText().getMaskNumberPhone(anotherProfile.numberPhone),
+            styleValue = ORDINARY_TEXT
+        )
+    }
+
+    @Composable
+    private fun Email() {
+        profileFactory.StandardBlock(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, top = 10.dp, end = 20.dp),
+            label = "Email:",
+            styleLabel = HIGHLIGHTING_BOLD_TEXT,
+            value = anotherProfile.email,
+            styleValue = ORDINARY_TEXT
+        )
+    }
+
+    @Composable
+    private fun Tags(tags: List<Long>) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp, 10.dp, 20.dp, 10.dp)
+                .clip(RoundedCornerShape(18.dp))
+                .height(35.dp)
+                .background(AdditionalMainColorDark),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(35.dp)
+                    .clip(RoundedCornerShape(17.dp))
+                    .shadow(
+                        40.dp,
+                        RoundedCornerShape(14.dp),
+                        ambientColor = Color.White,
+                        spotColor = Color.White
+                    )
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .horizontalScroll(rememberScrollState())
+                    .clip(RoundedCornerShape(14.dp))
+                    .padding(horizontal = 5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                tags.forEach {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MainColorDark,
+                                shape = RoundedCornerShape(size = 14.dp)
+                            )
+                            .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
+                    ) {
+                        Text(
+                            text = it.toString(),
+                            style = HIGHLIGHTING_BOLD_TEXT,
+                            modifier = Modifier.padding(
+                                vertical = 5.dp,
+                                horizontal = 10.dp
+                            )
+                        )
                     }
+                    Spacer(modifier = Modifier.width(5.dp))
                 }
             }
         }
+    }
+
+    @Composable
+    private fun Separation() {
+        Spacer(
+            modifier = Modifier
+                .padding(top = 5.dp)
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(AdditionalColor)
+        )
     }
 }

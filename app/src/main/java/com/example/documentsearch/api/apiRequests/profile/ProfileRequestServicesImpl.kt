@@ -6,96 +6,97 @@ import com.example.documentsearch.api.apiRequests.profile.get.ReceivingServiceIn
 import com.example.documentsearch.api.apiRequests.profile.get.ReceivingServiceInProfile
 import com.example.documentsearch.api.apiRequests.profile.post.AdditionsServiceInProfile
 import com.example.documentsearch.api.apiRequests.profile.put.UpdateServiceInProfile
-import com.example.documentsearch.prototypes.AnotherUserPrototype
-import com.example.documentsearch.prototypes.ProfilePrototype
+import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
+import com.example.documentsearch.prototypes.UserProfilePrototype
 
-class ProfileRequestServicesImpl: ClientAPI() {
+class ProfileRequestServicesImpl : ClientAPI() {
     private val additionsServiceInProfileDelegate = AdditionsServiceInProfile()
     private val deletionServiceInProfileDelegate = DeletionServiceInProfile()
     private val receivingServiceInProfileDelegate = ReceivingServiceInProfile()
     private val receivingServiceInAnotherProfileDelegate = ReceivingServiceInAnotherProfile()
     private val updateServiceInProfileDelegate = UpdateServiceInProfile()
 
-    fun addProfile(profile: ProfilePrototype): ProfilePrototype? {
-        return additionsServiceInProfileDelegate.addProfile(profile)
+    suspend fun addProfile(profilePrototype: UserProfilePrototype): UserProfilePrototype? {
+        return additionsServiceInProfileDelegate.addProfile(profilePrototype)
     }
 
 
-    fun getAllAnotherProfile(): List<AnotherUserPrototype> {
+    suspend fun getAllAnotherProfile(): List<AnotherUserProfilePrototype> {
         return receivingServiceInAnotherProfileDelegate.getAllAnotherProfile()
     }
 
-    fun getAnotherProfileUsingId(idProfile: Long): AnotherUserPrototype? {
+    suspend fun getAnotherProfileUsingId(idProfile: Long): AnotherUserProfilePrototype? {
         return receivingServiceInAnotherProfileDelegate.getAnotherProfileUsingId(idProfile)
     }
 
 
-    fun getProfileUsingEmail(email: String): ProfilePrototype? {
+    suspend fun getProfileUsingEmail(email: String): UserProfilePrototype? {
         return receivingServiceInProfileDelegate.getProfileUsingEmail(email)
     }
 
-    fun getProfileUsingPhoneNumber(phoneNumber: String): ProfilePrototype? {
+    suspend fun getProfileUsingPhoneNumber(phoneNumber: String): UserProfilePrototype? {
         return receivingServiceInProfileDelegate.getProfileUsingPhoneNumber(phoneNumber)
     }
 
-    fun getProfileUsingPersonalName(personalName: String): ProfilePrototype? {
+    suspend fun getProfileUsingPersonalName(personalName: String): UserProfilePrototype? {
         return receivingServiceInProfileDelegate.getProfileUsingPersonalName(personalName)
     }
 
-    fun getProfileUsingEmailAndPassword(email: String, password: String): ProfilePrototype? {
+    suspend fun getProfileUsingEmailAndPassword(email: String, password: String): UserProfilePrototype? {
         return receivingServiceInProfileDelegate.getProfileUsingEmailAndPassword(email, password)
     }
 
-    fun getProfileRecoveryCodeUsingLastNameAndEmail(lastName: String, email: String): Int? {
+    suspend fun getProfileRecoveryCodeUsingLastNameAndEmail(lastName: String, email: String): Int? {
         return receivingServiceInProfileDelegate.getProfileRecoveryCodeUsingLastNameAndEmail(lastName, email)
     }
 
-    fun getProfileRecoveryCodeUsingLastNameAndPhoneNumber(lastName: String, phoneNumber: String): Int? {
+    suspend fun getProfileRecoveryCodeUsingLastNameAndPhoneNumber(lastName: String, phoneNumber: String): Int? {
         return receivingServiceInProfileDelegate.getProfileRecoveryCodeUsingLastNameAndPhoneNumber(lastName, phoneNumber)
     }
 
 
-    fun updatePersonalNameUsingEmail(email: String, personalName: String): String? {
+    suspend fun updatePersonalNameUsingEmail(email: String, personalName: String): String? {
         return updateServiceInProfileDelegate.updatePersonalNameUsingEmail(email, personalName)
     }
 
-    fun updatePersonalInfoUsingEmail(email: String, personalInfo: String): String? {
+    suspend fun updatePersonalInfoUsingEmail(email: String, personalInfo: String): String? {
         return updateServiceInProfileDelegate.updatePersonalInfoUsingEmail(email, personalInfo)
     }
 
-    fun updateNumberPhoneUsingEmail(email: String, phoneNumber: String): String? {
+    suspend fun updateNumberPhoneUsingEmail(email: String, phoneNumber: String): String? {
         return updateServiceInProfileDelegate.updateNumberPhoneUsingEmail(email, phoneNumber)
     }
 
-    fun updateEmailUsingOldEmail(oldEmail: String, newEmail: String): String? {
+    suspend fun updateEmailUsingOldEmail(oldEmail: String, newEmail: String): String? {
         return updateServiceInProfileDelegate.updateEmailUsingOldEmail(oldEmail, newEmail)
     }
 
-    fun updatePasswordUsingEmail(email: String, oldPassword: String, newPassword: String): String? {
+    suspend fun updatePasswordUsingEmail(email: String, oldPassword: String, newPassword: String): String? {
         return updateServiceInProfileDelegate.updatePasswordUsingEmail(email, oldPassword, newPassword)
     }
 
-    fun updateTagsUsingEmail(email: String, tags: String): Boolean {
+    suspend fun updateTagsUsingEmail(email: String, tags: String): Boolean {
+
         return updateServiceInProfileDelegate.updateTagsUsingEmail(email, tags)
     }
 
-    fun addTagUsingEmail(email: String, tag: String): Boolean {
+    suspend fun addTagUsingEmail(email: String, tag: String): Boolean {
         return updateServiceInProfileDelegate.addTagUsingEmail(email, tag)
     }
 
-    fun deleteTagUsingEmail(email: String, tag: String): Boolean {
+    suspend fun deleteTagUsingEmail(email: String, tag: String): Boolean {
         return updateServiceInProfileDelegate.deleteTagUsingEmail(email, tag)
     }
 
-    fun addFriendUsingEmail(email: String, friend: String): Boolean {
+    suspend fun addFriendUsingEmail(email: String, friend: String): Boolean {
         return updateServiceInProfileDelegate.addFriendUsingEmail(email, friend)
     }
 
-    fun updatePasswordUsingPhoneNumber(phoneNumber: String, newPassword: String): Boolean {
+    suspend fun updatePasswordUsingPhoneNumber(phoneNumber: String, newPassword: String): Boolean {
         return updateServiceInProfileDelegate.updatePasswordUsingPhoneNumber(phoneNumber, newPassword)
     }
 
-    fun updatePasswordUsingEmail(email: String, newPassword: String): Boolean {
+    suspend fun updatePasswordUsingEmail(email: String, newPassword: String): Boolean {
         return updateServiceInProfileDelegate.updatePasswordUsingEmail(email, newPassword)
     }
 }

@@ -8,6 +8,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
@@ -17,15 +21,26 @@ import com.example.documentsearch.api.apiRequests.message.MessageRequestServices
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
-import com.example.documentsearch.navbar.NavigationScreens
+import com.example.documentsearch.navbar.Navigation
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
-import com.example.documentsearch.prototypes.*
+import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
+import com.example.documentsearch.prototypes.DocumentWithPercentage
+import com.example.documentsearch.prototypes.MessengerPrototype
+import com.example.documentsearch.prototypes.TagPrototype
+import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
+@Suppress("DEPRECATION")
 @SuppressLint("CoroutineCreationDuringComposition", "MutableCollectionMutableState")
 class MainActivity : ComponentActivity() {
+    private val coroutine = CoroutineScope(Dispatchers.Main)
+
     private var savedEmail: String? = null
     private var savedPassword: String? = null
 
@@ -34,28 +49,23 @@ class MainActivity : ComponentActivity() {
     private val messageRequestService = MessageRequestServicesImpl()
     private val tagRequestService = TagRequestServicesImpl()
 
-    private var userProfile: ProfilePrototype? = null
-    private var userMessengers = mutableListOf<MessengerPrototype>()
-    private var allUsersProfile = listOf<AnotherUserPrototype>()
-    private var profileTags = listOf<TagPrototype>()
-    private var documentTags = listOf<TagPrototype>()
-    private var documents = mutableListOf<DocumentWithPercentage>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
         if (BuildConfig.DEBUG) {
-            val policy = StrictMode.ThreadPolicy.Builder()
-                .permitAll()
-                .build()
+            val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
             StrictMode.setThreadPolicy(policy)
         }
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContent {
             val context = LocalContext.current
+
             val systemUiController = rememberSystemUiController()
+            SideEffect { systemUiController.setStatusBarColor(color = Color.Transparent) }
+
             val navigationController = rememberNavController()
             val onBackPressedCallback = object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
@@ -68,71 +78,92 @@ class MainActivity : ComponentActivity() {
             savedEmail = preferencesManager.getData(emailKeyPreferences)
             savedPassword = preferencesManager.getData(passwordKeyPreferences)
 
-            SideEffect {
-                systemUiController.setStatusBarColor(color = Color.Transparent)
+            var userProfile by remember { mutableStateOf<UserProfilePrototype?>(null) }
+            var userMessengers by remember { mutableStateOf(listOf<MessengerPrototype>()) }
+            var allUsersProfiles by remember { mutableStateOf(listOf<AnotherUserProfilePrototype>()) }
+            var profileTags by remember { mutableStateOf(listOf<TagPrototype>()) }
+            var documentTags by remember { mutableStateOf(listOf<TagPrototype>()) }
+            var documents by remember { mutableStateOf(listOf<DocumentWithPercentage>()) }
+
+            coroutine.launch {
+                userProfile = getUserProfilePrototype()
+                if (userProfile != null)
+                    userMessengers = getMessengersPrototype(userProfile!!)
+                allUsersProfiles = getAllUsersProfile()
+                profileTags = getProfileTags()
+                documentTags = getDocumentTags()
+                documents = getDocuments()
             }
 
-            getUserProfilePrototype()
-            getMessengersPrototype()
-            getAllUsersProfile()
-            getProfileTags()
-            getDocumentTags()
-            getDocuments()
-
-            NavigationScreens(
-                navController = navigationController,
-                profile = userProfile,
-                anotherUsers = allUsersProfile,
-                onProfileChange = {
-                    userProfile = it
-                },
-                listDocuments = documents,
-                tagsDocumentation = documentTags,
-                tagsProfile = profileTags,
-                listMessenger = userMessengers,
-                onListMessenger = {
-                    userMessengers = it
-                }
+            val navigation = Navigation(
+                navigationController = navigationController,
+                userProfile = userProfile,
+                userMessengers = userMessengers,
+                allUsersProfiles = allUsersProfiles,
+                profileTags = profileTags,
+                documentTags = documentTags,
+                documents = documents
             )
+
+            navigation.NavigationScreens(
+                onProfileChange = { userProfile = it },
+                onListMessenger = { userMessengers = it })
         }
     }
 
-    private fun getUserProfilePrototype() {
-        if (savedEmail != null && savedPassword != null) {
-            userProfile = profileRequestService.getProfileUsingEmailAndPassword(savedEmail!!, savedPassword!!)
-        }
+    private suspend fun getUserProfilePrototype(): UserProfilePrototype? {
+        return if (savedEmail != null && savedPassword != null) {
+            return coroutine.async {
+                profileRequestService.getProfileUsingEmailAndPassword(savedEmail!!, savedPassword!!)
+            }.await()
+        } else
+            null
     }
 
-    private fun getMessengersPrototype() {
-        if (userProfile != null) {
-            val messengerPrototypeDataBase = messengerRequestService.getAllMessengersUsingUserId(userProfile!!.id!!)
+    private suspend fun getMessengersPrototype(userProfile: UserProfilePrototype): MutableList<MessengerPrototype> {
+        val userMessengers = mutableListOf<MessengerPrototype>()
+        coroutine.async {
+            val messengerPrototypeDataBase =
+                messengerRequestService.getAllMessengersUsingUserId(userProfile.id!!)
             messengerPrototypeDataBase?.forEach { messenger ->
-                val anotherUser = profileRequestService.getAnotherProfileUsingId(messenger.interlocutor)
+                val anotherUser =
+                    profileRequestService.getAnotherProfileUsingId(messenger.interlocutor)
                 if (anotherUser != null) {
                     val messages = messageRequestService.getMessagesFromMessenger(messenger.id)
-                    val messengerPrototype = MessengerPrototype(messenger.id, anotherUser, messages)
+                    val messengerPrototype =
+                        MessengerPrototype(messenger.id, anotherUser, messages)
                     userMessengers.add(messengerPrototype)
                 }
             }
-        }
+        }.await()
+
+        return userMessengers
     }
 
 
-    private fun getAllUsersProfile() {
-        allUsersProfile = profileRequestService.getAllAnotherProfile()
+    private suspend fun getAllUsersProfile(): List<AnotherUserProfilePrototype> {
+        return coroutine.async {
+            profileRequestService.getAllAnotherProfile()
+        }.await()
     }
 
 
-    private fun getProfileTags() {
-        profileTags = tagRequestService.getProfileTags()
+    private suspend fun getProfileTags(): List<TagPrototype> {
+        return coroutine.async {
+            tagRequestService.getProfileTags()
+        }.await()
     }
 
 
-    private fun getDocumentTags() {
-        documentTags = tagRequestService.getDocumentTags()
+    private suspend fun getDocumentTags(): List<TagPrototype> {
+        return coroutine.async {
+            tagRequestService.getDocumentTags()
+        }.await()
     }
 
-    private fun getDocuments() {
-        documents = listDocumet
+    private suspend fun getDocuments(): MutableList<DocumentWithPercentage> {
+        return coroutine.async {
+            listDocumet
+        }.await()
     }
 }

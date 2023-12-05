@@ -48,6 +48,8 @@ android {
 }
 
 dependencies {
+    val voyagerVersion = "1.0.0-rc10"
+
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.17.0")
     implementation("androidx.compose.foundation:foundation-layout:1.5.0")
@@ -64,6 +66,11 @@ dependencies {
     runtimeOnly("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.compose.animation:animation:1.0.0-alpha09")
 
+    implementation("cafe.adriel.voyager:voyager-androidx:$voyagerVersion")
+    implementation("cafe.adriel.voyager:voyager-koin:$voyagerVersion")
+    implementation("cafe.adriel.voyager:voyager-hilt:$voyagerVersion")
+    implementation("cafe.adriel.voyager:voyager-livedata:$voyagerVersion")
+
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -73,6 +80,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.5.0")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.ui:ui-tooling:1.0.4")
     implementation("androidx.compose.material3:material3")
     implementation ("androidx.compose.material:material:1.5.0")
     implementation("androidx.navigation:navigation-compose:2.7.1")

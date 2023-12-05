@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MessengerPrototype(
     val id: Long? = null,
-    val interlocutor: AnotherUserPrototype,
+    val interlocutor: AnotherUserProfilePrototype,
     val listMessage: MutableList<MessagePrototype>
 )
 

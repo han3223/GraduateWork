@@ -11,9 +11,7 @@ class PreferencesManager(context: Context) {
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     fun saveData(key: String, value: String) {
-        sharedPreferences.edit {
-            putString(key, value)
-        }
+        sharedPreferences.edit { putString(key, value) }
     }
 
     fun getData(key: String): String? {
@@ -21,8 +19,6 @@ class PreferencesManager(context: Context) {
     }
 
     fun removeData(key: String) {
-        sharedPreferences.edit {
-            remove(key)
-        }
+        sharedPreferences.edit { remove(key) }
     }
 }
