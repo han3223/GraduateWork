@@ -17,25 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
-import com.example.documentsearch.navbar.NavigationItem
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.patterns.authentication.VerificationCodeInput
 import com.example.documentsearch.screens.profile.HeadersProfile
 import com.example.documentsearch.ui.theme.MAXIMUM_TEXT
 import com.example.documentsearch.ui.theme.MainColorLight
 
-class ForgotCodeScreen(navigationController: NavController, forgotCode: Int) :
-    HeadersProfile() {
-    private val navigationController: NavController
-    private val forgotCode: Int
-
-    init {
-        this.navigationController = navigationController
-        this.forgotCode = forgotCode
-    }
-
+data class ForgotCodeScreen(val forgotCode: Int, val numberPhone: String? = null, val email: String? = null) : HeadersProfile(), Screen {
     @Composable
-    fun Screen() {
+    override fun Content() {
         Box {
             super.BasicHeader()
             Body()
@@ -80,6 +72,7 @@ class ForgotCodeScreen(navigationController: NavController, forgotCode: Int) :
 
     @Composable
     private fun VerificationCode() {
+        val navigator = LocalNavigator.currentOrThrow
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.TopCenter
@@ -87,7 +80,7 @@ class ForgotCodeScreen(navigationController: NavController, forgotCode: Int) :
             val verificationCodeInput = VerificationCodeInput()
             verificationCodeInput.Input {
                 if (it.toInt() == forgotCode)
-                    navigationController.navigate(NavigationItem.NewPassword.route)
+                    navigator.replace(NewPasswordScreen(email, numberPhone))
             }
         }
     }

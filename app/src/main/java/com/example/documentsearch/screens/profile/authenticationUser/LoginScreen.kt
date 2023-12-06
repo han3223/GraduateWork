@@ -27,24 +27,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
-import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
 import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.example.documentsearch.screens.profile.HeadersProfile
+import com.example.documentsearch.screens.profile.ProfileScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_UNDERLINE_TEXT
@@ -53,40 +55,34 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheUserProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class LoginScreen(navigationController: NavController) : HeadersProfile() {
-    private val navigationController: NavController
+class LoginScreen : HeadersProfile(), Screen {
     private lateinit var preferencesManager: PreferencesManager
 
-
-    init {
-        this.navigationController = navigationController
-    }
+    private val mainStandardInputModifier = Modifier
+        .fillMaxWidth()
+        .padding(30.dp, 10.dp, 30.dp, 0.dp)
+    private val textFieldModifier = Modifier
+        .fillMaxWidth()
+        .height(40.dp)
+        .background(color = Color.Transparent)
 
     @Composable
-    fun Screen(onProfileChange: (UserProfilePrototype?) -> Unit) {
+    override fun Content() {
         Box {
             super.BasicHeader()
-            Body { onProfileChange(it) }
+            Body()
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    fun Body(onProfileChange: (UserProfilePrototype?) -> Unit) {
+    fun Body() {
         val context = LocalContext.current
         preferencesManager = PreferencesManager(context)
-
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val emailFocusRequester = remember { FocusRequester() }
-        val passwordFocusRequester = remember { FocusRequester() }
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,44 +90,59 @@ class LoginScreen(navigationController: NavController) : HeadersProfile() {
             state = rememberLazyListState()
         ) {
             item(0) {
-                Spacer(modifier = Modifier.height(10.dp))
-                Column(
-                    modifier = Modifier
-                        .zIndex(2f)
-                        .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(size = 33.dp))
-                        .background(color = MainColorLight),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Вход",
-                        style = MAXIMUM_TEXT,
-                        modifier = Modifier.padding(top = 20.dp, bottom = 30.dp)
-                    )
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Separator()
-                        Email(email, emailFocusRequester, passwordFocusRequester) { email = it }
-
-                        Separator()
-                        Password(
-                            password,
-                            passwordFocusRequester,
-                            keyboardController
-                        ) { password = it }
-
-                        Separator()
-                        ButtonLogIn(email, password) { onProfileChange(it) }
-
-                        NavigateSignIn()
-                        NavigateForgotPassword()
-                    }
-                }
-                Spacer(modifier = Modifier.height(75.dp))
+                LoginForm()
             }
         }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Composable
+    private fun LoginForm() {
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val emailFocusRequester = remember { FocusRequester() }
+        val passwordFocusRequester = remember { FocusRequester() }
+
+        val formModifier = Modifier
+            .zIndex(2f)
+            .fillMaxWidth()
+            .padding(top = 5.dp, bottom = 75.dp)
+            .clip(shape = RoundedCornerShape(size = 33.dp))
+            .background(color = MainColorLight)
+
+        Column(
+            modifier = formModifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Title()
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Separator()
+                Email(email, emailFocusRequester, passwordFocusRequester) { email = it }
+
+                Separator()
+                Password(password, passwordFocusRequester, keyboardController) { password = it }
+
+                Separator()
+                ButtonLogIn(email, password)
+
+                NavigateSignIn()
+                NavigateForgotPassword()
+            }
+        }
+    }
+
+    @Composable
+    private fun Title() {
+        Text(
+            text = "Вход",
+            style = MAXIMUM_TEXT,
+            modifier = Modifier.padding(top = 20.dp, bottom = 30.dp)
+        )
     }
 
     @Composable
@@ -145,15 +156,9 @@ class LoginScreen(navigationController: NavController) : HeadersProfile() {
             label = "Email:",
             placeholder = "ivan.ivanov@gmail.com",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            keyboardActions = KeyboardActions(onDone = { nextRequester.requestFocus() }),
-            mainBoxModifier = Modifier
-                .fillMaxWidth()
-                .padding(30.dp, 10.dp, 30.dp, 0.dp),
-            textFieldModifier = Modifier
-                .focusRequester(currentRequester)
-                .fillMaxWidth()
-                .height(40.dp)
-                .background(color = Color.Transparent)
+            mainBoxModifier = mainStandardInputModifier,
+            textFieldModifier = textFieldModifier.focusRequester(currentRequester),
+            keyboardActions = KeyboardActions(onDone = { nextRequester.requestFocus() })
         )
 
         standardInput.Input(value = email, onValueChanged = { onEmailChange(it) })
@@ -171,51 +176,46 @@ class LoginScreen(navigationController: NavController) : HeadersProfile() {
             label = "Пароль:",
             placeholder = "*********",
             visualTransformation = PasswordVisualTransformation('*'),
+            mainBoxModifier = mainStandardInputModifier,
+            textFieldModifier = textFieldModifier.focusRequester(currentRequester),
             keyboardActions = KeyboardActions(
                 onDone = {
                     currentRequester.freeFocus()
                     keyboardController?.hide()
                 }
-            ),
-            mainBoxModifier = Modifier
-                .fillMaxWidth()
-                .padding(30.dp, 10.dp, 30.dp, 0.dp),
-            textFieldModifier = Modifier
-                .focusRequester(currentRequester)
-                .fillMaxWidth()
-                .height(40.dp)
-                .background(color = Color.Transparent)
+            )
         )
 
         standardInput.Input(value = password, onValueChanged = { onPasswordChange(it) })
     }
 
     @Composable
-    private fun ButtonLogIn(
-        email: String,
-        password: String,
-        onProfileChange: (UserProfilePrototype?) -> Unit
-    ) {
+    private fun ButtonLogIn(email: String, password: String) {
+        val navigator = LocalNavigator.currentOrThrow
+
+        val modifierButton = Modifier
+            .padding(top = 20.dp)
+            .fillMaxWidth(0.8f)
+            .clip(RoundedCornerShape(10.dp))
+        val colorButton = ButtonDefaults.buttonColors(
+            backgroundColor = MainColor,
+            contentColor = TextColor
+        )
+
         Button(
+            modifier = modifierButton,
+            colors = colorButton,
             onClick = {
                 logIn(email, password) {
-                    onProfileChange(it)
-                    navigationController.navigate(NavigationItem.Profile.route)
+                    cacheUserProfile.value.loadData(it)
+                    navigator.replace(ProfileScreen())
                 }
-            },
-            modifier = Modifier
-                .padding(top = 20.dp)
-                .fillMaxWidth(0.8f)
-                .clip(RoundedCornerShape(10.dp)),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = MainColor,
-                contentColor = TextColor
-            )
+            }
         ) {
             Text(
                 text = "Войти",
                 style = HEADING_TEXT,
-                modifier = Modifier.padding(vertical = 7.dp)
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -239,33 +239,39 @@ class LoginScreen(navigationController: NavController) : HeadersProfile() {
 
     @Composable
     private fun NavigateSignIn() {
+        val navigator = LocalNavigator.currentOrThrow
+
+        val modifierText = Modifier
+            .padding(top = 20.dp)
+            .clickable { navigator.push(RegistrationScreen()) }
+
         Text(
             text = "Зарегистрироваться",
             style = ORDINARY_TEXT,
-            modifier = Modifier
-                .padding(top = 20.dp)
-                .clickable { navigationController.navigate(NavigationItem.Registration.route) }
+            modifier = modifierText
         )
     }
 
     @Composable
     private fun NavigateForgotPassword() {
+        val navigator = LocalNavigator.currentOrThrow
+
+        val modifierText = Modifier
+            .padding(top = 10.dp, bottom = 30.dp)
+            .clickable { navigator.push(ForgotPasswordScreen()) }
+
         Text(
             text = "Забыли пароль?",
             style = HIGHLIGHTING_UNDERLINE_TEXT,
-            modifier = Modifier
-                .padding(top = 10.dp, bottom = 30.dp)
-                .clickable { navigationController.navigate(NavigationItem.ForgotPassword.route) }
+            modifier = modifierText
         )
     }
 
     @Composable
     private fun Separator() {
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(AdditionalColor)
-        )
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(AdditionalColor))
     }
 }

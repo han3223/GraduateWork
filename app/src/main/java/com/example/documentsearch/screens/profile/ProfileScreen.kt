@@ -18,46 +18,36 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
-import com.example.documentsearch.prototypes.TagPrototype
-import com.example.documentsearch.prototypes.UserProfilePrototype
+import com.example.documentsearch.screens.profile.authenticationUser.LoginScreen
 import com.example.documentsearch.screens.profile.profileInfo.MainInfoProfile
 import com.example.documentsearch.screens.profile.profileInfo.PersonalDocumentation
 import com.example.documentsearch.screens.profile.profileInfo.ProfileTags
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
+import com.example.documentsearch.ui.theme.cacheProfileTags
+import com.example.documentsearch.ui.theme.cacheUserProfile
 
-class ProfileScreen(
-    navigationController: NavController,
-    userProfile: UserProfilePrototype,
-    tags: List<TagPrototype>
-) : HeadersProfile() {
-    private val navigationController: NavController
-    private val profile: UserProfilePrototype
-    private val tags: List<TagPrototype>
-
+class ProfileScreen: HeadersProfile(), Screen {
     private lateinit var preferencesManager: PreferencesManager
 
-    init {
-        this.navigationController = navigationController
-        this.profile = userProfile
-        this.tags = tags
-    }
-
     @Composable
-    fun Screen(onExitProfileChange: (Unit) -> Unit) {
+    override fun Content() {
         Box {
             super.BasicHeader()
-            Body { onExitProfileChange(it) }
+            Body()
         }
     }
 
     @Composable
-    private fun Body(onExitProfileChange: (Unit) -> Unit) {
+    private fun Body() {
         val context = LocalContext.current
+        val navigator = LocalNavigator.currentOrThrow
         this.preferencesManager = PreferencesManager(context)
         val lazyListState = rememberLazyListState()
 
@@ -68,17 +58,17 @@ class ProfileScreen(
             state = lazyListState
         ) {
             item(0) {
-                MainInfoProfile(navigationController, profile).Info(lazyListState = lazyListState)
+                MainInfoProfile(cacheUserProfile.value.getData()!!, navigator).Info(lazyListState = lazyListState)
             }
             item(1) {
-                ProfileTags(tags = tags, profile).Tags()
+                ProfileTags(tags = cacheProfileTags.value.getData()!!, cacheUserProfile.value.getData()!!).Tags()
             }
             item(2) {
                 PersonalDocumentation().Documentation()
             }
             item(3) {
                 Spacer(modifier = Modifier.height(10.dp))
-                ExitProfile { onExitProfileChange(it) }
+                ExitProfile()
             }
             item(4) {
                 Spacer(modifier = Modifier.height(90.dp))
@@ -87,7 +77,9 @@ class ProfileScreen(
     }
 
     @Composable
-    private fun ExitProfile(onExitProfileChange: (Unit) -> Unit) {
+    private fun ExitProfile() {
+        val navigator = LocalNavigator.currentOrThrow
+
         Box(
             modifier = Modifier
                 .zIndex(2f)
@@ -105,7 +97,8 @@ class ProfileScreen(
                     .clickable {
                         preferencesManager.removeData(emailKeyPreferences)
                         preferencesManager.removeData(passwordKeyPreferences)
-                        onExitProfileChange(Unit)
+                        cacheUserProfile.value.clearData()
+                        navigator.replace(LoginScreen())
                     }
             )
         }

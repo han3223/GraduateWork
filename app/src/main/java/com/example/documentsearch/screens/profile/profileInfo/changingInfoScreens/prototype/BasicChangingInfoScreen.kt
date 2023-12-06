@@ -1,4 +1,4 @@
-package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens
+package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.prototype
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,7 +19,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.navigator.Navigator
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.screens.profile.HeadersProfile
 import com.example.documentsearch.ui.theme.AdditionalMainColor
@@ -30,14 +30,7 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 import com.example.documentsearch.validation.ValidationText
 
-class BasicChangingInfoScreen(navigationController: NavController) :
-    HeadersProfile() {
-    private val navigationController: NavController
-
-    init {
-        this.navigationController = navigationController
-    }
-
+data class BasicChangingInfoScreen(val navigator: Navigator) : HeadersProfile() {
     @Composable
     fun Screen(
         titleAttribute: String,
@@ -55,7 +48,7 @@ class BasicChangingInfoScreen(navigationController: NavController) :
 
         Box {
             super.HeaderProfileDataChanged(
-                navigationController = navigationController,
+                navigator = navigator,
                 title = titleAttribute,
                 value = changedValue,
                 onValueChange = { onValueChange(it) },

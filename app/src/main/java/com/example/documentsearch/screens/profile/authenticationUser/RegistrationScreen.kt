@@ -37,9 +37,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
-import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.prototypes.UserProfilePrototype
@@ -57,25 +58,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class RegistrationScreen(navigationController: NavController) : HeadersProfile() {
-    private val navigationController: NavController
+class RegistrationScreen : HeadersProfile(), Screen {
     private val validation = Validation()
 
-    init {
-        this.navigationController = navigationController
-    }
-
     @Composable
-    fun Screen(onProfileDataChange: (UserProfilePrototype) -> Unit) {
+    override fun Content() {
         Box {
             super.BasicHeader()
-            Body { onProfileDataChange(it) }
+            Body()
         }
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    private fun Body(onProfileDataChange: (UserProfilePrototype) -> Unit) {
+    private fun Body() {
         var firstName by remember { mutableStateOf("") }
         var lastName by remember { mutableStateOf("") }
         var patronymic by remember { mutableStateOf("") }
@@ -196,10 +192,7 @@ class RegistrationScreen(navigationController: NavController) : HeadersProfile()
                         ) { repeatPassword = it }
 
                         Separator()
-                        ButtonSignIn(
-                            enabledButtonRegistration,
-                            userPrototype
-                        ) { onProfileDataChange(it) }
+                        ButtonSignIn(enabledButtonRegistration, userPrototype)
 
                         NavigateLogIn()
                     }
@@ -359,7 +352,9 @@ class RegistrationScreen(navigationController: NavController) : HeadersProfile()
                 .onFocusChanged { }
         )
 
-        phoneInput.Input(phoneNumber = numberPhone, onPhoneNumberChanged = { onNumberPhoneChange(it) })
+        phoneInput.Input(
+            phoneNumber = numberPhone,
+            onPhoneNumberChanged = { onNumberPhoneChange(it) })
     }
 
     @Composable
@@ -478,14 +473,15 @@ class RegistrationScreen(navigationController: NavController) : HeadersProfile()
     }
 
     @Composable
-    private fun ButtonSignIn(
-        enabled: Boolean,
-        userPrototype: UserProfilePrototype,
-        onProfileDataChange: (UserProfilePrototype) -> Unit
-    ) {
+    private fun ButtonSignIn(enabled: Boolean, userPrototype: UserProfilePrototype) {
+        val navigator = LocalNavigator.currentOrThrow
         Button(
             enabled = enabled,
-            onClick = { signIn(userPrototype) { onProfileDataChange(it) } },
+            onClick = {
+                signIn(userPrototype) {
+                    navigator.push(VerificationRegistrationScreen(it))
+                }
+            },
             modifier = Modifier
                 .padding(top = 20.dp)
                 .fillMaxWidth(0.8f)
@@ -516,7 +512,6 @@ class RegistrationScreen(navigationController: NavController) : HeadersProfile()
 
             if (checkProfileByEmail == null && checkProfileByPhoneNumber == null) {
                 onProfileDataChange(userPrototype)
-                navigationController.navigate(NavigationItem.VerificationRegistration.route)
             }
         }
         /*TODO(Сделать рассылку кода пользователю для регистрации)*/
@@ -524,12 +519,13 @@ class RegistrationScreen(navigationController: NavController) : HeadersProfile()
 
     @Composable
     private fun NavigateLogIn() {
+        val navigator = LocalNavigator.currentOrThrow
         Text(
             text = "Войти",
             style = HIGHLIGHTING_UNDERLINE_TEXT,
             modifier = Modifier
                 .padding(top = 20.dp, bottom = 30.dp)
-                .clickable { navigationController.navigate(NavigationItem.Login.route) }
+                .clickable { navigator.push(LoginScreen()) }
         )
     }
 

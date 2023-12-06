@@ -33,9 +33,10 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
-import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.screens.profile.HeadersProfile
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -48,27 +49,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AnotherForgotPasswordScreen(navigationController: NavController) : HeadersProfile() {
-    private val navigationController: NavController
-
-    init {
-        this.navigationController = navigationController
-    }
-
+class AnotherForgotPasswordScreen : HeadersProfile(), Screen {
     @Composable
-    fun Screen(onEmailChange: (String) -> Unit, onForgotCodeChange: (Int) -> Unit) {
+    override fun Content() {
         Box {
             super.BasicHeader()
-            Body(
-                onEmailChange = { onEmailChange(it) },
-                onForgotCodeChange = { onForgotCodeChange(it) }
-            )
+            Body()
         }
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    private fun Body(onEmailChange: (String) -> Unit, onForgotCodeChange: (Int) -> Unit) {
+    private fun Body() {
         var lastName by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
 
@@ -119,12 +111,7 @@ class AnotherForgotPasswordScreen(navigationController: NavController) : Headers
                         ) { email = it }
 
                         Separator()
-                        ButtonGetCode(
-                            lastName,
-                            email,
-                            onEmailChange = { onEmailChange(it) },
-                            onForgotCodeChange = { onForgotCodeChange(it) }
-                        )
+                        ButtonGetCode(lastName, email)
                     }
                 }
                 Spacer(modifier = Modifier.height(75.dp))
@@ -190,12 +177,8 @@ class AnotherForgotPasswordScreen(navigationController: NavController) : Headers
     }
 
     @Composable
-    private fun ButtonGetCode(
-        lastName: String,
-        email: String,
-        onEmailChange: (String) -> Unit,
-        onForgotCodeChange: (Int) -> Unit
-    ) {
+    private fun ButtonGetCode(lastName: String, email: String) {
+        val navigator = LocalNavigator.currentOrThrow
         Button(
             onClick = {
                 CoroutineScope(Dispatchers.Main).launch {
@@ -206,11 +189,8 @@ class AnotherForgotPasswordScreen(navigationController: NavController) : Headers
                             email
                         )
 
-                    if (forgotCode != null) {
-                        onEmailChange(email)
-                        onForgotCodeChange(forgotCode)
-                    }
-                    navigationController.navigate(NavigationItem.ForgotCode.route)
+                    if (forgotCode != null)
+                        navigator.push(ForgotCodeScreen(forgotCode = forgotCode, email = email))
                 }
                 /*TODO(Сделать рассылку кода для пользователя)*/
             },

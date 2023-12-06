@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,11 +33,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
-import com.example.documentsearch.navbar.NavigationItem
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
 import com.example.documentsearch.patterns.HeaderFactory
-import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
-import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.screens.document.Filter
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.FILTER
@@ -45,31 +47,34 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
+import com.example.documentsearch.ui.theme.cacheAllUsersProfile
+import com.example.documentsearch.ui.theme.cacheProfileTags
+import com.example.documentsearch.ui.theme.cacheUserProfile
 
-class AddUserScreen(
-    navigationController: NavController,
-    users: List<AnotherUserProfilePrototype>,
-    tags: List<TagPrototype>
-) {
-    private val navigationController: NavController
-    private val users: List<AnotherUserProfilePrototype>
-    private val tags: List<TagPrototype>
-
+class AddUserScreen : Screen {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
 
-    init {
-        this.navigationController = navigationController
-        this.users = users
-        this.tags = tags
-    }
+    private val profileRequestService = ProfileRequestServicesImpl()
+    private val tagRequestService = TagRequestServicesImpl()
 
     @Composable
-    fun Screen(onUserChange: (Long) -> Unit) {
-        Box {
-            Header()
-            Body { onUserChange(it) }
+    override fun Content() {
+        val isLaunchedEffectCompleted = remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            if (cacheAllUsersProfile.value.getData() == null)
+                cacheAllUsersProfile.value.loadData(profileRequestService.getAllUsersProfile())
+            if (cacheProfileTags.value.getData() == null)
+                cacheProfileTags.value.loadData(tagRequestService.getProfileTags())
+
+            isLaunchedEffectCompleted.value = true
         }
+
+        if (isLaunchedEffectCompleted.value)
+            Box {
+                Header()
+                Body()
+            }
     }
 
     @Composable
@@ -104,7 +109,9 @@ class AddUserScreen(
             ) {
                 searchProfile.SearchEngine()
                 filter.InActive { isActiveFilter = !isActiveFilter }
-                Spacer(modifier = Modifier.height(40.dp).fillMaxWidth())
+                Spacer(modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth())
             }
         }
 
@@ -116,12 +123,12 @@ class AddUserScreen(
                 .zIndex(1f)
                 .fillMaxWidth()
         ) {
-            filter.ActiveProfile(tags = tags) { }
+            filter.ActiveProfile(tags = cacheProfileTags.value.getData()!!) { }
         }
     }
 
     @Composable
-    private fun Body(onUserChange: (Long) -> Unit) {
+    private fun Body() {
         Column(
             modifier = Modifier
                 .zIndex(0f)
@@ -129,15 +136,15 @@ class AddUserScreen(
                 .fillMaxWidth()
                 .background(MainColorLight)
         ) {
-            users.forEach { user ->
+            val navigator = LocalNavigator.currentOrThrow
+            cacheAllUsersProfile.value.getData()!!.forEach { user ->
                 Row(
                     modifier = Modifier
                         .padding(20.dp, 10.dp, 20.dp, 10.dp)
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    navigationController.navigate(NavigationItem.ProfileInfo.route)
-                                    onUserChange(user.id)
+                                    navigator.push(ProfileInfo(user, cacheUserProfile.value.getData()!!))
                                 },
                             )
                         },

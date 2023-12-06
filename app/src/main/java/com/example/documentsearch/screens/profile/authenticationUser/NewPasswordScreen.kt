@@ -23,9 +23,10 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
-import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.screens.profile.HeadersProfile
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -40,25 +41,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class NewPasswordScreen(
-    navigationController: NavController,
-    email: String?,
-    numberPhone: String?
-) : HeadersProfile() {
-    private val navigationController: NavController
-    private val email: String?
-    private val numberPhone: String?
-
+data class NewPasswordScreen(val email: String?, val numberPhone: String?) : HeadersProfile(), Screen {
     val validation = Validation()
 
-    init {
-        this.navigationController = navigationController
-        this.email = email
-        this.numberPhone = numberPhone
-    }
-
     @Composable
-    fun Screen() {
+    override fun Content() {
         Box {
             super.BasicHeader()
             Body()
@@ -213,10 +200,11 @@ class NewPasswordScreen(
 
     @Composable
     private fun ButtonRepeatPassword(enabled: Boolean, password: String) {
+        val navigator = LocalNavigator.currentOrThrow
         Button(
             enabled = enabled,
             onClick = {
-                repeatPassword(password)
+                replacePassword(password) { if (it) navigator.push(LoginScreen()) else ForgotPasswordScreen() }
                 /*TODO(Сделать обработку входа пользователя после смены пароля)*/
             },
             modifier = Modifier
@@ -236,7 +224,7 @@ class NewPasswordScreen(
         }
     }
 
-    private fun repeatPassword(password: String) {
+    private fun replacePassword(password: String, onReplacePassword: (Boolean) -> Unit) {
         CoroutineScope(Dispatchers.Main).launch {
             val profileRequestServices = ProfileRequestServicesImpl()
             var isUpdatePassword = false
@@ -248,10 +236,7 @@ class NewPasswordScreen(
                 isUpdatePassword =
                     profileRequestServices.updatePasswordUsingPhoneNumber(numberPhone, password)
 
-            if (!isUpdatePassword)
-                navigationController.navigate(NavigationItem.Login.route)
-            else
-                navigationController.navigate(NavigationItem.ForgotPassword.route)
+            onReplacePassword(isUpdatePassword)
         }
     }
 

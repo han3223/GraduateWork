@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import cafe.adriel.voyager.core.screen.Screen
 import com.example.documentsearch.navbar.SVGFactory
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.patterns.authentication.StandardInput
@@ -47,24 +48,18 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 import kotlinx.coroutines.launch
 
-class CommunicationScreen(messenger: MessengerPrototype) {
-    private val messenger: MessengerPrototype
-
+data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
     private val messageFactory = MessageFactory()
 
-    init {
-        this.messenger = messenger
-    }
-    
     @Composable
-    fun Screen(onMessageChange: (String) -> Unit) {
+    override fun Content() {
         val rememberScrollState = rememberScrollState()
         Box {
             Header()
             Body(rememberScrollState)
-            BottomBar(rememberScrollState) { onMessageChange(it) }
+            BottomBar(rememberScrollState)
         }
     }
 
@@ -102,7 +97,7 @@ class CommunicationScreen(messenger: MessengerPrototype) {
     }
 
     @Composable
-    private fun BottomBar(rememberScrollState: ScrollState, onMessageChange: (String) -> Unit) {
+    private fun BottomBar(rememberScrollState: ScrollState) {
         var message by remember { mutableStateOf("") }
         val coroutine = rememberCoroutineScope()
 
@@ -212,10 +207,10 @@ class CommunicationScreen(messenger: MessengerPrototype) {
                             .pointerInput(Unit) {
                                 detectTapGestures(onTap = {
                                     if (message.isNotEmpty()) {
+//                                      TODO(Сделать добавление сообщения)
                                         coroutine.launch {
                                             rememberScrollState.scrollTo(rememberScrollState.maxValue)
                                         }
-                                        onMessageChange(message)
                                         message = ""
                                     }
                                 })

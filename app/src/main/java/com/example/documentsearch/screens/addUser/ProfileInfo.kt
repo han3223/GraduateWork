@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
@@ -60,30 +60,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ProfileInfo(
-    navigationController: NavController,
-    anotherProfile: AnotherUserProfilePrototype,
-    userProfile: UserProfilePrototype
-) {
-    private val navigationController: NavController
-    private val anotherProfile: AnotherUserProfilePrototype
-    private val userProfile: UserProfilePrototype
-
+data class ProfileInfo(
+    val anotherProfile: AnotherUserProfilePrototype,
+    val userProfile: UserProfilePrototype
+) : Screen {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
     private val profileFactory = ProfileFactory()
 
-    init {
-        this.navigationController = navigationController
-        this.anotherProfile = anotherProfile
-        this.userProfile = userProfile
-    }
-
     @Composable
-    fun Screen(onMessengerChange: (MessengerPrototype) -> Unit) {
+    override fun Content() {
         Box {
             Header()
-            Body { onMessengerChange(it) }
+            Body()
         }
     }
 
@@ -93,7 +82,7 @@ class ProfileInfo(
     }
 
     @Composable
-    fun Body(onMessengerChange: (MessengerPrototype) -> Unit) {
+    fun Body() {
         val density = LocalDensity.current
         var widthContent by remember { mutableStateOf(0.dp) }
 
@@ -135,7 +124,7 @@ class ProfileInfo(
                             verticalAlignment = Alignment.Bottom,
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Communication { onMessengerChange(it) }
+                            Communication()
                             AddUser()
                         }
                     }
@@ -162,9 +151,11 @@ class ProfileInfo(
                 Tags(anotherProfile.tags)
             }
 
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp))
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
+            )
         }
     }
 
@@ -196,7 +187,7 @@ class ProfileInfo(
     }
 
     @Composable
-    fun Communication(onMessengerChange: (MessengerPrototype) -> Unit) {
+    fun Communication() {
         Box(
             modifier = Modifier
                 .size(34.dp)
@@ -217,7 +208,7 @@ class ProfileInfo(
                                     anotherProfile,
                                     mutableListOf()
                                 )
-                                onMessengerChange(messenger)
+                                // TODO(Сделать добавление в базу данных и навигацию на переписку)
                             }
                         }
                     })

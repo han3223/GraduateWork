@@ -1,4 +1,4 @@
-package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens
+package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.prototype
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,7 +19,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.navigator.Navigator
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.screens.profile.HeadersProfile
@@ -35,12 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PhoneNumberChangingScreen(navigationController: NavController) : HeadersProfile() {
-    private val navigationController: NavController
-
-    init {
-        this.navigationController = navigationController
-    }
+data class PhoneNumberChangingScreen(val navigator: Navigator) : HeadersProfile() {
 
     @Composable
     fun Screen(onValueChange: (String) -> Unit) {
@@ -54,7 +49,7 @@ class PhoneNumberChangingScreen(navigationController: NavController) : HeadersPr
 
         Box {
             super.HeaderProfileDataChanged(
-                navigationController = navigationController,
+                navigator = navigator,
                 title = title,
                 value = changedValue,
                 onValueChange = { onValueChange(it) },

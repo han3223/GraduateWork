@@ -36,12 +36,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.R
-import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.navbar.SVGFactory
 import com.example.documentsearch.patterns.HeaderFactory
-import com.example.documentsearch.prototypes.MessengerPrototype
+import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
@@ -50,27 +51,17 @@ import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheMessengers
 
-class MessengerScreen(
-    navigationController: NavController,
-    messengers: MutableList<MessengerPrototype>
-) {
-    private val navigationController: NavController
-    private val messengers: MutableList<MessengerPrototype>
-
+class MessengerScreen : Screen {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
 
-    init {
-        this.navigationController = navigationController
-        this.messengers = messengers
-    }
-
     @Composable
-    fun Screen(onMessengerChange: (MessengerPrototype) -> Unit) {
+    override fun Content() {
         Box {
             Header()
-            Body { onMessengerChange(it) }
+//            Body()
         }
     }
 
@@ -152,24 +143,22 @@ class MessengerScreen(
     }
 
     @Composable
-    private fun Body(onMessengerChange: (MessengerPrototype) -> Unit) {
+    private fun Body() {
+        val navigator = LocalNavigator.currentOrThrow
         Column(
             modifier = Modifier
                 .zIndex(0f)
                 .fillMaxWidth()
                 .background(MainColorLight)
         ) {
-            messengers.forEach { messenger ->
+            cacheMessengers.value.getData()!!.forEach { messenger ->
                 if (messenger.listMessage.isNotEmpty()) {
                     Row(
                         modifier = Modifier
                             .padding(20.dp, 10.dp, 20.dp, 10.dp)
                             .pointerInput(Unit) {
                                 detectTapGestures(
-                                    onTap = {
-                                        navigationController.navigate(NavigationItem.Communication.route)
-                                        onMessengerChange(messenger)
-                                    },
+                                    onTap = { navigator.push(CommunicationScreen(messenger)) },
                                 )
                             },
                         horizontalArrangement = Arrangement.spacedBy(10.dp),

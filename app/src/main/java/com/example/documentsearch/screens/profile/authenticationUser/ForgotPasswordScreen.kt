@@ -34,9 +34,10 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
-import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.screens.profile.HeadersProfile
@@ -51,27 +52,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ForgotPasswordScreen(navigationController: NavController) : HeadersProfile() {
-    private val navigationController: NavController
-
-    init {
-        this.navigationController = navigationController
-    }
-
+class ForgotPasswordScreen : HeadersProfile(), Screen {
     @Composable
-    fun Screen(onNumberPhoneChange: (String) -> Unit, onForgotCodeChange: (Int) -> Unit) {
+    override fun Content() {
         Box {
             super.BasicHeader()
-            Body(
-                onNumberPhoneChange = { onNumberPhoneChange(it) },
-                onForgotCodeChange = { onForgotCodeChange(it) }
-            )
+            Body()
         }
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    private fun Body(onNumberPhoneChange: (String) -> Unit, onForgotCodeChange: (Int) -> Unit) {
+    private fun Body() {
         var lastName by remember { mutableStateOf("") }
         var numberPhone by remember { mutableStateOf("") }
 
@@ -122,12 +114,7 @@ class ForgotPasswordScreen(navigationController: NavController) : HeadersProfile
                         ) { numberPhone = it }
 
                         Separator()
-                        ButtonGetCode(
-                            lastName,
-                            numberPhone,
-                            onNumberPhoneChange = { onNumberPhoneChange(it) },
-                            onForgotCodeChange = { onForgotCodeChange(it) }
-                        )
+                        ButtonGetCode(lastName, numberPhone)
                         NavigateAnotherWay()
                     }
                 }
@@ -196,9 +183,8 @@ class ForgotPasswordScreen(navigationController: NavController) : HeadersProfile
     private fun ButtonGetCode(
         lastName: String,
         numberPhone: String,
-        onNumberPhoneChange: (String) -> Unit,
-        onForgotCodeChange: (Int) -> Unit
     ) {
+        val navigator = LocalNavigator.currentOrThrow
         Button(
             onClick = {
                 CoroutineScope(Dispatchers.Main).launch {
@@ -209,11 +195,8 @@ class ForgotPasswordScreen(navigationController: NavController) : HeadersProfile
                             numberPhone
                         )
 
-                    if (forgotCode != null) {
-                        onNumberPhoneChange(numberPhone)
-                        onForgotCodeChange(forgotCode)
-                    }
-                    navigationController.navigate(NavigationItem.ForgotCode.route)
+                    if (forgotCode != null)
+                        navigator.push(ForgotCodeScreen(forgotCode = forgotCode, numberPhone = numberPhone))
                 }
                 /*TODO(Сделать рассылку кода для пользователя)*/
             },
@@ -236,12 +219,13 @@ class ForgotPasswordScreen(navigationController: NavController) : HeadersProfile
 
     @Composable
     private fun NavigateAnotherWay() {
+        val navigator = LocalNavigator.currentOrThrow
         Text(
             text = "Другой способ",
             style = HIGHLIGHTING_UNDERLINE_TEXT,
             modifier = Modifier
                 .padding(top = 20.dp, bottom = 30.dp)
-                .clickable { navigationController.navigate(NavigationItem.AnotherForgotPassword.route) }
+                .clickable { navigator.push(AnotherForgotPasswordScreen()) }
         )
     }
 

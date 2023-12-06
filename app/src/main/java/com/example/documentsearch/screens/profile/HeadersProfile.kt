@@ -18,8 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
-import com.example.documentsearch.navbar.NavigationItem
+import cafe.adriel.voyager.navigator.Navigator
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.ui.theme.HEADING_TEXT
 import com.example.documentsearch.ui.theme.TextColor
@@ -45,7 +44,7 @@ open class HeadersProfile {
 
     @Composable
     fun HeaderProfileDataChanged(
-        navigationController: NavController,
+        navigator: Navigator,
         title: String,
         value: String,
         onValueChange: (String) -> Unit,
@@ -70,7 +69,7 @@ open class HeadersProfile {
                                 interactionSource = MutableInteractionSource(),
                                 indication = null,
                             ) {
-                                navigationController.navigate(NavigationItem.Profile.route)
+                                navigator.pop()
                             }
                     )
                     Text(
@@ -97,7 +96,7 @@ open class HeadersProfile {
 
     @Composable
     fun HeaderProfilePasswordChanged(
-        navigationController: NavController,
+        navigator: Navigator,
         newPasswordEnter: String,
         repeatPasswordEnter: String,
         changeValue: (String) -> Unit
@@ -121,7 +120,7 @@ open class HeadersProfile {
                                 interactionSource = MutableInteractionSource(),
                                 indication = null,
                             ) {
-                                navigationController.navigate(NavigationItem.Profile.route)
+                                navigator.pop()
                             }
                     )
                     Text(text = "Смена пароля", style = HEADING_TEXT)
@@ -137,7 +136,7 @@ open class HeadersProfile {
                             enabled = newPasswordEnter == repeatPasswordEnter && Validation().isValidPassword(newPasswordEnter)
                         ) {
                             changeValue(newPasswordEnter)
-                            navigationController.navigate(NavigationItem.Profile.route)
+                            navigator.pop()
                         }
                 )
             }

@@ -37,13 +37,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.navigator.Navigator
 import com.example.documentsearch.R
-import com.example.documentsearch.navbar.NavigationItem
 import com.example.documentsearch.patterns.EditSize
 import com.example.documentsearch.patterns.EditText
 import com.example.documentsearch.patterns.profile.ProfileFactory
 import com.example.documentsearch.prototypes.UserProfilePrototype
+import com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.ChangingEmailScreen
+import com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.ChangingNumberPhoneScreen
+import com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.ChangingPasswordScreen
+import com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.ChangingPersonalInfoScreen
+import com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.ChangingPersonalNameScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
@@ -57,18 +61,10 @@ import kotlinx.coroutines.launch
 
 
 // TODO(Нужно переписать и наладить работу)
-class MainInfoProfile(navigationController: NavController, userProfile: UserProfilePrototype) {
-    private val navigationController: NavController
-    private val profile: UserProfilePrototype
-
+data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Navigator) {
     private var widthContent: Dp = 0.dp
     private val editSize = EditSize()
     private val profileFactory = ProfileFactory()
-
-    init {
-        this.navigationController = navigationController
-        this.profile = userProfile
-    }
 
     @Composable
     fun Info(lazyListState: LazyListState) {
@@ -242,7 +238,7 @@ class MainInfoProfile(navigationController: NavController, userProfile: UserProf
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        navigationController.navigate(NavigationItem.ChangePersonalName.route)
+                        navigator.push(ChangingPersonalNameScreen())
                     }
                 )
             }
@@ -271,7 +267,7 @@ class MainInfoProfile(navigationController: NavController, userProfile: UserProf
         Column(modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
                 onTap = {
-                    navigationController.navigate(NavigationItem.ChangePersonalInfo.route)
+                    navigator.push(ChangingPersonalInfoScreen())
                 }
             )
         }) {
@@ -299,7 +295,7 @@ class MainInfoProfile(navigationController: NavController, userProfile: UserProf
         Column(modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
                 onTap = {
-                    navigationController.navigate(NavigationItem.ChangeNumberPhone.route)
+                    navigator.push(ChangingNumberPhoneScreen())
                 }
             )
         }) {
@@ -327,7 +323,7 @@ class MainInfoProfile(navigationController: NavController, userProfile: UserProf
         Column(modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
                 onTap = {
-                    navigationController.navigate(NavigationItem.ChangeEmail.route)
+                    navigator.push(ChangingEmailScreen())
                 },
             )
         }) {
@@ -355,7 +351,7 @@ class MainInfoProfile(navigationController: NavController, userProfile: UserProf
         Column(modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
                 onTap = {
-                    navigationController.navigate(NavigationItem.ChangePassword.route)
+                    navigator.push(ChangingPasswordScreen())
                 },
             )
         }) {

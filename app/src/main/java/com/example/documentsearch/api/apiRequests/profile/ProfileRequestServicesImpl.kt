@@ -8,8 +8,13 @@ import com.example.documentsearch.api.apiRequests.profile.post.AdditionsServiceI
 import com.example.documentsearch.api.apiRequests.profile.put.UpdateServiceInProfile
 import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 
 class ProfileRequestServicesImpl : ClientAPI() {
+    private val coroutine = CoroutineScope(Dispatchers.Main)
+
     private val additionsServiceInProfileDelegate = AdditionsServiceInProfile()
     private val deletionServiceInProfileDelegate = DeletionServiceInProfile()
     private val receivingServiceInProfileDelegate = ReceivingServiceInProfile()
@@ -21,8 +26,10 @@ class ProfileRequestServicesImpl : ClientAPI() {
     }
 
 
-    suspend fun getAllAnotherProfile(): List<AnotherUserProfilePrototype> {
-        return receivingServiceInAnotherProfileDelegate.getAllAnotherProfile()
+    suspend fun getAllUsersProfile(): List<AnotherUserProfilePrototype> {
+        return coroutine.async {
+            receivingServiceInAnotherProfileDelegate.getAllAnotherProfile()
+        }.await()
     }
 
     suspend fun getAnotherProfileUsingId(idProfile: Long): AnotherUserProfilePrototype? {
@@ -43,7 +50,9 @@ class ProfileRequestServicesImpl : ClientAPI() {
     }
 
     suspend fun getProfileUsingEmailAndPassword(email: String, password: String): UserProfilePrototype? {
-        return receivingServiceInProfileDelegate.getProfileUsingEmailAndPassword(email, password)
+        return coroutine.async {
+            receivingServiceInProfileDelegate.getProfileUsingEmailAndPassword(email, password)
+        }.await()
     }
 
     suspend fun getProfileRecoveryCodeUsingLastNameAndEmail(lastName: String, email: String): Int? {

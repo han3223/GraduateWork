@@ -1,4 +1,4 @@
-package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens
+package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens.prototype
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.navigator.Navigator
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.screens.profile.HeadersProfile
 import com.example.documentsearch.ui.theme.AdditionalMainColor
@@ -31,13 +31,7 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 import com.example.documentsearch.validation.Validation
 
-class ReplacePasswordScreen(navigationController: NavController) : HeadersProfile() {
-    private val navigationController: NavController
-
-    init {
-        this.navigationController = navigationController
-    }
-
+data class ReplacePasswordScreen(val navigator: Navigator) : HeadersProfile() {
     @Composable
     fun Screen(onNewPasswordChange: (Pair<String, String>) -> Unit) {
         var changedOldPassword by remember { mutableStateOf("") }
@@ -46,7 +40,7 @@ class ReplacePasswordScreen(navigationController: NavController) : HeadersProfil
 
         Box {
             super.HeaderProfilePasswordChanged(
-                navigationController = navigationController,
+                navigator = navigator,
                 newPasswordEnter = changedNewPassword,
                 repeatPasswordEnter = changedRepeatNewPassword,
                 changeValue = { onNewPasswordChange(Pair(changedOldPassword, changedNewPassword)) }

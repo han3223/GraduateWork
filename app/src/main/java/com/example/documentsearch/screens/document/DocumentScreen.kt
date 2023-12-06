@@ -56,12 +56,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import cafe.adriel.voyager.core.screen.Screen
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.prototypes.DocumentWithPercentage
-import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.FILTER
@@ -74,33 +76,33 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.SORT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheDocumentTags
+import com.example.documentsearch.ui.theme.cacheDocuments
 
-class DocumentScreen(documentTags: List<TagPrototype>, documents: List<DocumentWithPercentage>) {
-    private val documentTags: List<TagPrototype>
-    private val documents: List<DocumentWithPercentage>
-
+class DocumentScreen : Screen {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
 
-    init {
-        this.documentTags = documentTags
-        this.documents = documents
-    }
-
-//    @Composable
-//    override fun Content() {
-//        Box {
-//            Header()
-//            Body()
-//        }
-//    }
+    private val tagRequestService = TagRequestServicesImpl()
+    private val documentRequestService = DocumentRequestServicesImpl()
 
     @Composable
-    fun Screen() {
-        Box {
-            Header()
-            Body()
+    override fun Content() {
+        val isLaunchedEffectCompleted = remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            if (cacheDocumentTags.value.getData() == null)
+                cacheDocumentTags.value.loadData(tagRequestService.getDocumentTags())
+            if (cacheDocuments.value.getData() == null)
+                cacheDocuments.value.loadData(documentRequestService.getAllDocuments())
+
+            isLaunchedEffectCompleted.value = true
         }
+
+        if (isLaunchedEffectCompleted.value)
+            Box {
+                Header()
+                Body()
+            }
     }
 
     @Composable
@@ -109,7 +111,7 @@ class DocumentScreen(documentTags: List<TagPrototype>, documents: List<DocumentW
         val screenWidthDp = configuration.screenWidthDp
 
         val searchDocument = SearchDocument()
-        val searchSupport = SearchSupport(documentTags)
+        val searchSupport = SearchSupport(cacheDocumentTags.value.getData()!!)
 
         var isActiveSort by remember { mutableStateOf(false) }
         var isActiveFilter by remember { mutableStateOf(false) }
@@ -176,16 +178,12 @@ class DocumentScreen(documentTags: List<TagPrototype>, documents: List<DocumentW
                 .padding(5.dp, heightHeader - 33.dp, 5.dp, 0.dp),
             state = rememberLazyScrollState
         ) {
-            items(documents.size) { index ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 5.dp)
-                ) {
-                    DocumentElement(documents[index], rememberLazyScrollState)
+            items(cacheDocuments.value.getData()!!.size) { index ->
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 5.dp)) {
+                    DocumentElement(cacheDocuments.value.getData()!![index], rememberLazyScrollState)
                 }
 
-                if (index == documents.lastIndex)
+                if (index == cacheDocuments.value.getData()!!.lastIndex)
                     Spacer(modifier = Modifier.height(90.dp))
             }
         }

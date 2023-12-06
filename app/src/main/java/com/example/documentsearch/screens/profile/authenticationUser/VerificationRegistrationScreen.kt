@@ -22,7 +22,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.patterns.authentication.VerificationCodeInput
 import com.example.documentsearch.preferences.PreferencesManager
@@ -30,44 +32,36 @@ import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
 import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.example.documentsearch.screens.profile.HeadersProfile
+import com.example.documentsearch.screens.profile.ProfileScreen
 import com.example.documentsearch.ui.theme.MAXIMUM_TEXT
 import com.example.documentsearch.ui.theme.MainColorLight
+import com.example.documentsearch.ui.theme.cacheUserProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class VerificationRegistrationScreen(
-    navigationController: NavController,
-    registrationData: UserProfilePrototype
-) : HeadersProfile() {
-    private val navigationController: NavController
-    private val registrationData: UserProfilePrototype
-
+data class VerificationRegistrationScreen(val registrationData: UserProfilePrototype) : HeadersProfile(), Screen {
     private lateinit var preferencesManager: PreferencesManager
 
-    init {
-        this.navigationController = navigationController
-        this.registrationData = registrationData
-    }
-
     @Composable
-    fun Screen(onProfileChange: (UserProfilePrototype) -> Unit) {
+    override fun Content() {
         Box {
             super.BasicHeader()
-            Body { onProfileChange(it) }
+            Body()
         }
     }
 
     @Composable
-    private fun Body(onProfileChange: (UserProfilePrototype) -> Unit) {
+    private fun Body() {
         var codeVerify by remember { mutableStateOf("") }   
         val context = LocalContext.current
+        val navigator = LocalNavigator.currentOrThrow
         preferencesManager = PreferencesManager(context)
 
         // TODO(Сделать отправку кода на почту)
         if (codeVerify == "0000") {
             codeVerify = ""
-            signIn { onProfileChange(it) }
+            signIn { navigator.replace(ProfileScreen()) }
         }
 
 
@@ -109,6 +103,7 @@ class VerificationRegistrationScreen(
             if (signInProfile != null) {
                 preferencesManager.saveData(emailKeyPreferences, registrationData.email)
                 preferencesManager.saveData(passwordKeyPreferences, registrationData.password)
+                cacheUserProfile.value.loadData(signInProfile)
                 onProfileChange(signInProfile)
             }
         }
