@@ -48,11 +48,7 @@ class UpdateServiceInProfile : ClientAPI() {
         return resultEmail
     }
 
-    suspend fun updatePasswordUsingEmail(
-        email: String,
-        oldPassword: String,
-        newPassword: String
-    ): String? {
+    suspend fun updatePasswordUsingEmail(email: String, oldPassword: String, newPassword: String): String? {
         var resultPassword: String? = null
         try {
             resultPassword = requestHandling(profileService.updatePasswordUsingEmail(email, oldPassword, newPassword))

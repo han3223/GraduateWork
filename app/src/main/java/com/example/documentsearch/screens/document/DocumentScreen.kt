@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -58,10 +59,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import coil.compose.AsyncImagePainter
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
+import com.example.documentsearch.cache.CacheDocumentTags
+import com.example.documentsearch.cache.CacheDocuments
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.prototypes.DocumentWithPercentage
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -76,42 +79,47 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.SORT
 import com.example.documentsearch.ui.theme.TextColor
-import com.example.documentsearch.ui.theme.cacheDocumentTags
-import com.example.documentsearch.ui.theme.cacheDocuments
 
 class DocumentScreen : Screen {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
+
+    private val cacheDocumentTags = CacheDocumentTags()
+    private val cacheDocuments = CacheDocuments()
+
+    private val searchDocument = SearchDocument()
+    private val searchSupport = SearchSupport(cacheDocumentTags.getDocumentTagsFromCache()?: listOf())
 
     private val tagRequestService = TagRequestServicesImpl()
     private val documentRequestService = DocumentRequestServicesImpl()
 
     @Composable
     override fun Content() {
-        val isLaunchedEffectCompleted = remember { mutableStateOf(false) }
+        var isCompleted by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            if (cacheDocumentTags.value.getData() == null)
-                cacheDocumentTags.value.loadData(tagRequestService.getDocumentTags())
-            if (cacheDocuments.value.getData() == null)
-                cacheDocuments.value.loadData(documentRequestService.getAllDocuments())
-
-            isLaunchedEffectCompleted.value = true
+            getDocumentsAndDocumentTags()
+            isCompleted = true
         }
 
-        if (isLaunchedEffectCompleted.value)
+        if (isCompleted) {
             Box {
                 Header()
                 Body()
             }
+        }
+    }
+
+    private suspend fun getDocumentsAndDocumentTags() {
+        if (cacheDocumentTags.getDocumentTagsFromCache() == null)
+            cacheDocumentTags.loadDocumentTags(tagRequestService.getDocumentTags())
+        if (cacheDocuments.getDocumentsFromCache() == null)
+            cacheDocuments.loadDocuments(documentRequestService.getAllDocuments())
     }
 
     @Composable
     private fun Header() {
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp
-
-        val searchDocument = SearchDocument()
-        val searchSupport = SearchSupport(cacheDocumentTags.value.getData()!!)
 
         var isActiveSort by remember { mutableStateOf(false) }
         var isActiveFilter by remember { mutableStateOf(false) }
@@ -140,7 +148,7 @@ class DocumentScreen : Screen {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(heightHeader)
-                    .padding(horizontal = 20.dp),
+                    .padding(20.dp, 0.dp, 20.dp, 40.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
                 searchDocument.SearchEngine()
@@ -154,9 +162,6 @@ class DocumentScreen : Screen {
                         else isActiveFilter = !isActiveFilter
                     }
                 )
-                Spacer(modifier = Modifier
-                    .height(40.dp)
-                    .fillMaxWidth())
             }
         }
 
@@ -178,22 +183,23 @@ class DocumentScreen : Screen {
                 .padding(5.dp, heightHeader - 33.dp, 5.dp, 0.dp),
             state = rememberLazyScrollState
         ) {
-            items(cacheDocuments.value.getData()!!.size) { index ->
-                Box(modifier = Modifier.fillMaxWidth().padding(top = 5.dp)) {
-                    DocumentElement(cacheDocuments.value.getData()!![index], rememberLazyScrollState)
-                }
+            cacheDocuments.getDocumentsFromCache()?.let { documents ->
+                itemsIndexed(items = documents) {index, document ->
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 5.dp)) {
+                        DocumentElement(document, rememberLazyScrollState)
+                    }
 
-                if (index == cacheDocuments.value.getData()!!.lastIndex)
-                    Spacer(modifier = Modifier.height(90.dp))
+                    if (index == documents.lastIndex)
+                        Spacer(modifier = Modifier.height(90.dp))
+                }
             }
         }
     }
 
     @Composable
-    private fun DocumentElement(
-        document: DocumentWithPercentage,
-        rememberLazyScrollState: LazyListState
-    ) {
+    private fun DocumentElement(document: DocumentWithPercentage, scrollState: LazyListState) {
         val heightWindow = LocalConfiguration.current.screenHeightDp.dp.value
         var isOpenDescription by remember { mutableStateOf(false) }
         val position = remember { mutableStateOf(0.dp) }
@@ -205,7 +211,7 @@ class DocumentScreen : Screen {
             if (isOpenDescription) {
                 if (position.value.value > heightWindow * 1.75) {
                     val scroll = position.value.value - heightWindow * 1.55
-                    rememberLazyScrollState.animateScrollBy(scroll.toFloat())
+                    scrollState.animateScrollBy(scroll.toFloat())
                 }
             }
         }
@@ -218,7 +224,7 @@ class DocumentScreen : Screen {
         isOpenDescription: Boolean,
         onDescriptionChange: (Boolean) -> Unit
     ) {
-        val percent = rememberImagePainter(data = document.percentImage)
+        val percent = rememberAsyncImagePainter(model = document.percentImage)
 
         Box(
             modifier = Modifier
@@ -318,45 +324,55 @@ class DocumentScreen : Screen {
                 .height(35.dp)
                 .background(AdditionalMainColorDark),
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(35.dp)
-                    .clip(RoundedCornerShape(17.dp))
-                    .shadow(
-                        40.dp,
-                        RoundedCornerShape(14.dp),
-                        ambientColor = Color.White,
-                        spotColor = Color.White
-                    )
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .horizontalScroll(rememberScrollState())
-                    .clip(RoundedCornerShape(14.dp))
-                    .padding(horizontal = 5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                tags.forEach { title ->
-                    Box(
-                        modifier = Modifier
-                            .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
-                            .background(
-                                color = MainColorDark,
-                                shape = RoundedCornerShape(size = 14.dp)
-                            )
-                    ) {
-                        Text(
-                            text = title,
-                            style = ORDINARY_TEXT,
-                            modifier = Modifier.padding(
-                                vertical = 5.dp,
-                                horizontal = 10.dp
-                            )
+            BackgroundTags()
+            Tags(tags)
+        }
+    }
+
+    @Composable
+    private fun BackgroundTags() {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(35.dp)
+                .clip(RoundedCornerShape(17.dp))
+                .shadow(
+                    40.dp,
+                    RoundedCornerShape(14.dp),
+                    ambientColor = Color.White,
+                    spotColor = Color.White
+                )
+        )
+    }
+
+    @Composable
+    private fun Tags(tags: List<String>) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .horizontalScroll(rememberScrollState())
+                .clip(RoundedCornerShape(14.dp))
+                .padding(horizontal = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            tags.forEach { title ->
+                Box(
+                    modifier = Modifier
+                        .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
+                        .background(
+                            color = MainColorDark,
+                            shape = RoundedCornerShape(size = 14.dp)
                         )
-                    }
-                    Spacer(modifier = Modifier.width(5.dp))
+                ) {
+                    Text(
+                        text = title,
+                        style = ORDINARY_TEXT,
+                        modifier = Modifier.padding(
+                            vertical = 5.dp,
+                            horizontal = 10.dp
+                        )
+                    )
                 }
             }
         }
@@ -450,12 +466,10 @@ class DocumentScreen : Screen {
                         Icon(
                             painter = painterResource(id = R.drawable.download),
                             contentDescription = "Скачать",
+                            tint = TextColor,
                             modifier = Modifier
                                 .size(24.dp)
-                                .clickable {
-                                    //TODO(Надо сделать скачивание из базы данных)
-                                },
-                            tint = TextColor
+                                .clickable { /*TODO(Надо сделать скачивание из базы данных)*/ }
                         )
                     }
                 }

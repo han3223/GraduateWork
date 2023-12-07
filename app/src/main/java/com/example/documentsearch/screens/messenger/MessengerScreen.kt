@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -40,8 +42,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.R
+import com.example.documentsearch.cache.CacheUserMessengers
 import com.example.documentsearch.navbar.SVGFactory
 import com.example.documentsearch.patterns.HeaderFactory
+import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
@@ -51,17 +55,18 @@ import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
-import com.example.documentsearch.ui.theme.cacheMessengers
 
 class MessengerScreen : Screen {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
 
+    private val cacheUserMessengers = CacheUserMessengers()
+
     @Composable
     override fun Content() {
         Box {
             Header()
-//            Body()
+            Body()
         }
     }
 
@@ -69,11 +74,7 @@ class MessengerScreen : Screen {
     private fun Header() {
         var isOpenMenu by remember { mutableStateOf(false) }
 
-        Box(
-            modifier = Modifier
-                .zIndex(1f)
-                .fillMaxWidth()
-        ) {
+        Box(modifier = Modifier.zIndex(1f).fillMaxWidth()) {
             headerFactory.HeaderPrototype(heightHeader)
             if (isOpenMenu) {
                 Box(modifier = Modifier
@@ -84,105 +85,119 @@ class MessengerScreen : Screen {
                     svgFactory.GetShapeFromSVG(svgCode = MESSENGER_MENU, colorShape = MainColorDark)
                 }
             }
-            Row(
-                modifier = Modifier
-                    .padding(20.dp, 45.dp, 20.dp, 0.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(modifier = Modifier.size(25.dp)) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.menu),
-                            contentDescription = null,
-                            tint = TextColor,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = {
-                                            isOpenMenu = !isOpenMenu
-                                        }
-                                    )
-                                }
-                        )
-                    }
-                    Text(
-                        text = "Мессенджер",
-                        style = HEADING_TEXT
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .size(30.dp, 30.dp)
-                        .background(color = MainColorDark, shape = CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = TextColor,
-                    )
-                }
-            }
+            HeaderItems { isOpenMenu = !isOpenMenu }
         }
+        ActiveMenu(isOpenMenu)
+    }
 
-        Box {
-            AnimatedVisibility(
-                visible = isOpenMenu,
-                enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                modifier = Modifier.zIndex(1f)
-            ) {
-                MessengerMenu().Menu()
+    @Composable
+    private fun HeaderItems(onOpenMenu: () -> Unit) {
+        Row(
+            modifier = Modifier
+                .padding(20.dp, 45.dp, 20.dp, 0.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            MenuAndTitle { onOpenMenu() }
+            Search()
+        }
+    }
+
+    @Composable
+    private fun MenuAndTitle(onOpenMenu: () -> Unit) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(modifier = Modifier.size(25.dp)) {
+                Icon(
+                    painter = painterResource(id = R.drawable.menu),
+                    contentDescription = null,
+                    tint = TextColor,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    onOpenMenu()
+                                }
+                            )
+                        }
+                )
             }
+            Text(
+                text = "Мессенджер",
+                style = HEADING_TEXT
+            )
+        }
+    }
+
+    @Composable
+    private fun Search() {
+        Box(
+            modifier = Modifier
+                .size(30.dp, 30.dp)
+                .background(color = MainColorDark, shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = TextColor)
+        }
+    }
+
+    @Composable
+    private fun ActiveMenu(isOpenMenu: Boolean) {
+        AnimatedVisibility(
+            visible = isOpenMenu,
+            enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+            exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+            modifier = Modifier.zIndex(1f)
+        ) {
+            MessengerMenu().Menu()
         }
     }
 
     @Composable
     private fun Body() {
-        val navigator = LocalNavigator.currentOrThrow
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .zIndex(0f)
                 .fillMaxWidth()
                 .background(MainColorLight)
         ) {
-            cacheMessengers.value.getData()!!.forEach { messenger ->
+            items(cacheUserMessengers.getMessengersFromCache()?: listOf()) { messenger ->
                 if (messenger.listMessage.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier
-                            .padding(20.dp, 10.dp, 20.dp, 10.dp)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onTap = { navigator.push(CommunicationScreen(messenger)) },
-                                )
-                            },
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(modifier = Modifier
-                            .size(65.dp)
-                            .background(AdditionalColor, CircleShape))
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(
-                                text = "${messenger.interlocutor.lastName} ${messenger.interlocutor.firstName}",
-                                style = HIGHLIGHTING_BOLD_TEXT
-                            )
-                            Text(
-                                text = "${messenger.listMessage.last().message.substring(0..30)}...",
-                                style = SECONDARY_TEXT
-                            )
-                        }
-                    }
+                    Communication(messenger)
                     Spacer(modifier = Modifier
                         .height(1.dp)
                         .fillMaxWidth()
                         .background(AdditionalColor))
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun Communication(messenger: MessengerPrototype) {
+        val navigator = LocalNavigator.currentOrThrow
+        Row(
+            modifier = Modifier
+                .padding(20.dp, 10.dp, 20.dp, 10.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { navigator.push(CommunicationScreen(messenger)) })
+                },
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.size(65.dp).background(AdditionalColor, CircleShape))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "${messenger.interlocutor.lastName} ${messenger.interlocutor.firstName}",
+                    style = HIGHLIGHTING_BOLD_TEXT
+                )
+                Text(
+                    text = "${messenger.listMessage.last().message.substring(0..30)}...",
+                    style = SECONDARY_TEXT
+                )
             }
         }
     }

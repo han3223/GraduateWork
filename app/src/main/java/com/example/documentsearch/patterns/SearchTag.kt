@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -233,7 +233,7 @@ class SearchTag {
                 verticalAlignment = Alignment.CenterVertically,
                 state = rememberLazyListState()
             ) {
-                itemsIndexed(sortedTags) { index: Int, item: TagPrototype ->
+                items(items = sortedTags) { tag: TagPrototype ->
                     Spacer(modifier = Modifier.width(2.5.dp))
                     Box(
                         modifier = Modifier
@@ -241,11 +241,11 @@ class SearchTag {
                                 color = MainColorDark,
                                 shape = RoundedCornerShape(size = 14.dp)
                             )
-                            .clickable { onSelectedTagChanged(item) }
+                            .clickable { onSelectedTagChanged(tag) }
                             .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
                     ) {
                         Text(
-                            text = item.title,
+                            text = tag.title,
                             style = ORDINARY_TEXT,
                             modifier = Modifier.padding(
                                 vertical = 5.dp,

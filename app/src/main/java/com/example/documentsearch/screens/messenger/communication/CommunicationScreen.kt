@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,8 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -112,8 +109,6 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
                     .rotate(180f),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Левый угол
-                Box {
                     Box(
                         modifier = Modifier
                             .size(33.dp)
@@ -122,28 +117,6 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
                         val svgFactory = SVGFactory()
                         svgFactory.GetShapeFromSVG(svgCode = HEADER_LEFT, colorShape = MainColor)
                     }
-                    // Тень
-                    Box(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .zIndex(1f)
-                    ) {
-                        val svgFactory = SVGFactory()
-                        svgFactory.GetShapeFromSVG(
-                            svgCode = "M44.5 1C14 1 0 19 0 39",
-                            colorShape = Color(0xD9000000),
-                            stroke = Stroke(width = 2f)
-                        )
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        .height(1.5.dp)
-                        .weight(1f)
-                        .background(Color(0xD9000000))
-                )
-                // Правый угол
-                Box {
                     Box(
                         modifier = Modifier
                             .size(33.dp)
@@ -152,20 +125,6 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
                         val svgFactory = SVGFactory()
                         svgFactory.GetShapeFromSVG(svgCode = HEADER_RIGHT, colorShape = MainColor)
                     }
-                    // Тень
-                    Box(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .zIndex(1f)
-                    ) {
-                        val svgFactory = SVGFactory()
-                        svgFactory.GetShapeFromSVG(
-                            svgCode = "M0 1C30.5 1 44.5 19 44.5 39",
-                            colorShape = Color(0xD9000000),
-                            stroke = Stroke(width = 2f)
-                        )
-                    }
-                }
             }
             Box(modifier = Modifier
                 .fillMaxWidth()

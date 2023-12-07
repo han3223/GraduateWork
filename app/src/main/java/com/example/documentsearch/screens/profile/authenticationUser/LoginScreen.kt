@@ -89,9 +89,7 @@ class LoginScreen : HeadersProfile(), Screen {
                 .padding(5.dp, super.getHeightHeader() - 33.dp, 5.dp, 0.dp),
             state = rememberLazyListState()
         ) {
-            item(0) {
-                LoginForm()
-            }
+            item(0) { LoginForm() }
         }
     }
 

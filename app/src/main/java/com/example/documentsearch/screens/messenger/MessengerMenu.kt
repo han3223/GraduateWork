@@ -54,10 +54,9 @@ class MessengerMenu {
 
         Column(modifier = columnModifier) {
             listSort.forEach { sortItem ->
-                val multiplier = sizeMultiplier
-                LaunchedEffect(multiplier) {
-                    multiplier.animateTo(0.9f, animationSpec = spring())
-                    multiplier.animateTo(1f, animationSpec = spring())
+                LaunchedEffect(sizeMultiplier) {
+                    sizeMultiplier.animateTo(0.9f, animationSpec = spring())
+                    sizeMultiplier.animateTo(1f, animationSpec = spring())
                 }
 
                 Row(

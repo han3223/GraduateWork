@@ -74,10 +74,7 @@ class ReceivingServiceInProfile : ClientAPI() {
         return resultCode
     }
 
-    suspend fun getProfileRecoveryCodeUsingLastNameAndPhoneNumber(
-        lastName: String,
-        phoneNumber: String
-    ): Int? {
+    suspend fun getProfileRecoveryCodeUsingLastNameAndPhoneNumber(lastName: String, phoneNumber: String): Int? {
         var resultCode: Int? = null
         try {
             val response = requestHandling(profileService.getProfileRecoveryCodeUsingLastNameAndPhoneNumber(lastName, phoneNumber))

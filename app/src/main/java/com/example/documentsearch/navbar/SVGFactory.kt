@@ -27,11 +27,7 @@ class SVGFactory {
             val scaleY = canvasHeight / bounds.height
 
             scale(scaleX, scaleY, pivot = Offset.Zero) {
-                drawPath(
-                    path = path,
-                    color = colorShape,
-                    style = stroke ?: Fill
-                )
+                drawPath(path = path, color = colorShape, style = stroke ?: Fill)
             }
         }
     }

@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
-import com.example.documentsearch.Cache.CacheFactory
+import com.example.documentsearch.cache.CacheFactory
 import com.example.documentsearch.R
 import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
 import com.example.documentsearch.prototypes.DocumentWithPercentage

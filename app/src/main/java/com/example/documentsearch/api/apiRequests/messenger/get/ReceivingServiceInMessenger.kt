@@ -2,14 +2,9 @@ package com.example.documentsearch.api.apiRequests.messenger.get
 
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Messenger.messengerService
-import com.example.documentsearch.api.apiRequests.message.MessageRequestServicesImpl
-import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.prototypes.GetMessengerPrototypeDataBase
-import com.example.documentsearch.prototypes.MessengerPrototype
-import com.example.documentsearch.prototypes.UserProfilePrototype
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
 
 class ReceivingServiceInMessenger : ClientAPI() {

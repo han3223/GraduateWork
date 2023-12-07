@@ -34,45 +34,58 @@ class HeaderFactory {
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height - 33.dp)
-                    .background(MainColor)
-            ) {
-                Box(modifier = modifier) {
-                    val svgFactory = SVGFactory()
-                    svgFactory.GetShapeFromSVG(svgCode = element, colorShape = MainColorDark)
-                }
-            }
+            MainHeader(modifier, height, element)
+            Corners(leftEllipseColor, rightEllipseColor)
+        }
+    }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Левый угол
-                Box {
-                    Box(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .zIndex(2f)
-                    ) {
-                        val svgFactory = SVGFactory()
-                        svgFactory.GetShapeFromSVG(svgCode = HEADER_LEFT, colorShape = leftEllipseColor)
-                    }
-                }
-                // Правый угол
-                Box {
-                    Box(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .zIndex(2f)
-                    ) {
-                        val svgFactory = SVGFactory()
-                        svgFactory.GetShapeFromSVG(svgCode = HEADER_RIGHT, colorShape = rightEllipseColor)
-                    }
-                }
+    @Composable
+    private fun MainHeader(modifier: Modifier, height: Dp, element: String) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height - 33.dp)
+                .background(MainColor)
+        ) {
+            Box(modifier = modifier) {
+                val svgFactory = SVGFactory()
+                svgFactory.GetShapeFromSVG(svgCode = element, colorShape = MainColorDark)
             }
+        }
+    }
+
+    @Composable
+    private fun Corners(leftEllipseColor: Color, rightEllipseColor: Color) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            LeftCorner(leftEllipseColor)
+            RightCorner(rightEllipseColor)
+        }
+    }
+
+    @Composable
+    private fun LeftCorner(leftEllipseColor: Color) {
+        Box(
+            modifier = Modifier
+                .size(33.dp)
+                .zIndex(2f)
+        ) {
+            val svgFactory = SVGFactory()
+            svgFactory.GetShapeFromSVG(svgCode = HEADER_LEFT, colorShape = leftEllipseColor)
+        }
+    }
+
+    @Composable
+    private fun RightCorner(rightEllipseColor: Color) {
+        Box(
+            modifier = Modifier
+                .size(33.dp)
+                .zIndex(2f)
+        ) {
+            val svgFactory = SVGFactory()
+            svgFactory.GetShapeFromSVG(svgCode = HEADER_RIGHT, colorShape = rightEllipseColor)
         }
     }
 }

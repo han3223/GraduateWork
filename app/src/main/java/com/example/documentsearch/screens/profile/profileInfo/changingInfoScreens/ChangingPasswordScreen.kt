@@ -18,15 +18,11 @@ class ChangingPasswordScreen : Screen {
         val replacePasswordScreen = ReplacePasswordScreen(navigator)
         replacePasswordScreen.Screen {
             CoroutineScope(Dispatchers.Main).launch {
-                val password: String? =
-                    ProfileRequestServicesImpl().updatePasswordUsingEmail(
-                        cacheUserProfile.value.getData()!!.email,
-                        it.first,
-                        it.second
-                    )
-                if (password != null) {
-                    println("Пароль успешно обновлён")
-                }
+                ProfileRequestServicesImpl().updatePasswordUsingEmail(
+                    cacheUserProfile.value.getData()!!.email,
+                    it.first,
+                    it.second
+                )
             }
         }
     }

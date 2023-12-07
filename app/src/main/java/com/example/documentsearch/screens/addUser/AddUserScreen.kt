@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +40,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
+import com.example.documentsearch.cache.CacheAllUsersProfile
+import com.example.documentsearch.cache.CacheProfileTags
+import com.example.documentsearch.cache.CacheUserProfile
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.screens.document.Filter
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -47,9 +52,6 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
-import com.example.documentsearch.ui.theme.cacheAllUsersProfile
-import com.example.documentsearch.ui.theme.cacheProfileTags
-import com.example.documentsearch.ui.theme.cacheUserProfile
 
 class AddUserScreen : Screen {
     private val heightHeader = 160.dp
@@ -58,43 +60,54 @@ class AddUserScreen : Screen {
     private val profileRequestService = ProfileRequestServicesImpl()
     private val tagRequestService = TagRequestServicesImpl()
 
+    private val cacheUserProfile = CacheUserProfile()
+    private val cacheAllUsersProfile = CacheAllUsersProfile()
+    private val cacheProfileTags = CacheProfileTags()
+
+    private val searchProfile = SearchProfile()
+    private val filter = Filter()
+
     @Composable
     override fun Content() {
-        val isLaunchedEffectCompleted = remember { mutableStateOf(false) }
+        var isCompleted by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            if (cacheAllUsersProfile.value.getData() == null)
-                cacheAllUsersProfile.value.loadData(profileRequestService.getAllUsersProfile())
-            if (cacheProfileTags.value.getData() == null)
-                cacheProfileTags.value.loadData(tagRequestService.getProfileTags())
-
-            isLaunchedEffectCompleted.value = true
+            getAllUsersProfileAndProfileTags()
+            isCompleted = true
         }
 
-        if (isLaunchedEffectCompleted.value)
+        if (isCompleted) {
             Box {
                 Header()
                 Body()
             }
+        }
+    }
+
+    private suspend fun getAllUsersProfileAndProfileTags() {
+        if (cacheAllUsersProfile.getAllUsersProfileFromCache() == null)
+            cacheAllUsersProfile.loadAllUsersProfile(profileRequestService.getAllUsersProfile())
+        if (cacheProfileTags.getProfileTagsFromCache() == null)
+            cacheProfileTags.loadProfileTags(tagRequestService.getProfileTags())
     }
 
     @Composable
     private fun Header() {
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp
-        val searchProfile = SearchProfile()
-        val filter = Filter()
 
         var isActiveFilter by remember { mutableStateOf(false) }
 
         Box(modifier = Modifier.zIndex(2f)) {
+            val headerModifier = if (isActiveFilter) Modifier
+                .align(Alignment.BottomEnd)
+                .height(40.dp)
+                .width(screenWidthDp.dp - 33.dp)
+            else Modifier
+
             headerFactory.HeaderPrototype(
                 height = heightHeader,
                 element = if (isActiveFilter) FILTER else "",
-                modifier = if (isActiveFilter) Modifier
-                    .align(Alignment.BottomEnd)
-                    .height(40.dp)
-                    .width(screenWidthDp.dp - 33.dp)
-                else Modifier,
+                modifier = headerModifier,
                 leftEllipseColor = MainColor,
                 rightEllipseColor = if (isActiveFilter) MainColorDark else MainColor
             )
@@ -104,17 +117,19 @@ class AddUserScreen : Screen {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(heightHeader)
-                    .padding(horizontal = 20.dp),
+                    .padding(20.dp, 0.dp, 20.dp, 40.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
                 searchProfile.SearchEngine()
                 filter.InActive { isActiveFilter = !isActiveFilter }
-                Spacer(modifier = Modifier
-                    .height(40.dp)
-                    .fillMaxWidth())
             }
         }
 
+        ActiveFilter(isActiveFilter)
+    }
+
+    @Composable
+    private fun ActiveFilter(isActiveFilter: Boolean) {
         AnimatedVisibility(
             visible = isActiveFilter,
             enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
@@ -123,61 +138,80 @@ class AddUserScreen : Screen {
                 .zIndex(1f)
                 .fillMaxWidth()
         ) {
-            filter.ActiveProfile(tags = cacheProfileTags.value.getData()!!) { }
+            filter.ActiveProfile(tags = cacheProfileTags.getProfileTagsFromCache()!!) { }
         }
     }
 
     @Composable
     private fun Body() {
-        Column(
-            modifier = Modifier
-                .zIndex(0f)
-                .padding(top = 127.dp)
-                .fillMaxWidth()
-                .background(MainColorLight)
-        ) {
-            val navigator = LocalNavigator.currentOrThrow
-            cacheAllUsersProfile.value.getData()!!.forEach { user ->
-                Row(
-                    modifier = Modifier
-                        .padding(20.dp, 10.dp, 20.dp, 10.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    navigator.push(ProfileInfo(user, cacheUserProfile.value.getData()!!))
-                                },
-                            )
-                        },
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
+        val navigator = LocalNavigator.currentOrThrow
+        LazyColumn(modifier = Modifier
+            .zIndex(0f)
+            .padding(top = 127.dp)
+            .fillMaxWidth()
+            .background(MainColorLight)) {
+            cacheAllUsersProfile.getAllUsersProfileFromCache()?.let { usersProfile ->
+                items(items = usersProfile) { userProfile ->
+                    Row(
                         modifier = Modifier
-                            .size(65.dp)
-                            .background(AdditionalColor, CircleShape)
-                    )
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            text = "${user.lastName} ${user.firstName}",
-                            style = HIGHLIGHTING_BOLD_TEXT,
-                        )
-                        if (user.personalInfo != null) {
-                            Text(
-                                text = if (user.personalInfo!!.length >= 30) {
-                                    user.personalInfo!!.substring(0, 30)
-                                } else user.personalInfo!!,
-                                style = ORDINARY_TEXT
-                            )
+                            .padding(20.dp, 10.dp, 20.dp, 10.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        navigator.push(
+                                            ProfileInfo(
+                                                userProfile,
+                                                cacheUserProfile.getUserFromCache()!!
+                                            )
+                                        )
+                                    },
+                                )
+                            },
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ProfilePicture()
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            UserName("${userProfile.lastName} ${userProfile.firstName}")
+                            if (userProfile.personalInfo != null)
+                                UserInfo(userProfile.personalInfo!!)
                         }
                     }
+                    Separator()
                 }
-                Spacer(
-                    modifier = Modifier
-                        .height(1.dp)
-                        .fillMaxWidth()
-                        .background(AdditionalColor)
-                )
             }
         }
+    }
+
+    @Composable
+    private fun ProfilePicture() {
+        Box(
+            modifier = Modifier
+                .size(65.dp)
+                .background(AdditionalColor, CircleShape)
+        ) {}
+    }
+
+    @Composable
+    private fun UserName(fullName: String) {
+        Text(
+            text = fullName,
+            style = HIGHLIGHTING_BOLD_TEXT,
+        )
+    }
+
+    @Composable
+    private fun UserInfo(info: String) {
+        Text(
+            text = if (info.length >= 30) {
+                info.substring(0, 30)
+            } else info,
+            style = ORDINARY_TEXT
+        )
+    }
+
+    @Composable
+    private fun Separator() {
+        Spacer(modifier = Modifier.height(1.dp).fillMaxWidth().background(AdditionalColor))
     }
 }

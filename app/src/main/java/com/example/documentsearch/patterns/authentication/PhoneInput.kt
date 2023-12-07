@@ -90,7 +90,7 @@ class PhoneInput(
             modifier = mainBoxModifier
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                Text(text = label, style = styleLabel,)
+                Text(text = label, style = styleLabel)
                 PhoneTextField(
                     phoneNumber,
                     onPhoneNumberChanged = { onPhoneNumberChanged(it) },

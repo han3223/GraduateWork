@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.documentsearch.R
@@ -41,10 +42,10 @@ class PersonalDocumentation {
     fun Documentation() {
         var documentationsVisible by remember { mutableIntStateOf(1) } // Число видимых документаций
 
-        Spacer(modifier = Modifier.height(10.dp))
         Box(
             modifier = Modifier
                 .zIndex(2f)
+                .padding(top = 15.dp)
                 .fillMaxWidth()
                 .heightIn(0.dp, 305.dp)
                 .clip(shape = RoundedCornerShape(size = 33.dp))
@@ -115,13 +116,12 @@ class PersonalDocumentation {
                             Text(
                                 text = "Показать ещё",
                                 style = ORDINARY_TEXT,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .padding(15.dp)
                                     .fillMaxWidth()
                                     .clickable { documentationsVisible += 5 }
-                                    .background(
-                                        AdditionalMainColor, RoundedCornerShape(33.dp)
-                                    )
+                                    .background(AdditionalMainColor, RoundedCornerShape(33.dp))
                             )
                         }
                     }

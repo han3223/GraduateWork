@@ -13,13 +13,13 @@ class AdditionsServiceInMessage: ClientAPI() {
         val messageInRequestBody: RequestBody = messageJson.toRequestBody(requestMediaType)
 
         var isSuccessful = false
-            try {
-                val response = requestHandling(Message.messageServices.addMessage(messageInRequestBody))
-                if (response != null)
-                    isSuccessful = true
-            } catch (exception: Exception) {
-                println(exception.message)
-            }
+        try {
+            val response = requestHandling(Message.messageServices.addMessage(messageInRequestBody))
+            if (response != null)
+                isSuccessful = true
+        } catch (exception: Exception) {
+            println(exception.message)
+        }
 
         return isSuccessful
     }

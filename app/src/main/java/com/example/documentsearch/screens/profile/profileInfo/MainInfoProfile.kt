@@ -68,14 +68,14 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
 
     @Composable
     fun Info(lazyListState: LazyListState) {
-        val density = LocalDensity.current // Нужен для определения длины контейнера
-        var dragStart by remember { mutableFloatStateOf(0f) } // Начальная точка свайпа вниз
-        var widthProfilePicture by remember { mutableStateOf(110.dp) } // Длина аватарки
+        val density = LocalDensity.current
+        var dragStart by remember { mutableFloatStateOf(0f) }
+        var widthProfilePicture by remember { mutableStateOf(110.dp) }
 
-        var widthContent by remember { mutableStateOf(0.dp) } // Длина контента в контейнере
+        var widthContent by remember { mutableStateOf(0.dp) }
         this.widthContent = widthContent
 
-        var isOpen by remember { mutableStateOf(false) } // Длина контента в контейнере
+        var isOpen by remember { mutableStateOf(false) }
         val coroutineScope = rememberCoroutineScope()
 
         val pointerInput: Modifier = if (isOpen) {
@@ -110,10 +110,10 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
             label = ""
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
         // Основной контейнер с информацией о пользователе
         Box(
             modifier = pointerInput
+                .padding(top = 5.dp)
                 .zIndex(2f)
                 .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(size = 33.dp))
@@ -266,9 +266,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
     private fun ProfileInfo() {
         Column(modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
-                onTap = {
-                    navigator.push(ChangingPersonalInfoScreen())
-                }
+                onTap = { navigator.push(ChangingPersonalInfoScreen()) }
             )
         }) {
             profileFactory.StandardBlock(
@@ -280,13 +278,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
                 value = profile.personalInfo ?: "",
                 styleValue = ORDINARY_TEXT
             )
-            Text(
-                text = "Нажмите, чтобы добавить информацию о себе",
-                style = SECONDARY_TEXT,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-            )
+            Hint()
         }
     }
 
@@ -294,9 +286,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
     private fun PhoneNumber() {
         Column(modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
-                onTap = {
-                    navigator.push(ChangingNumberPhoneScreen())
-                }
+                onTap = { navigator.push(ChangingNumberPhoneScreen()) }
             )
         }) {
             profileFactory.StandardBlock(
@@ -308,13 +298,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
                 value = EditText().getMaskNumberPhone(profile.telephoneNumber),
                 styleValue = ORDINARY_TEXT
             )
-            Text(
-                text = "Нажмите, чтобы сменить номер телефона",
-                style = SECONDARY_TEXT,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-            )
+            Hint()
         }
     }
 
@@ -322,9 +306,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
     private fun Email() {
         Column(modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
-                onTap = {
-                    navigator.push(ChangingEmailScreen())
-                },
+                onTap = { navigator.push(ChangingEmailScreen()) },
             )
         }) {
             profileFactory.StandardBlock(
@@ -336,13 +318,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
                 value = profile.email,
                 styleValue = ORDINARY_TEXT
             )
-            Text(
-                text = "Нажмите, чтобы сменить email",
-                style = SECONDARY_TEXT,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-            )
+            Hint()
         }
     }
 
@@ -364,14 +340,19 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
                 value = "*********",
                 styleValue = ORDINARY_TEXT
             )
-            Text(
-                text = "Нажмите, чтобы создать новый пароль",
-                style = SECONDARY_TEXT,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 7.dp, bottom = 5.dp)
-            )
+            Hint()
         }
+    }
+
+    @Composable
+    private fun Hint() {
+        Text(
+            text = "Нажмите, чтобы создать новый пароль",
+            style = SECONDARY_TEXT,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, top = 5.dp, bottom = 5.dp)
+        )
     }
 
     @Composable

@@ -146,7 +146,6 @@ data class ProfileInfo(
             Email()
             Separation()
 
-            // Контейнер для тегов пользователя
             if (!anotherProfile.tags.isNullOrEmpty()) {
                 Tags(anotherProfile.tags)
             }
@@ -203,12 +202,12 @@ data class ProfileInfo(
                                     )
                                 )
                             if (request != null) {
-                                val messenger = MessengerPrototype(
+                                MessengerPrototype(
                                     request.id,
                                     anotherProfile,
                                     mutableListOf()
                                 )
-                                // TODO(Сделать добавление в базу данных и навигацию на переписку)
+                                // TODO(Сделать навигацию на переписку)
                             }
                         }
                     })

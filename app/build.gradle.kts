@@ -71,6 +71,7 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-hilt:$voyagerVersion")
     implementation("cafe.adriel.voyager:voyager-livedata:$voyagerVersion")
     implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
+    implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
 
 
     implementation("androidx.core:core-ktx:1.10.1")

@@ -1,4 +1,4 @@
-package com.example.documentsearch.Cache
+package com.example.documentsearch.cache
 
 import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.ui.theme.cacheMessengers

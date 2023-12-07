@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
 class TagRequestServicesImpl {
-    val coroutine = CoroutineScope(Dispatchers.Main)
+    private val coroutine = CoroutineScope(Dispatchers.Main)
 
     private val additionsServiceInTagDelegate = AdditionsServiceInTag()
     private val deletionServiceInTagDelegate = DeletionServiceInTag()

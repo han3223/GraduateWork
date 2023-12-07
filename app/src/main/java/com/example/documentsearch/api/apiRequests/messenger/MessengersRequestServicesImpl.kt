@@ -16,13 +16,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
 class MessengersRequestServicesImpl : ClientAPI() {
-    val coroutine = CoroutineScope(Dispatchers.Main)
+    private val coroutine = CoroutineScope(Dispatchers.Main)
     private val additionsServiceInMessengerDelegate = AdditionsServiceInMessenger()
     private val deletionServiceInMessengerDelegate = DeletionServiceInMessenger()
     private val receivingServiceInMessengerDelegate = ReceivingServiceInMessenger()
     private val updateServiceInMessengerDelegate = UpdateServiceInMessenger()
 
-    suspend fun getAllMessengersUsingUserId(userId: Long): MutableList<GetMessengerPrototypeDataBase>? {
+    private suspend fun getAllMessengersUsingUserId(userId: Long): MutableList<GetMessengerPrototypeDataBase>? {
         return receivingServiceInMessengerDelegate.getAllMessengersUsingUserId(userId)
     }
 

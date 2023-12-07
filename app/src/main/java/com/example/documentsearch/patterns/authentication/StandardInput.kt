@@ -155,11 +155,11 @@ class StandardInput(
 
     @Composable
     fun StandardTextField(
+        modifier: Modifier = Modifier,
         value: String,
         onValueChanged: (String) -> Unit,
         onFocusChange: (Boolean) -> Unit,
-        alwaysDisable: Boolean = false,
-        modifier: Modifier = Modifier
+        alwaysDisable: Boolean = false
     ) {
         var isActiveNow by remember { mutableStateOf(true) }
         var visualTransform by remember { mutableStateOf(visualTransformation) }

@@ -1,7 +1,7 @@
 package com.example.documentsearch.screens.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +15,16 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.documentsearch.cache.CacheProfileTags
+import com.example.documentsearch.cache.CacheUserProfile
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
@@ -30,11 +34,12 @@ import com.example.documentsearch.screens.profile.profileInfo.PersonalDocumentat
 import com.example.documentsearch.screens.profile.profileInfo.ProfileTags
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
-import com.example.documentsearch.ui.theme.cacheProfileTags
-import com.example.documentsearch.ui.theme.cacheUserProfile
 
-class ProfileScreen: HeadersProfile(), Screen {
+class ProfileScreen : HeadersProfile(), Screen {
     private lateinit var preferencesManager: PreferencesManager
+
+    private val cacheUserProfile = CacheUserProfile()
+    private val cacheProfileTags = CacheProfileTags()
 
     @Composable
     override fun Content() {
@@ -58,13 +63,20 @@ class ProfileScreen: HeadersProfile(), Screen {
             state = lazyListState
         ) {
             item(0) {
-                MainInfoProfile(cacheUserProfile.value.getData()!!, navigator).Info(lazyListState = lazyListState)
+                val mainInfoProfile =
+                    MainInfoProfile(cacheUserProfile.getUserFromCache()!!, navigator)
+                mainInfoProfile.Info(lazyListState = lazyListState)
             }
             item(1) {
-                ProfileTags(tags = cacheProfileTags.value.getData()!!, cacheUserProfile.value.getData()!!).Tags()
+                val profileTags = ProfileTags(
+                    tags = cacheProfileTags.getProfileTagsFromCache()!!,
+                    userProfile = cacheUserProfile.getUserFromCache()!!
+                )
+                profileTags.Tags()
             }
             item(2) {
-                PersonalDocumentation().Documentation()
+                val personalDocumentation = PersonalDocumentation()
+                personalDocumentation.Documentation()
             }
             item(3) {
                 Spacer(modifier = Modifier.height(10.dp))
@@ -91,14 +103,17 @@ class ProfileScreen: HeadersProfile(), Screen {
             Text(
                 text = "Выйти из аккаунта",
                 style = HIGHLIGHTING_BOLD_TEXT,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(7.dp)
                     .fillMaxWidth()
-                    .clickable {
-                        preferencesManager.removeData(emailKeyPreferences)
-                        preferencesManager.removeData(passwordKeyPreferences)
-                        cacheUserProfile.value.clearData()
-                        navigator.replace(LoginScreen())
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            preferencesManager.removeData(emailKeyPreferences)
+                            preferencesManager.removeData(passwordKeyPreferences)
+                            cacheUserProfile.clearData()
+                            navigator.replace(LoginScreen())
+                        })
                     }
             )
         }
