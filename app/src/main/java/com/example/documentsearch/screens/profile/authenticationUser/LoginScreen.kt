@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile.authenticationUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -60,7 +62,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class LoginScreen : HeadersProfile(), Screen {
+class LoginScreen() : HeadersProfile(), Screen, Parcelable {
     private lateinit var preferencesManager: PreferencesManager
 
     private val mainStandardInputModifier = Modifier
@@ -71,6 +73,10 @@ class LoginScreen : HeadersProfile(), Screen {
         .height(40.dp)
         .background(color = Color.Transparent)
 
+    constructor(parcel: Parcel) : this() {
+
+    }
+
     @Composable
     override fun Content() {
         Box {
@@ -80,9 +86,10 @@ class LoginScreen : HeadersProfile(), Screen {
     }
 
     @Composable
-    fun Body() {
+    private fun Body() {
         val context = LocalContext.current
-        preferencesManager = PreferencesManager(context)
+        this.preferencesManager = PreferencesManager(context)
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -213,7 +220,8 @@ class LoginScreen : HeadersProfile(), Screen {
             Text(
                 text = "Войти",
                 style = HEADING_TEXT,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(vertical = 7.dp)
             )
         }
     }
@@ -267,9 +275,29 @@ class LoginScreen : HeadersProfile(), Screen {
 
     @Composable
     private fun Separator() {
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(AdditionalColor))
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(AdditionalColor)
+        )
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<LoginScreen> {
+        override fun createFromParcel(parcel: Parcel): LoginScreen {
+            return LoginScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<LoginScreen?> {
+            return arrayOfNulls(size)
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.documentsearch.navbar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,9 +37,9 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.PROFILE_NAVBAR
 
-class NavigationBar {
-    private var activeItem = mutableStateOf(NavigationItem.Documents.selectionNavbar)
+var activeItem = mutableStateOf(NavigationItem.Documents.selectionNavbar)
 
+class NavigationBar {
     private val navigationItems = listOf(
         NavigationItem.Documents,
         NavigationItem.Messenger,
@@ -47,7 +48,7 @@ class NavigationBar {
     )
 
     @Composable
-    fun Content(onSelectedScreen: (String) -> Unit) {
+    fun Content(onSelectedScreen: (String) -> Unit, onClickAddDocumentChange: () -> Unit) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -55,7 +56,7 @@ class NavigationBar {
             contentAlignment = Alignment.BottomCenter
         ) {
             MainNavigation { onSelectedScreen(it) }
-            AddDocument()
+            AddDocument() { onClickAddDocumentChange() }
         }
     }
 
@@ -88,8 +89,9 @@ class NavigationBar {
                         }
                         .pointerInput(Unit) {
                             detectTapGestures(onTap = {
-                                onSelectedScreen(item.route)
+                                println(item.route)
                                 activeItem.value = item.route
+                                onSelectedScreen(item.route)
                             })
                         },
                     contentAlignment = Alignment.Center
@@ -104,9 +106,11 @@ class NavigationBar {
 
     @Composable
     private fun BorderNavigationItems(route: String) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .zIndex(2f)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(2f)
+        ) {
             val svgFactory = SVGFactory()
             svgFactory.GetShapeFromSVG(
                 svgCode = when (route) {
@@ -124,10 +128,14 @@ class NavigationBar {
 
     @Composable
     private fun BodyNavigationItem(route: String) {
-        val isActive = route == activeItem.value
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .zIndex(1f)) {
+        var isActive by remember { mutableStateOf(false) }
+        isActive = route == activeItem.value
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(1f)
+        ) {
             val svgFactory = SVGFactory()
             svgFactory.GetShapeFromSVG(
                 svgCode = when (route) {
@@ -164,15 +172,17 @@ class NavigationBar {
     }
 
     @Composable
-    private fun AddDocument() {
+    private fun AddDocument(onClickAddDocumentChange: () -> Unit) {
         Box(
             modifier = Modifier
                 .size(80.dp)
                 .padding(10.dp)
                 .background(MainColorDark, shape = CircleShape)
+                .border(0.5.dp, Color.Black, CircleShape)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
+                            onClickAddDocumentChange()
 //                              TODO(Добавить нажатие чтобы вызывалась форма добавления документа)
                         },
                     )

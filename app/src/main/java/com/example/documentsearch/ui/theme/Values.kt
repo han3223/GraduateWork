@@ -8,10 +8,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
-import com.example.documentsearch.cache.CacheFactory
 import com.example.documentsearch.R
+import com.example.documentsearch.cache.CacheFactory
 import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
-import com.example.documentsearch.prototypes.DocumentWithPercentage
+import com.example.documentsearch.prototypes.DocumentPrototype
 import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
@@ -21,7 +21,7 @@ val cacheMessengers = mutableStateOf(CacheFactory<List<MessengerPrototype>>())
 val cacheAllUsersProfile = mutableStateOf(CacheFactory<List<AnotherUserProfilePrototype>>())
 val cacheProfileTags = mutableStateOf(CacheFactory<List<TagPrototype>>())
 val cacheDocumentTags = mutableStateOf(CacheFactory<List<TagPrototype>>())
-val cacheDocuments = mutableStateOf(CacheFactory<List<DocumentWithPercentage>>())
+val cacheDocuments = mutableStateOf(CacheFactory<List<DocumentPrototype>>())
 
 const val DOCUMENTS_NAVBAR = "M0 25C0 11.1929 11.1929 0 25 0H80V50H25C11.1929 50 0 38.8071 0 25V25Z"
 const val MESSENGER_NAVBAR = "M73.5 0H0V50H128V42C108.481 42 89.7035 28.8923 84.759 9.89665C83.3677 4.5519 79.0229 0 73.5 0Z"

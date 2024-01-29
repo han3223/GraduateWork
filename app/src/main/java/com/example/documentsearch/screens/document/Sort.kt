@@ -24,6 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SelectedColor
@@ -41,7 +42,8 @@ class Sort {
         Row(
             modifier = Modifier.pointerInput(Unit) {
                 detectTapGestures(onTap = {
-                    onTapChange(Unit)
+                    if (isClickBlock.value)
+                        onTapChange(Unit)
                 })
             },
             horizontalArrangement = Arrangement.spacedBy(5.dp)

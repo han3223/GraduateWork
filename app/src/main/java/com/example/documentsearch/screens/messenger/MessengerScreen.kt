@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.messenger
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -46,6 +48,7 @@ import com.example.documentsearch.cache.CacheUserMessengers
 import com.example.documentsearch.navbar.SVGFactory
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.prototypes.MessengerPrototype
+import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
@@ -56,11 +59,15 @@ import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 
-class MessengerScreen : Screen {
+class MessengerScreen() : Screen, Parcelable {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
 
     private val cacheUserMessengers = CacheUserMessengers()
+
+    constructor(parcel: Parcel) : this() {
+    }
+
 
     @Composable
     override fun Content() {
@@ -74,7 +81,7 @@ class MessengerScreen : Screen {
     private fun Header() {
         var isOpenMenu by remember { mutableStateOf(false) }
 
-        Box(modifier = Modifier.zIndex(1f).fillMaxWidth()) {
+        Box(modifier = Modifier.zIndex(2f).fillMaxWidth()) {
             headerFactory.HeaderPrototype(heightHeader)
             if (isOpenMenu) {
                 Box(modifier = Modifier
@@ -119,7 +126,8 @@ class MessengerScreen : Screen {
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    onOpenMenu()
+                                    if (isClickBlock.value)
+                                        onOpenMenu()
                                 }
                             )
                         }
@@ -199,6 +207,24 @@ class MessengerScreen : Screen {
                     style = SECONDARY_TEXT
                 )
             }
+        }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<MessengerScreen> {
+        override fun createFromParcel(parcel: Parcel): MessengerScreen {
+            return MessengerScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MessengerScreen?> {
+            return arrayOfNulls(size)
         }
     }
 }

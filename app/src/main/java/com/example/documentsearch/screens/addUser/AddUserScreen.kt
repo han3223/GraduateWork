@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.addUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -53,7 +55,7 @@ import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 
-class AddUserScreen : Screen {
+class AddUserScreen() : Screen, Parcelable {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
 
@@ -66,6 +68,9 @@ class AddUserScreen : Screen {
 
     private val searchProfile = SearchProfile()
     private val filter = Filter()
+
+    constructor(parcel: Parcel) : this() {
+    }
 
     @Composable
     override fun Content() {
@@ -213,5 +218,23 @@ class AddUserScreen : Screen {
     @Composable
     private fun Separator() {
         Spacer(modifier = Modifier.height(1.dp).fillMaxWidth().background(AdditionalColor))
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<AddUserScreen> {
+        override fun createFromParcel(parcel: Parcel): AddUserScreen {
+            return AddUserScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<AddUserScreen?> {
+            return arrayOfNulls(size)
+        }
     }
 }

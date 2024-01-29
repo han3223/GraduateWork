@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 open class ClientAPI {
     companion object {
-        private const val ADDRESS = "http://10.10.10.14"
+        private const val ADDRESS = "http://10.10.10.12"
         private const val PORT = "8080"
         private const val BASE_URL = "$ADDRESS:$PORT/"
 

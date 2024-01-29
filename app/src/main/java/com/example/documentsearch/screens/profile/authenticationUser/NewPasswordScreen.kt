@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile.authenticationUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,8 +43,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-data class NewPasswordScreen(val email: String?, val numberPhone: String?) : HeadersProfile(), Screen {
+data class NewPasswordScreen(val email: String?, val numberPhone: String?) : HeadersProfile(), Screen, Parcelable {
     val validation = Validation()
+
+    constructor(parcel: Parcel) : this(
+        parcel.readString(),
+        parcel.readString()
+    ) {
+    }
 
     @Composable
     override fun Content() {
@@ -248,5 +256,24 @@ data class NewPasswordScreen(val email: String?, val numberPhone: String?) : Hea
                 .height(1.dp)
                 .background(AdditionalColor)
         )
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(email)
+        parcel.writeString(numberPhone)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<NewPasswordScreen> {
+        override fun createFromParcel(parcel: Parcel): NewPasswordScreen {
+            return NewPasswordScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<NewPasswordScreen?> {
+            return arrayOfNulls(size)
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.messenger.communication
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -45,7 +47,7 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 import kotlinx.coroutines.launch
 
-data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
+data class CommunicationScreen(val messenger: MessengerPrototype? = null) : Screen, Parcelable {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
     private val messageFactory = MessageFactory()
@@ -53,6 +55,7 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
     @Composable
     override fun Content() {
         val rememberScrollState = rememberScrollState()
+
         Box {
             Header()
             Body(rememberScrollState)
@@ -74,7 +77,7 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
                 .padding(bottom = 80.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
-            messenger.listMessage.forEachIndexed { index, item ->
+            messenger!!.listMessage.forEachIndexed { index, item ->
                 Box(
                     modifier = Modifier
                         .padding(
@@ -100,8 +103,8 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
 
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom
         ) {
             Row(
                 modifier = Modifier
@@ -133,6 +136,7 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp, 10.dp, 20.dp, 10.dp)
+                        .background(AdditionalColor)
                         .align(Alignment.TopCenter),
                     verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -178,5 +182,13 @@ data class CommunicationScreen(val messenger: MessengerPrototype) : Screen {
                 }
             }
         }
+    }
+
+    override fun describeContents(): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        TODO("Not yet implemented")
     }
 }

@@ -4,9 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.ExperimentalMaterialApi
@@ -22,9 +24,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.documentsearch.R
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 
@@ -51,7 +56,7 @@ class Categories {
                     onDismissRequest = { isExpanded = false },
                     modifier = Modifier
                         .background(Color.Transparent)
-                        .padding(horizontal = 10.dp)
+                        .padding(start = 10.dp)
                 ) {
                     categories.forEach { item ->
                         DropdownMenuItem(
@@ -83,8 +88,18 @@ class Categories {
             modifier = containerModifier,
             enabled = false
         ) {
-            Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = selectedCategory, style = ORDINARY_TEXT)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+                ) {
+                Icon(
+                    painter = painterResource(R.drawable.pdf_add_white), //TODO(Поменять заглушку)
+                    contentDescription = "Добавить статью",
+                    modifier = Modifier.size(25.dp),
+                    tint = TextColor,
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = selectedCategory, style = ORDINARY_TEXT, modifier = Modifier.weight(1f))
                 Icon(
                     Icons.Default.ArrowDropDown,
                     contentDescription = null,

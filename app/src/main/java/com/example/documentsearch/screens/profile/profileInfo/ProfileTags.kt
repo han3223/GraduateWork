@@ -33,7 +33,7 @@ class ProfileTags(tags: List<TagPrototype>, userProfile: UserProfilePrototype) {
 
     @Composable
     fun Tags() {
-        var titleTag by remember { mutableStateOf("") } // Значение в поиске
+        var searchValueTag   by remember { mutableStateOf("") }
         var selectedTags = remember { mutableStateListOf<TagPrototype>() }
         val searchTag = SearchTag()
         profile.tags?.map { selectedTags.add(tags.first { tag -> tag.id == it }) }
@@ -49,8 +49,8 @@ class ProfileTags(tags: List<TagPrototype>, userProfile: UserProfilePrototype) {
                 .padding(horizontal = 20.dp),
         ) {
             searchTag.Container(
-                titleTag = titleTag,
-                onTitleChange = { titleTag = it },
+                titleTag = searchValueTag,
+                onTitleChange = { searchValueTag = it },
                 selectedTags = selectedTags,
                 onSelectedTagsChanged = { selectedTags = it },
                 tags = tags

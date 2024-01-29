@@ -27,6 +27,7 @@ import androidx.compose.ui.zIndex
 import com.example.documentsearch.R
 import com.example.documentsearch.patterns.SearchTag
 import com.example.documentsearch.prototypes.TagPrototype
+import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
@@ -37,7 +38,8 @@ class Filter {
         Row(
             modifier = Modifier.pointerInput(Unit) {
                 detectTapGestures(onTap = {
-                    onTapChange(Unit)
+                    if (isClickBlock.value)
+                        onTapChange(Unit)
                 })
             },
             horizontalArrangement = Arrangement.spacedBy(5.dp)

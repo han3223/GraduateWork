@@ -39,7 +39,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
@@ -64,12 +63,12 @@ class SearchTag {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SearchTags(titleTag) { onTitleChange(it) }
-            SelectedTags(selectedTags) {
-                selectedTags.remove(it)
-                onSelectedTagsChanged(selectedTags)
-            }
             Tags(titleTag, selectedTags, tags) {
                 selectedTags.add(it)
+                onSelectedTagsChanged(selectedTags)
+            }
+            SelectedTags(selectedTags) {
+                selectedTags.remove(it)
                 onSelectedTagsChanged(selectedTags)
             }
         }
@@ -85,6 +84,13 @@ class SearchTag {
             .border(1.dp, TextColor, RoundedCornerShape(10.dp))
             .background(color = Color.Transparent)
             .onFocusChanged { isFocused = it.isFocused }
+        Text(
+            text = "Поиск тегов:",
+            style = HIGHLIGHTING_BOLD_TEXT,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 2.dp, bottom = 5.dp)
+        )
 
         BasicTextField(
             value = titleTag,
@@ -117,13 +123,19 @@ class SearchTag {
     @Composable
     private fun SelectedTags(selectedTags: SnapshotStateList<TagPrototype>, onSelectedTagChanged: (TagPrototype) -> Unit) {
         if (selectedTags.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .background(TextColor)
+                    .padding(vertical = 5.dp)
+            )
             Text(
-                text = "Выбранные теги",
+                text = "Выбранные теги:",
                 style = HIGHLIGHTING_BOLD_TEXT,
-                textDecoration = TextDecoration.Underline,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 2.dp, bottom = 5.dp)
+                    .padding(horizontal = 2.dp, vertical = 5.dp)
             )
 
             Box(
@@ -177,14 +189,6 @@ class SearchTag {
                     }
                 }
             }
-
-            Box(
-                modifier = Modifier
-                    .height(1.dp)
-                    .fillMaxWidth()
-                    .background(TextColor)
-                    .padding(top = 5.dp)
-            )
         }
     }
 
@@ -199,9 +203,8 @@ class SearchTag {
             allTags.minus(userSelectedTags).filter { it.title.contains(titleTag, true) }
 
         Text(
-            text = "Теги",
+            text = "Теги:",
             style = HIGHLIGHTING_BOLD_TEXT,
-            textDecoration = TextDecoration.Underline,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 2.dp, top = 5.dp, bottom = 5.dp)

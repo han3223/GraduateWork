@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.addUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -37,6 +39,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
@@ -47,6 +51,7 @@ import com.example.documentsearch.prototypes.AddMessengerPrototypeDataBase
 import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
 import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
+import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColor
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
@@ -63,10 +68,16 @@ import kotlinx.coroutines.launch
 data class ProfileInfo(
     val anotherProfile: AnotherUserProfilePrototype,
     val userProfile: UserProfilePrototype
-) : Screen {
+) : Screen, Parcelable {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
     private val profileFactory = ProfileFactory()
+
+    constructor(parcel: Parcel) : this(
+        TODO("anotherProfile"),
+        TODO("userProfile")
+    ) {
+    }
 
     @Composable
     override fun Content() {
@@ -187,6 +198,7 @@ data class ProfileInfo(
 
     @Composable
     fun Communication() {
+        val navigator = LocalNavigator.currentOrThrow
         Box(
             modifier = Modifier
                 .size(34.dp)
@@ -202,11 +214,12 @@ data class ProfileInfo(
                                     )
                                 )
                             if (request != null) {
-                                MessengerPrototype(
+                                val messenger = MessengerPrototype(
                                     request.id,
                                     anotherProfile,
                                     mutableListOf()
                                 )
+                                navigator.push(CommunicationScreen(messenger))
                                 // TODO(Сделать навигацию на переписку)
                             }
                         }
@@ -353,5 +366,23 @@ data class ProfileInfo(
                 .height(1.dp)
                 .background(AdditionalColor)
         )
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<ProfileInfo> {
+        override fun createFromParcel(parcel: Parcel): ProfileInfo {
+            return ProfileInfo(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ProfileInfo?> {
+            return arrayOfNulls(size)
+        }
     }
 }

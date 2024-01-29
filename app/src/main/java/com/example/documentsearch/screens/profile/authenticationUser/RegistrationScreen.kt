@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile.authenticationUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -58,8 +60,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class RegistrationScreen : HeadersProfile(), Screen {
+class RegistrationScreen() : HeadersProfile(), Screen, Parcelable {
     private val validation = Validation()
+
+    constructor(parcel: Parcel) : this() {
+    }
 
     @Composable
     override fun Content() {
@@ -537,5 +542,23 @@ class RegistrationScreen : HeadersProfile(), Screen {
                 .height(1.dp)
                 .background(AdditionalColor)
         )
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<RegistrationScreen> {
+        override fun createFromParcel(parcel: Parcel): RegistrationScreen {
+            return RegistrationScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<RegistrationScreen?> {
+            return arrayOfNulls(size)
+        }
     }
 }

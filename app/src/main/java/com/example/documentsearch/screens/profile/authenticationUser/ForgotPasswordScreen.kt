@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile.authenticationUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -52,7 +54,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ForgotPasswordScreen : HeadersProfile(), Screen {
+class ForgotPasswordScreen() : HeadersProfile(), Screen, Parcelable {
+    constructor(parcel: Parcel) : this() {
+    }
+
     @Composable
     override fun Content() {
         Box {
@@ -237,5 +242,23 @@ class ForgotPasswordScreen : HeadersProfile(), Screen {
                 .height(1.dp)
                 .background(AdditionalColor)
         )
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<ForgotPasswordScreen> {
+        override fun createFromParcel(parcel: Parcel): ForgotPasswordScreen {
+            return ForgotPasswordScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ForgotPasswordScreen?> {
+            return arrayOfNulls(size)
+        }
     }
 }

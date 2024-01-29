@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile.profileInfo.changingInfoScreens
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +17,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ChangingPersonalNameScreen : Screen {
+class ChangingPersonalNameScreen() : Screen, Parcelable {
+    constructor(parcel: Parcel) : this() {
+    }
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -60,5 +65,23 @@ class ChangingPersonalNameScreen : Screen {
                 }
             }
         )
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<ChangingPersonalNameScreen> {
+        override fun createFromParcel(parcel: Parcel): ChangingPersonalNameScreen {
+            return ChangingPersonalNameScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ChangingPersonalNameScreen?> {
+            return arrayOfNulls(size)
+        }
     }
 }

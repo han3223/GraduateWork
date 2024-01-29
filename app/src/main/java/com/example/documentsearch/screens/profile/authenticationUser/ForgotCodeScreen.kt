@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile.authenticationUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +27,14 @@ import com.example.documentsearch.screens.profile.HeadersProfile
 import com.example.documentsearch.ui.theme.MAXIMUM_TEXT
 import com.example.documentsearch.ui.theme.MainColorLight
 
-data class ForgotCodeScreen(val forgotCode: Int, val numberPhone: String? = null, val email: String? = null) : HeadersProfile(), Screen {
+data class ForgotCodeScreen(val forgotCode: Int, val numberPhone: String? = null, val email: String? = null) : HeadersProfile(), Screen, Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readString(),
+        parcel.readString()
+    ) {
+    }
+
     @Composable
     override fun Content() {
         Box {
@@ -98,6 +107,26 @@ data class ForgotCodeScreen(val forgotCode: Int, val numberPhone: String? = null
                     /*TODO(Сделать повторную отправку кода пользователю)*/
                 }
             }
+        }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(forgotCode)
+        parcel.writeString(numberPhone)
+        parcel.writeString(email)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<ForgotCodeScreen> {
+        override fun createFromParcel(parcel: Parcel): ForgotCodeScreen {
+            return ForgotCodeScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ForgotCodeScreen?> {
+            return arrayOfNulls(size)
         }
     }
 }

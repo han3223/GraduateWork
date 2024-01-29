@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.document
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -66,7 +68,7 @@ import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
 import com.example.documentsearch.cache.CacheDocumentTags
 import com.example.documentsearch.cache.CacheDocuments
 import com.example.documentsearch.patterns.HeaderFactory
-import com.example.documentsearch.prototypes.DocumentWithPercentage
+import com.example.documentsearch.prototypes.DocumentPrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.FILTER
@@ -79,8 +81,10 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.SORT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.percentageCompliance
 
-class DocumentScreen : Screen {
+
+class DocumentScreen() : Screen, Parcelable  {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
 
@@ -92,6 +96,9 @@ class DocumentScreen : Screen {
 
     private val tagRequestService = TagRequestServicesImpl()
     private val documentRequestService = DocumentRequestServicesImpl()
+
+    constructor(parcel: Parcel) : this() {
+    }
 
     @Composable
     override fun Content() {
@@ -199,13 +206,13 @@ class DocumentScreen : Screen {
     }
 
     @Composable
-    private fun DocumentElement(document: DocumentWithPercentage, scrollState: LazyListState) {
+    private fun DocumentElement(document: DocumentPrototype, scrollState: LazyListState) {
         val heightWindow = LocalConfiguration.current.screenHeightDp.dp.value
         var isOpenDescription by remember { mutableStateOf(false) }
         val position = remember { mutableStateOf(0.dp) }
 
         MainInformationDocument(document, position, isOpenDescription) { isOpenDescription = it }
-        DescriptionDocument(isOpenDescription, document.document.description)
+        DescriptionDocument(isOpenDescription, document.description)
 
         LaunchedEffect(key1 = isOpenDescription) {
             if (isOpenDescription) {
@@ -219,12 +226,12 @@ class DocumentScreen : Screen {
 
     @Composable
     private fun MainInformationDocument(
-        document: DocumentWithPercentage,
+        document: DocumentPrototype,
         position: MutableState<Dp>,
         isOpenDescription: Boolean,
         onDescriptionChange: (Boolean) -> Unit
     ) {
-        val percent = rememberAsyncImagePainter(model = document.percentImage)
+        val percent = rememberAsyncImagePainter(model = percentageCompliance[document.percent.toInt()])
 
         Box(
             modifier = Modifier
@@ -244,11 +251,11 @@ class DocumentScreen : Screen {
                 ) {
                     ImageDocument()
                     Box(modifier = Modifier.weight(1f)) {
-                        TitleDocument(titleDocument = document.document.title)
+                        TitleDocument(titleDocument = document.title)
                     }
-                    PercentageDocument(document.document.percent.toInt().toString(), percent)
+                    //PercentageDocument(document.percent.toInt().toString(), percent)
                 }
-                TagsDocument(document.document.tags)
+                TagsDocument(document.tags)
 
                 Row(
                     modifier = Modifier
@@ -258,7 +265,7 @@ class DocumentScreen : Screen {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    CategoryAndDateDocument(document.document.category, document.document.date)
+                    CategoryAndDateDocument(document.category, document.date)
                     DescriptionArrow(isOpenDescription = isOpenDescription) { onDescriptionChange(it) }
                 }
             }
@@ -444,7 +451,7 @@ class DocumentScreen : Screen {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(size = 33.dp))
-                    .background(color = MainColorDark),
+                    .background(color = AdditionalMainColorDark),
             ) {
                 Column(modifier = Modifier.padding(21.dp, 100.dp, 15.dp, 0.dp)) {
                     Text(
@@ -474,6 +481,24 @@ class DocumentScreen : Screen {
                     }
                 }
             }
+        }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<DocumentScreen> {
+        override fun createFromParcel(parcel: Parcel): DocumentScreen {
+            return DocumentScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<DocumentScreen?> {
+            return arrayOfNulls(size)
         }
     }
 }

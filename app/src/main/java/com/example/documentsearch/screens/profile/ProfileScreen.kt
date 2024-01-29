@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -35,11 +37,15 @@ import com.example.documentsearch.screens.profile.profileInfo.ProfileTags
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
 
-class ProfileScreen : HeadersProfile(), Screen {
+class ProfileScreen() : HeadersProfile(), Screen, Parcelable {
     private lateinit var preferencesManager: PreferencesManager
 
     private val cacheUserProfile = CacheUserProfile()
     private val cacheProfileTags = CacheProfileTags()
+
+    constructor(parcel: Parcel) : this() {
+
+    }
 
     @Composable
     override fun Content() {
@@ -63,16 +69,23 @@ class ProfileScreen : HeadersProfile(), Screen {
             state = lazyListState
         ) {
             item(0) {
-                val mainInfoProfile =
-                    MainInfoProfile(cacheUserProfile.getUserFromCache()!!, navigator)
-                mainInfoProfile.Info(lazyListState = lazyListState)
+                val userProfile = cacheUserProfile.getUserFromCache()
+                if (userProfile != null) {
+                    val mainInfoProfile =
+                        MainInfoProfile(userProfile, navigator)
+                    mainInfoProfile.Info(lazyListState = lazyListState)
+                }
             }
             item(1) {
-                val profileTags = ProfileTags(
-                    tags = cacheProfileTags.getProfileTagsFromCache()!!,
-                    userProfile = cacheUserProfile.getUserFromCache()!!
-                )
-                profileTags.Tags()
+                val userProfile = cacheUserProfile.getUserFromCache()
+                val profileTags = cacheProfileTags.getProfileTagsFromCache()
+                if (userProfile != null && profileTags != null) {
+                    val userTags = ProfileTags(
+                        tags = profileTags,
+                        userProfile = userProfile
+                    )
+                    userTags.Tags()
+                }
             }
             item(2) {
                 val personalDocumentation = PersonalDocumentation()
@@ -109,13 +122,32 @@ class ProfileScreen : HeadersProfile(), Screen {
                     .fillMaxWidth()
                     .pointerInput(Unit) {
                         detectTapGestures(onTap = {
+                            navigator.replace(LoginScreen())
+
                             preferencesManager.removeData(emailKeyPreferences)
                             preferencesManager.removeData(passwordKeyPreferences)
                             cacheUserProfile.clearData()
-                            navigator.replace(LoginScreen())
                         })
                     }
             )
+        }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<ProfileScreen> {
+        override fun createFromParcel(parcel: Parcel): ProfileScreen {
+            return ProfileScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ProfileScreen?> {
+            return arrayOfNulls(size)
         }
     }
 }

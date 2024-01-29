@@ -14,5 +14,3 @@ data class DocumentPrototype(
     val tags: List<String>,
     val percent: Float,
     val description: String)
-
-data class DocumentWithPercentage(val document: DocumentPrototype, val percentImage: Int)

@@ -83,7 +83,7 @@ class PersonalDocumentation {
                                 // TODO(Сюда надо будет положить картинку документа из базы данных)
                             }
                             Text(
-                                text = listDocumet[index].document.title,
+                                text = listDocumet[index].title,
                                 style = HIGHLIGHTING_BOLD_TEXT,
                                 modifier = Modifier
                                     .align(Alignment.Top)

@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
+import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
@@ -76,6 +77,7 @@ class SearchProfile {
         BasicTextField(
             value = text,
             onValueChange = { onTextChange(it) },
+            enabled = isClickBlock.value,
             modifier = textFieldModifier,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             textStyle = ORDINARY_TEXT,
