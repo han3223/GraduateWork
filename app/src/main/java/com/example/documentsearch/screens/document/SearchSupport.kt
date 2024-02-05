@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import com.example.documentsearch.prototypes.TagPrototype
+import java.time.LocalDate
 
 class SearchSupport() {
     private val sort = Sort()
@@ -42,7 +43,11 @@ class SearchSupport() {
         isActiveSort: Boolean,
         isActiveFilter: Boolean,
         onTapSortChange: (Unit) -> Unit,
-        onTapFilterChange: (Unit) -> Unit
+        onTapFilterChange: (Unit) -> Unit,
+        onDateFromChange: (LocalDate) -> Unit,
+        onDateBeforeChange: (LocalDate) -> Unit,
+        onCategoryChange: (String) -> Unit,
+        onSelectedTagsChange: (List<TagPrototype>) -> Unit
     ) {
         AnimatedVisibility(
             visible = isActiveSort,
@@ -59,7 +64,12 @@ class SearchSupport() {
             exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
             modifier = Modifier.zIndex(1f)
         ) {
-            filter.ActiveDocument(tags, onTapChange = { onTapFilterChange(it) })
+            filter.ActiveDocument(
+                tags = tags,
+                onDateFromChange = { onDateFromChange(it) },
+                onDateBeforeChange = { onDateBeforeChange(it) },
+                onCategoryChange = { onCategoryChange(it) },
+                onSelectedTagsChange = { onSelectedTagsChange(it) })
         }
     }
 }

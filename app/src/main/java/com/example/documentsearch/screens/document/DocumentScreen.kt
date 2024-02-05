@@ -1,7 +1,13 @@
 package com.example.documentsearch.screens.document
 
+import android.app.Activity.RESULT_OK
+import android.os.Environment
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -54,6 +60,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -61,14 +68,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
 import com.example.documentsearch.cache.CacheDocumentTags
 import com.example.documentsearch.cache.CacheDocuments
 import com.example.documentsearch.patterns.HeaderFactory
+import com.example.documentsearch.patterns.WorkWithPDF
 import com.example.documentsearch.prototypes.DocumentPrototype
+import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.FILTER
@@ -81,7 +89,7 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.SORT
 import com.example.documentsearch.ui.theme.TextColor
-import com.example.documentsearch.ui.theme.percentageCompliance
+import java.time.LocalDate
 
 
 class DocumentScreen() : Screen, Parcelable  {
@@ -131,6 +139,14 @@ class DocumentScreen() : Screen, Parcelable  {
         var isActiveSort by remember { mutableStateOf(false) }
         var isActiveFilter by remember { mutableStateOf(false) }
 
+        var dateFrom by remember { mutableStateOf<LocalDate?>(null) }
+        var dateBefore by remember { mutableStateOf<LocalDate?>(null) }
+        var category by remember { mutableStateOf<String?>(null) }
+        var tags by remember { mutableStateOf<List<TagPrototype>?>(null) }
+
+        if (tags != null && tags!!.isEmpty())
+            tags = null
+
         Box(modifier = Modifier.zIndex(2f)) {
             val headerModifier = if (isActiveSort) Modifier
                 .align(Alignment.BottomStart)
@@ -158,7 +174,7 @@ class DocumentScreen() : Screen, Parcelable  {
                     .padding(20.dp, 0.dp, 20.dp, 40.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
-                searchDocument.SearchEngine()
+                searchDocument.SearchEngine(dateFrom.toString(), dateBefore.toString(), category, tags.toString())
                 searchSupport.SupportInActive(
                     onTapSortChange = {
                         if (isActiveFilter) isActiveFilter = false
@@ -176,7 +192,11 @@ class DocumentScreen() : Screen, Parcelable  {
             isActiveSort = isActiveSort,
             isActiveFilter = isActiveFilter,
             onTapSortChange = { isActiveSort = false },
-            onTapFilterChange = { isActiveFilter = false }
+            onTapFilterChange = { isActiveFilter = false },
+            onDateFromChange = { dateFrom = it },
+            onDateBeforeChange = { dateBefore = it },
+            onCategoryChange = { category = it },
+            onSelectedTagsChange = { tags = it }
         )
     }
 
@@ -207,12 +227,36 @@ class DocumentScreen() : Screen, Parcelable  {
 
     @Composable
     private fun DocumentElement(document: DocumentPrototype, scrollState: LazyListState) {
+        val context = LocalContext.current
+        val workWithPDF = WorkWithPDF()
         val heightWindow = LocalConfiguration.current.screenHeightDp.dp.value
         var isOpenDescription by remember { mutableStateOf(false) }
         val position = remember { mutableStateOf(0.dp) }
 
+        val openFileResultLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // Handle the result of the file opening activity
+            if (result.resultCode == RESULT_OK) {
+                // File opened successfully
+            }
+        }
+
         MainInformationDocument(document, position, isOpenDescription) { isOpenDescription = it }
-        DescriptionDocument(isOpenDescription, document.description)
+        DescriptionDocument(isOpenDescription, document.description?: "") {
+            val fileName = "${document.title}.pdf"
+            try {
+                val outputUri = workWithPDF.createNewPdfFileUri(context, fileName)
+                val outputStream = context.contentResolver.openOutputStream(outputUri)
+                outputStream?.use { output ->
+                    output.write(document.document)
+                }
+                Toast.makeText(context, "Файл успешно загружен в ${Environment.DIRECTORY_DOCUMENTS}", Toast.LENGTH_LONG).show()
+
+                openFileResultLauncher.launch(workWithPDF.openFile(context, "${Environment.DIRECTORY_DOCUMENTS}/$fileName"))
+            } catch (exception: Exception) {
+                Toast.makeText(context, "Возникла ошибка при загрузке файла", Toast.LENGTH_LONG).show()
+                Log.i("Ошибка", "Ошибка в загрузке файла: ${exception.message}")
+            }
+        }
 
         LaunchedEffect(key1 = isOpenDescription) {
             if (isOpenDescription) {
@@ -231,13 +275,13 @@ class DocumentScreen() : Screen, Parcelable  {
         isOpenDescription: Boolean,
         onDescriptionChange: (Boolean) -> Unit
     ) {
-        val percent = rememberAsyncImagePainter(model = percentageCompliance[document.percent.toInt()])
+//        val percent = rememberAsyncImagePainter(model = percentageCompliance[document.percent.toInt()])
 
         Box(
             modifier = Modifier
                 .zIndex(2f)
                 .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(size = 33.dp))
+                .clip(shape = RoundedCornerShape(size = 28.dp))
                 .background(color = MainColorLight)
                 .onGloballyPositioned { coordinates ->
                     position.value = coordinates.positionInWindow().y.dp
@@ -280,7 +324,7 @@ class DocumentScreen() : Screen, Parcelable  {
                 .size(84.dp)
                 .background(
                     color = AdditionalColor,
-                    shape = RoundedCornerShape(size = 22.dp)
+                    shape = RoundedCornerShape(size = 17.dp)
                 )
         ) {
             // TODO(Сюда надо будет положить картинку документа из базы данных)
@@ -438,7 +482,7 @@ class DocumentScreen() : Screen, Parcelable  {
     }
 
     @Composable
-    private fun DescriptionDocument(isOpenDescription: Boolean, description: String) {
+    private fun DescriptionDocument(isOpenDescription: Boolean, description: String, onClickDownloadChange: () -> Unit) {
         AnimatedVisibility(
             visible = isOpenDescription,
             enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
@@ -450,7 +494,7 @@ class DocumentScreen() : Screen, Parcelable  {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(shape = RoundedCornerShape(size = 33.dp))
+                    .clip(shape = RoundedCornerShape(size = 28.dp))
                     .background(color = AdditionalMainColorDark),
             ) {
                 Column(modifier = Modifier.padding(21.dp, 100.dp, 15.dp, 0.dp)) {
@@ -476,7 +520,9 @@ class DocumentScreen() : Screen, Parcelable  {
                             tint = TextColor,
                             modifier = Modifier
                                 .size(24.dp)
-                                .clickable { /*TODO(Надо сделать скачивание из базы данных)*/ }
+                                .clickable {
+                                    onClickDownloadChange()
+                                }
                         )
                     }
                 }

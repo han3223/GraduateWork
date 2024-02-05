@@ -75,6 +75,7 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-swiperefresh:0.19.0")
 
+    implementation("com.itextpdf:itextpdf:5.5.13.3")
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")

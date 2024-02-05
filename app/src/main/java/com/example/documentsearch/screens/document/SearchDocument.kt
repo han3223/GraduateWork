@@ -1,6 +1,7 @@
 package com.example.documentsearch.screens.document
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -27,49 +28,56 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
 import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 
 class SearchDocument {
+    private val documentRequestServicesImpl = DocumentRequestServicesImpl()
+
     @Composable
-    fun SearchEngine() {
+    fun SearchEngine(
+        dateFrom: String?,
+        dateBefore: String?,
+        category: String?,
+        tags: String?
+    ) {
+        var title by remember { mutableStateOf(TextFieldValue("")) }
+
         val mainContainerModifier = Modifier
             .padding(bottom = 20.dp)
             .fillMaxWidth()
-
-        var text by remember { mutableStateOf(TextFieldValue("")) }
 
         Row(
             modifier = mainContainerModifier,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                SearchTextField(text) { text = it }
+                SearchTextField(title) { title = it }
             }
             Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.BottomCenter) {
                 AddedDocument()
             }
             Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.BottomCenter) {
-                SearchButton()
+                SearchButton(title, dateFrom, dateBefore, category, tags)
             }
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    private fun SearchTextField(text: TextFieldValue, onTextChange: (TextFieldValue) -> Unit) {
+    private fun SearchTextField(title: TextFieldValue, onTextChange: (TextFieldValue) -> Unit) {
         var isFocused by remember { mutableStateOf(false) }
         val textFieldModifier = Modifier
             .fillMaxWidth()
@@ -87,7 +95,7 @@ class SearchDocument {
             .fillMaxWidth()
 
         BasicTextField(
-            value = text,
+            value = title,
             onValueChange = { onTextChange(it) },
             enabled = isClickBlock.value,
             modifier = textFieldModifier,
@@ -151,11 +159,27 @@ class SearchDocument {
     }
 
     @Composable
-    private fun SearchButton() {
+    private fun SearchButton(
+        title: TextFieldValue,
+        dateFrom: String?,
+        dateBefore: String?,
+        category: String?,
+        tags: String?
+    ) {
+        val context = LocalContext.current
         Icon(
             painter = painterResource(R.drawable.search_white),
             contentDescription = "Найти статьи",
-            modifier = Modifier.size(25.dp),
+            modifier = Modifier
+                .size(25.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        Toast.makeText(context, tags, Toast.LENGTH_LONG).show()
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            documentRequestServicesImpl.getDocuments(title.text, dateFrom, dateBefore, category, tags)
+//                        }
+                    })
+                },
             tint = TextColor,
         )
     }

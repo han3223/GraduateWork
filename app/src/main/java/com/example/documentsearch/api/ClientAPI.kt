@@ -1,5 +1,6 @@
 package com.example.documentsearch.api
 
+import com.example.documentsearch.api.apiRequests.document.DocumentRequestServices
 import com.example.documentsearch.api.apiRequests.message.MessageRequestServices
 import com.example.documentsearch.api.apiRequests.messenger.MessengerRequestServices
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServices
@@ -13,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 open class ClientAPI {
     companion object {
-        private const val ADDRESS = "http://10.10.10.12"
+        private const val ADDRESS = "http://10.10.10.2"
         private const val PORT = "8080"
         private const val BASE_URL = "$ADDRESS:$PORT/"
 
@@ -43,6 +44,11 @@ open class ClientAPI {
     object Profile {
         private val javaProfileServices = ProfileRequestServices::class.java
         val profileService: ProfileRequestServices = APIBasicService.create(javaProfileServices)
+    }
+
+    object Document {
+        private val javaDocumentServices = DocumentRequestServices::class.java
+        val documentService: DocumentRequestServices = APIBasicService.create(javaDocumentServices)
     }
 
     fun requestHandling(response: Response<ResponseBody>): String? {

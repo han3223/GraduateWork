@@ -1,6 +1,11 @@
 package com.example.documentsearch.screens.document.addDocument
 
+import android.content.ContentValues
+import android.content.Context
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
@@ -35,8 +40,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -44,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -53,10 +59,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
 import com.example.documentsearch.cache.CacheDocumentTags
+import com.example.documentsearch.cache.CacheUserProfile
 import com.example.documentsearch.navbar.StatusAddDocumentForm
 import com.example.documentsearch.patterns.SearchTag
 import com.example.documentsearch.patterns.authentication.StandardInput
+import com.example.documentsearch.prototypes.AddDocumentPrototype
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.screens.document.Categories
 import com.example.documentsearch.ui.theme.AdditionalColor
@@ -65,6 +74,14 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.Base64
+import java.util.Date
+import java.util.Locale
 
 data class DpSize(val width: Dp, val height: Dp) {
     companion object {
@@ -77,7 +94,6 @@ val isClickBlock = mutableStateOf(false)
 class AddDocumentForm {
     private val cacheDocumentTags = CacheDocumentTags()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun Content(statusAddDocumentForm: String, onStatusAddDocumentFormChange: (String) -> Unit) {
         var boxSize by remember { mutableStateOf(DpSize.Zero) }
@@ -140,6 +156,11 @@ class AddDocumentForm {
 
     @Composable
     private fun FormContainer() {
+        var title by remember { mutableStateOf("") }
+        var documentInString by remember { mutableStateOf("") }
+        var category by remember { mutableStateOf("") }
+        var selectedTags = remember { mutableStateListOf<TagPrototype>() }
+
         Column(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -147,13 +168,13 @@ class AddDocumentForm {
         ) {
             ClosingLine()
             Spacer(modifier = Modifier.height(20.dp))
-            TitleDocument()
+            TitleDocument(title) { title = it }
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                Box(modifier = Modifier.weight(0.5f)) { AddFileButton() }
-                Box(modifier = Modifier.weight(0.5f)) { SelectCategory() }
+                Box(modifier = Modifier.weight(0.5f)) { AddFileButton { documentInString = it } }
+                Box(modifier = Modifier.weight(0.5f)) { SelectCategory { category = it } }
             }
-            SelectTags()
-            ButtonPublish()
+            SelectTags(selectedTags) { selectedTags = it }
+            ButtonPublish(title, documentInString, category, selectedTags)
             Spacer(modifier = Modifier.height(50.dp))
         }
     }
@@ -176,12 +197,18 @@ class AddDocumentForm {
     }
 
     @Composable
-    private fun AddFileButton() {
+    private fun AddFileButton(onDocumentInStringChange: (String) -> Unit) {
+        val context = LocalContext.current
         var iconDocument by remember { mutableIntStateOf(R.drawable.pdf_add_white) }
         val addedFiles = ActivityResultContracts.GetContent()
+
         val launcher = rememberLauncherForActivityResult(contract = addedFiles) { uri: Uri? ->
             uri?.let { _ ->
-                iconDocument = R.drawable.pdf_added_white
+                val inputStream = context.contentResolver.openInputStream(uri)
+                inputStream?.use { input ->
+                    onDocumentInStringChange(Base64.getEncoder().encodeToString(input.readBytes()))
+                    iconDocument = R.drawable.pdf_added_white
+                }
             }
         }
 
@@ -214,15 +241,13 @@ class AddDocumentForm {
 
 
     @Composable
-    private fun SelectCategory() {
+    private fun SelectCategory(onCategoryChange: (String) -> Unit) {
         val categories = Categories()
-        categories.DropDownContainer(onCategoryChange = { /*TODO(Получить категорию)*/ })
+        categories.DropDownContainer(onCategoryChange = { onCategoryChange(it) })
     }
 
     @Composable
-    private fun TitleDocument() {
-        var title by remember { mutableStateOf("") }
-
+    private fun TitleDocument(title: String, onTitleChange: (String) -> Unit) {
         val standardInput = StandardInput(
             label = "Название документа:",
             placeholder = "Документ №1",
@@ -243,26 +268,42 @@ class AddDocumentForm {
                 .background(color = Color.Transparent)
         )
 
-        standardInput.Input(value = title, onValueChanged = { title = it })
+        standardInput.Input(value = title, onValueChanged = { onTitleChange(it) })
     }
 
     @Composable
-    private fun SelectTags() {
+    private fun SelectTags(
+        selectedTags: SnapshotStateList<TagPrototype>,
+        onSelectedTagsChange: (SnapshotStateList<TagPrototype>) -> Unit
+    ) {
         var titleTag by remember { mutableStateOf("") }
-        var selectedTags = remember { mutableStateListOf<TagPrototype>() }
         val searchTag = SearchTag()
 
         searchTag.Container(
             titleTag = titleTag,
             onTitleChange = { titleTag = it },
             selectedTags = selectedTags,
-            onSelectedTagsChanged = { selectedTags = it },
-            tags = cacheDocumentTags.getDocumentTagsFromCache()?: listOf()
+            onSelectedTagsChanged = {
+                onSelectedTagsChange(it)
+            },
+            tags = cacheDocumentTags.getDocumentTagsFromCache() ?: listOf()
         )
     }
 
     @Composable
-    private fun ButtonPublish() {
+    private fun ButtonPublish(
+        title: String,
+        documentInString: String,
+        category: String,
+        selectedTags: SnapshotStateList<TagPrototype>
+    ) {
+        val context = LocalContext.current
+        val coroutineContext = Dispatchers.Main
+        val cacheUserProfile = CacheUserProfile()
+        val user = cacheUserProfile.getUserFromCache()
+
+
+
         val modifierButton = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
@@ -275,7 +316,27 @@ class AddDocumentForm {
             modifier = modifierButton,
             colors = colorButton,
             onClick = {
+                if (user == null)
+                    Toast.makeText(context, "Сначала нужно зарегистрироваться!", Toast.LENGTH_LONG).show()
+                else {
+                    val documentRequestService = DocumentRequestServicesImpl()
 
+                    val document = AddDocumentPrototype(
+                        id = null,
+                        title = title,
+                        category = category,
+                        document = Base64.getDecoder().decode(documentInString),
+                        date = LocalDate.now().toString(),
+                        image = null,
+                        user = user.id!!,
+                        tags = selectedTags.map { it.title },
+                        description = ""
+                    )
+
+                    CoroutineScope(coroutineContext).launch {
+                        println(documentRequestService.addDocument(document))
+                    }
+                }
             }
         ) {
             Text(

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,8 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
+import com.example.documentsearch.ui.theme.MainColor
+import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.marosseleng.compose.material3.datetimepickers.date.domain.DatePickerDefaults
+import com.marosseleng.compose.material3.datetimepickers.date.domain.DatePickerStroke
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import java.time.LocalDate
 
@@ -88,9 +94,18 @@ class Dates {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
     @Composable
     private fun SelectDate(onDateChange: (LocalDate) -> Unit) {
+        val colorsDatePicker = DatePickerDefaults.colors(
+            selectedYearBackgroundColor = MainColor,
+            selectedMonthBackgroundColor = MainColor,
+            monthDayLabelSelectedBackgroundColor = MainColor,
+            todayLabelTextColor = MainColor,
+            todayStroke = DatePickerStroke(1.dp, MainColor)
+        )
+
+        val buttonColorDatePicker = ButtonDefaults.textButtonColors(contentColor = MainColorDark, disabledContentColor = MainColor)
         DatePickerDialog(
             onDismissRequest = {},
             onDateChange = { onDateChange(it) },
@@ -98,6 +113,8 @@ class Dates {
             today = LocalDate.now(),
             showDaysAbbreviations = true,
             highlightToday = true,
+            buttonColors = buttonColorDatePicker,
+            colors = colorsDatePicker,
             title = { Text("Выберите дату") },
         )
     }

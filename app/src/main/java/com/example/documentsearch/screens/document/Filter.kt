@@ -28,9 +28,10 @@ import com.example.documentsearch.R
 import com.example.documentsearch.patterns.SearchTag
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.screens.document.addDocument.isClickBlock
-import com.example.documentsearch.ui.theme.AdditionalMainColorDark
+import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import java.time.LocalDate
 
 class Filter {
     @Composable
@@ -59,7 +60,13 @@ class Filter {
     }
 
     @Composable
-    fun ActiveDocument(tags: List<TagPrototype>, onTapChange: (Unit) -> Unit) {
+    fun ActiveDocument(
+        tags: List<TagPrototype>,
+        onDateFromChange: (LocalDate) -> Unit,
+        onDateBeforeChange: (LocalDate) -> Unit,
+        onCategoryChange: (String) -> Unit,
+        onSelectedTagsChange: (List<TagPrototype>) -> Unit
+    ) {
         var titleTag by remember { mutableStateOf("") }
         var selectedTags = remember { mutableStateListOf<TagPrototype>() }
         val dates = Dates()
@@ -70,28 +77,26 @@ class Filter {
             .zIndex(1f)
             .fillMaxWidth()
             .heightIn(0.dp, 650.dp)
-            .background(AdditionalMainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp))
-            .padding(20.dp, 150.dp, 20.dp, 15.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    onTapChange(Unit)
-                })
-            }
+            .background(MainColorDark, RoundedCornerShape(0.dp, 0.dp, 33.dp, 33.dp))
+            .padding(20.dp, 150.dp, 20.dp, 20.dp)
 
         Column(
             modifier = mainContainerModifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             dates.ContainerWithDates(
-                onDateFromChange = { /*TODO(Получить дату)*/ },
-                onDateBeforeChange = { /*TODO(Получить дату)*/ }
+                onDateFromChange = { onDateFromChange(it) },
+                onDateBeforeChange = { onDateBeforeChange(it) }
             )
-            categories.DropDownContainer(onCategoryChange = { /*TODO(Получить категорию)*/ })
+            categories.DropDownContainer(onCategoryChange = { onCategoryChange(it) })
             searchTag.Container(
                 titleTag = titleTag,
                 onTitleChange = { titleTag = it },
                 selectedTags = selectedTags,
-                onSelectedTagsChanged = { selectedTags = it },
+                onSelectedTagsChanged = {
+                    selectedTags = it
+                    onSelectedTagsChange(it.toList())
+                },
                 tags = tags
             )
         }
@@ -107,11 +112,11 @@ class Filter {
             .zIndex(1f)
             .fillMaxWidth()
             .heightIn(0.dp, 650.dp)
-            .background(AdditionalMainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp))
-            .padding(20.dp, 150.dp, 20.dp, 15.dp)
+            .background(MainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp))
+            .padding(20.dp, 150.dp, 20.dp, 20.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
-                    onTapChange(Unit)
+//                    onTapChange(Unit)
                 })
             }
 

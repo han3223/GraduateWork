@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -28,7 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.documentsearch.R
-import com.example.documentsearch.listDocumet
+import com.example.documentsearch.prototypes.DocumentPrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
@@ -66,7 +67,7 @@ class PersonalDocumentation {
                             .background(AdditionalColor)
                     )
                 }
-                items(listDocumet.size) { index ->
+                itemsIndexed(items = mutableListOf<DocumentPrototype>()) { index, item ->
                     if (index <= documentationsVisible) {
                         Row(
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),
@@ -83,7 +84,7 @@ class PersonalDocumentation {
                                 // TODO(Сюда надо будет положить картинку документа из базы данных)
                             }
                             Text(
-                                text = listDocumet[index].title,
+                                text = item.title,
                                 style = HIGHLIGHTING_BOLD_TEXT,
                                 modifier = Modifier
                                     .align(Alignment.Top)
