@@ -30,17 +30,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
+import com.example.documentsearch.ui.theme.EnumCategories
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 
-class Categories {
-    private val categories = arrayOf("Научная статья", "Курсовая работа", "Дипломная работа")
 
+
+class Categories {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun DropDownContainer(onCategoryChange: (String) -> Unit) {
+    fun DropDownContainer(onCategoryChange: (String) -> Unit, selectedCategory: String) {
         var isExpanded by remember { mutableStateOf(false) }
-        var selectedCategory by remember { mutableStateOf(categories[0]) }
 
         MaterialTheme(
             colors = MaterialTheme.colors.copy(surface = TextColor),
@@ -58,12 +58,11 @@ class Categories {
                         .background(Color.Transparent)
                         .padding(start = 10.dp)
                 ) {
-                    categories.forEach { item ->
+                    EnumCategories.values().forEach { item ->
                         DropdownMenuItem(
-                            text = { Text(text = item) },
+                            text = { Text(text = item.category) },
                             onClick = {
-                                selectedCategory = item
-                                onCategoryChange(item)
+                                onCategoryChange(item.category)
                                 isExpanded = false
                             }
                         )

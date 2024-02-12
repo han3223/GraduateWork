@@ -32,8 +32,7 @@ data class ForgotCodeScreen(val forgotCode: Int, val numberPhone: String? = null
         parcel.readInt(),
         parcel.readString(),
         parcel.readString()
-    ) {
-    }
+    )
 
     @Composable
     override fun Content() {

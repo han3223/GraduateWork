@@ -40,10 +40,12 @@ class SearchSupport() {
 
     @Composable
     fun SupportActive(
+        dateFrom: LocalDate,
+        dateBefore: LocalDate,
+        category: String,
+        selectedTags: List<TagPrototype>,
         isActiveSort: Boolean,
         isActiveFilter: Boolean,
-        onTapSortChange: (Unit) -> Unit,
-        onTapFilterChange: (Unit) -> Unit,
         onDateFromChange: (LocalDate) -> Unit,
         onDateBeforeChange: (LocalDate) -> Unit,
         onCategoryChange: (String) -> Unit,
@@ -55,7 +57,7 @@ class SearchSupport() {
             exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
             modifier = Modifier.zIndex(1f)
         ) {
-            sort.Active(onTapChange = { onTapSortChange(it) })
+            sort.Active()
         }
 
         AnimatedVisibility(
@@ -66,6 +68,10 @@ class SearchSupport() {
         ) {
             filter.ActiveDocument(
                 tags = tags,
+                dateFrom = dateFrom,
+                dateBefore = dateBefore,
+                category = category,
+                selectedTags = selectedTags,
                 onDateFromChange = { onDateFromChange(it) },
                 onDateBeforeChange = { onDateBeforeChange(it) },
                 onCategoryChange = { onCategoryChange(it) },

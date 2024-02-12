@@ -1,10 +1,10 @@
 package com.example.documentsearch.screens.document
 
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -32,17 +32,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
-import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheDocuments
+import com.example.documentsearch.ui.theme.isClickBlock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SearchDocument {
     private val documentRequestServicesImpl = DocumentRequestServicesImpl()
@@ -52,10 +55,9 @@ class SearchDocument {
         dateFrom: String?,
         dateBefore: String?,
         category: String?,
-        tags: String?
+        tags: List<String>?
     ) {
         var title by remember { mutableStateOf(TextFieldValue("")) }
-
         val mainContainerModifier = Modifier
             .padding(bottom = 20.dp)
             .fillMaxWidth()
@@ -65,13 +67,19 @@ class SearchDocument {
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                SearchTextField(title) { title = it }
+                SearchTextField(title = title) { title = it }
             }
             Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.BottomCenter) {
                 AddedDocument()
             }
             Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.BottomCenter) {
-                SearchButton(title, dateFrom, dateBefore, category, tags)
+                SearchButton(
+                    title = title,
+                    dateFrom = dateFrom,
+                    dateBefore = dateBefore,
+                    category = category,
+                    tags = tags
+                )
             }
         }
     }
@@ -164,23 +172,26 @@ class SearchDocument {
         dateFrom: String?,
         dateBefore: String?,
         category: String?,
-        tags: String?
+        tags: List<String>?
     ) {
-        val context = LocalContext.current
+
         Icon(
             painter = painterResource(R.drawable.search_white),
             contentDescription = "Найти статьи",
+            tint = TextColor,
             modifier = Modifier
                 .size(25.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        Toast.makeText(context, tags, Toast.LENGTH_LONG).show()
-//                        CoroutineScope(Dispatchers.Main).launch {
-//                            documentRequestServicesImpl.getDocuments(title.text, dateFrom, dateBefore, category, tags)
-//                        }
-                    })
-                },
-            tint = TextColor,
+                .clickable {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        cacheDocuments.value = documentRequestServicesImpl.getDocuments(
+                            title = title.text,
+                            category = category,
+                            dateAfter = dateFrom,
+                            dateBefore = dateBefore,
+                            tags = tags
+                        )
+                    }
+                }
         )
     }
 }

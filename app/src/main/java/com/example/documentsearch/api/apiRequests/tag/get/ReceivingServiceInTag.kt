@@ -1,34 +1,50 @@
 package com.example.documentsearch.api.apiRequests.tag.get
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Tag.tagService
-import kotlinx.serialization.json.Json
+import com.example.documentsearch.prototypes.TagPrototype
+import kotlinx.serialization.json.Json.Default.decodeFromString
 
 class ReceivingServiceInTag : ClientAPI() {
     @SuppressLint("CoroutineCreationDuringComposition")
-    suspend fun getDocumentTags(): List<com.example.documentsearch.prototypes.TagPrototype> {
-        var resultDocumentTags: List<com.example.documentsearch.prototypes.TagPrototype> = listOf()
+    suspend fun getDocumentTags(): List<TagPrototype> {
+        var resultDocumentTags: List<TagPrototype> = listOf()
         try {
-            val response = requestHandling(tagService.getDocumentTags())
-            if (response != null)
-                resultDocumentTags = Json.decodeFromString(response)
+            val response = tagService.getDocumentTags()
+            val json = requestHandling(response = response)
+            if (json == null)
+                Log.i("Запрос", "Запрос на получение тегов для документов вернул пустое значение")
+            else
+                resultDocumentTags = decodeFromString(string = json)
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на получение тегов для документов произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
         return resultDocumentTags
     }
 
     @SuppressLint("CoroutineCreationDuringComposition")
-    suspend fun getProfileTags(): List<com.example.documentsearch.prototypes.TagPrototype> {
-        var resultProfileTags: List<com.example.documentsearch.prototypes.TagPrototype> = listOf()
+    suspend fun getProfileTags(): List<TagPrototype> {
+        var resultProfileTags: List<TagPrototype> = listOf()
         try {
-            val response = requestHandling(tagService.getProfileTags())
-            if (response != null)
-                resultProfileTags = Json.decodeFromString(response)
+            val response = tagService.getProfileTags()
+            val json = requestHandling(response = response)
+            if (json == null)
+                Log.i("Запрос", "Запрос на получение тегов для пользователей вернул пустое значение")
+            else
+                resultProfileTags = decodeFromString(string = json)
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на получение тегов для пользователей произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
         return resultProfileTags

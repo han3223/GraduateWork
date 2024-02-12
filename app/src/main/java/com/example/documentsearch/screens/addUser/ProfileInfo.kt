@@ -65,6 +65,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@Suppress("UNREACHABLE_CODE")
 data class ProfileInfo(
     val anotherProfile: AnotherUserProfilePrototype,
     val userProfile: UserProfilePrototype
@@ -76,8 +77,7 @@ data class ProfileInfo(
     constructor(parcel: Parcel) : this(
         TODO("anotherProfile"),
         TODO("userProfile")
-    ) {
-    }
+    )
 
     @Composable
     override fun Content() {
@@ -126,12 +126,15 @@ data class ProfileInfo(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Box(modifier = Modifier.width(widthContent - 100.dp)) {
-                            FullName("${anotherProfile.lastName} ${anotherProfile.firstName} ${anotherProfile.patronymic}")
+                            FullName(
+                                fullName =
+                                    "\n${anotherProfile.lastName}" +
+                                    "\n${anotherProfile.firstName}" +
+                                    "\n${anotherProfile.patronymic}"
+                            )
                         }
                         Row(
-                            modifier = Modifier
-                                .width(100.dp)
-                                .align(Alignment.Bottom),
+                            modifier = Modifier.width(100.dp).align(Alignment.Bottom),
                             verticalAlignment = Alignment.Bottom,
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
@@ -146,7 +149,7 @@ data class ProfileInfo(
                         .fillMaxWidth()
                         .align(Alignment.BottomStart)
                 ) {
-                    PersonalName("@${anotherProfile.personalName}")
+                    PersonalName(personalName = "@${anotherProfile.personalName}")
                 }
             }
 
@@ -161,11 +164,7 @@ data class ProfileInfo(
                 Tags(anotherProfile.tags)
             }
 
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(30.dp)
-            )
+            Spacer(modifier = Modifier.fillMaxWidth().height(30.dp))
         }
     }
 
@@ -193,13 +192,13 @@ data class ProfileInfo(
 
     @Composable
     fun ProfilePicture() {
-
     }
 
     @Composable
     fun Communication() {
         val navigator = LocalNavigator.currentOrThrow
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(34.dp)
                 .background(AdditionalMainColor, CircleShape)
@@ -224,8 +223,7 @@ data class ProfileInfo(
                             }
                         }
                     })
-                },
-            contentAlignment = Alignment.Center
+                }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.message_white),
@@ -239,6 +237,7 @@ data class ProfileInfo(
     @Composable
     fun AddUser() {
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(34.dp)
                 .background(AdditionalMainColor, CircleShape)
@@ -253,7 +252,6 @@ data class ProfileInfo(
                         }
                     })
                 },
-            contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.add_user_white),
@@ -336,19 +334,16 @@ data class ProfileInfo(
                 tags.forEach {
                     Box(
                         modifier = Modifier
+                            .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
                             .background(
                                 color = MainColorDark,
                                 shape = RoundedCornerShape(size = 14.dp)
                             )
-                            .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
                     ) {
                         Text(
                             text = it.toString(),
                             style = HIGHLIGHTING_BOLD_TEXT,
-                            modifier = Modifier.padding(
-                                vertical = 5.dp,
-                                horizontal = 10.dp
-                            )
+                            modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(5.dp))
@@ -378,7 +373,7 @@ data class ProfileInfo(
 
     companion object CREATOR : Parcelable.Creator<ProfileInfo> {
         override fun createFromParcel(parcel: Parcel): ProfileInfo {
-            return ProfileInfo(parcel)
+            return ProfileInfo(parcel = parcel)
         }
 
         override fun newArray(size: Int): Array<ProfileInfo?> {

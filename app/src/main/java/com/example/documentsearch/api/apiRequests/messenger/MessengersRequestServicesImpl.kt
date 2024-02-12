@@ -11,40 +11,38 @@ import com.example.documentsearch.prototypes.AddMessengerPrototypeDataBase
 import com.example.documentsearch.prototypes.GetMessengerPrototypeDataBase
 import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 
 class MessengersRequestServicesImpl : ClientAPI() {
-    private val coroutine = CoroutineScope(Dispatchers.Main)
     private val additionsServiceInMessengerDelegate = AdditionsServiceInMessenger()
     private val deletionServiceInMessengerDelegate = DeletionServiceInMessenger()
     private val receivingServiceInMessengerDelegate = ReceivingServiceInMessenger()
     private val updateServiceInMessengerDelegate = UpdateServiceInMessenger()
 
     private suspend fun getAllMessengersUsingUserId(userId: Long): MutableList<GetMessengerPrototypeDataBase>? {
-        return receivingServiceInMessengerDelegate.getAllMessengersUsingUserId(userId)
+        return receivingServiceInMessengerDelegate.getAllMessengersUsingUserId(userId = userId)
     }
 
     suspend fun addMessenger(messenger: AddMessengerPrototypeDataBase): GetMessengerPrototypeDataBase? {
-        return additionsServiceInMessengerDelegate.addMessenger(messenger)
+        return additionsServiceInMessengerDelegate.addMessenger(messenger = messenger)
     }
 
-    suspend fun getMessengersPrototype(userProfile: UserProfilePrototype): MutableList<MessengerPrototype> {
+    suspend fun getPrototypeMessengers(userProfile: UserProfilePrototype): MutableList<MessengerPrototype> {
         val userMessengers = mutableListOf<MessengerPrototype>()
-        coroutine.async {
-            val messengerPrototypeDataBase = getAllMessengersUsingUserId(userProfile.id!!)
-            messengerPrototypeDataBase?.forEach { messenger ->
-                val anotherUser =
-                    ProfileRequestServicesImpl().getAnotherProfileUsingId(messenger.interlocutor)
-                if (anotherUser != null) {
-                    val messages = MessageRequestServicesImpl().getMessagesFromMessenger(messenger.id)
-                    val messengerPrototype =
-                        MessengerPrototype(messenger.id, anotherUser, messages)
-                    userMessengers.add(messengerPrototype)
-                }
+        val messengerPrototypeDataBase = getAllMessengersUsingUserId(userId = userProfile.id!!)
+        messengerPrototypeDataBase?.forEach { messenger ->
+            val anotherUser =
+                ProfileRequestServicesImpl().getAnotherProfileUsingId(idProfile = messenger.interlocutor)
+            if (anotherUser != null) {
+                val messages = MessageRequestServicesImpl().getMessagesFromMessenger(idMessenger = messenger.id)
+                val messengerPrototype =
+                    MessengerPrototype(
+                        id = messenger.id,
+                        interlocutor = anotherUser,
+                        listMessage = messages
+                    )
+                userMessengers.add(element = messengerPrototype)
             }
-        }.await()
+        }
 
         return userMessengers
     }

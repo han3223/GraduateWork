@@ -1,6 +1,7 @@
 package com.example.documentsearch.screens.document
 
 import android.app.Activity.RESULT_OK
+import android.os.Build
 import android.os.Environment
 import android.os.Parcel
 import android.os.Parcelable
@@ -8,6 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -69,16 +71,15 @@ import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import coil.compose.AsyncImagePainter
 import com.example.documentsearch.R
-import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
-import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.file.FileRequestServicesImpl
 import com.example.documentsearch.cache.CacheDocumentTags
-import com.example.documentsearch.cache.CacheDocuments
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.patterns.WorkWithPDF
 import com.example.documentsearch.prototypes.DocumentPrototype
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
+import com.example.documentsearch.ui.theme.EnumCategories
 import com.example.documentsearch.ui.theme.FILTER
 import com.example.documentsearch.ui.theme.HEADING_TEXT
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
@@ -89,46 +90,32 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.SORT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheDocuments
+import com.example.documentsearch.ui.theme.documents
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-
-class DocumentScreen() : Screen, Parcelable  {
+class DocumentScreen() : Screen, Parcelable {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
 
     private val cacheDocumentTags = CacheDocumentTags()
-    private val cacheDocuments = CacheDocuments()
 
     private val searchDocument = SearchDocument()
-    private val searchSupport = SearchSupport(cacheDocumentTags.getDocumentTagsFromCache()?: listOf())
+    private val searchSupport =
+        SearchSupport(cacheDocumentTags.getDocumentTagsFromCache() ?: listOf())
 
-    private val tagRequestService = TagRequestServicesImpl()
-    private val documentRequestService = DocumentRequestServicesImpl()
+    constructor(parcel: Parcel) : this()
 
-    constructor(parcel: Parcel) : this() {
-    }
-
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     override fun Content() {
-        var isCompleted by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            getDocumentsAndDocumentTags()
-            isCompleted = true
+        Box {
+            Header()
+            Body()
         }
-
-        if (isCompleted) {
-            Box {
-                Header()
-                Body()
-            }
-        }
-    }
-
-    private suspend fun getDocumentsAndDocumentTags() {
-        if (cacheDocumentTags.getDocumentTagsFromCache() == null)
-            cacheDocumentTags.loadDocumentTags(tagRequestService.getDocumentTags())
-        if (cacheDocuments.getDocumentsFromCache() == null)
-            cacheDocuments.loadDocuments(documentRequestService.getAllDocuments())
     }
 
     @Composable
@@ -141,11 +128,8 @@ class DocumentScreen() : Screen, Parcelable  {
 
         var dateFrom by remember { mutableStateOf<LocalDate?>(null) }
         var dateBefore by remember { mutableStateOf<LocalDate?>(null) }
-        var category by remember { mutableStateOf<String?>(null) }
-        var tags by remember { mutableStateOf<List<TagPrototype>?>(null) }
-
-        if (tags != null && tags!!.isEmpty())
-            tags = null
+        var category by remember { mutableStateOf(EnumCategories.NOT_SELECTED.category) }
+        var tags by remember { mutableStateOf<List<TagPrototype>>(listOf()) }
 
         Box(modifier = Modifier.zIndex(2f)) {
             val headerModifier = if (isActiveSort) Modifier
@@ -174,7 +158,12 @@ class DocumentScreen() : Screen, Parcelable  {
                     .padding(20.dp, 0.dp, 20.dp, 40.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
-                searchDocument.SearchEngine(dateFrom.toString(), dateBefore.toString(), category, tags.toString())
+                searchDocument.SearchEngine(
+                    if (dateFrom != null) dateFrom.toString() else null,
+                    if (dateBefore != null) dateBefore.toString() else null,
+                    if (category != EnumCategories.NOT_SELECTED.category) category else null,
+                    if (tags.isNotEmpty()) tags.map { it.title } else null
+                )
                 searchSupport.SupportInActive(
                     onTapSortChange = {
                         if (isActiveFilter) isActiveFilter = false
@@ -191,8 +180,10 @@ class DocumentScreen() : Screen, Parcelable  {
         searchSupport.SupportActive(
             isActiveSort = isActiveSort,
             isActiveFilter = isActiveFilter,
-            onTapSortChange = { isActiveSort = false },
-            onTapFilterChange = { isActiveFilter = false },
+            dateFrom = dateFrom?: LocalDate.parse("1800-01-01"),
+            dateBefore = dateBefore?: LocalDate.now(),
+            category = category,
+            selectedTags = tags,
             onDateFromChange = { dateFrom = it },
             onDateBeforeChange = { dateBefore = it },
             onCategoryChange = { category = it },
@@ -200,6 +191,7 @@ class DocumentScreen() : Screen, Parcelable  {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     private fun Body() {
         val rememberLazyScrollState = rememberLazyListState()
@@ -210,21 +202,24 @@ class DocumentScreen() : Screen, Parcelable  {
                 .padding(5.dp, heightHeader - 33.dp, 5.dp, 0.dp),
             state = rememberLazyScrollState
         ) {
-            cacheDocuments.getDocumentsFromCache()?.let { documents ->
-                itemsIndexed(items = documents) {index, document ->
-                    Box(modifier = Modifier
+            itemsIndexed(
+                items = cacheDocuments.value
+            ) { index, document ->
+                Box(
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 5.dp)) {
-                        DocumentElement(document, rememberLazyScrollState)
-                    }
-
-                    if (index == documents.lastIndex)
-                        Spacer(modifier = Modifier.height(90.dp))
+                        .padding(top = 5.dp)
+                ) {
+                    DocumentElement(document, rememberLazyScrollState)
                 }
+
+                if (index == documents.value.lastIndex)
+                    Spacer(modifier = Modifier.height(90.dp))
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     private fun DocumentElement(document: DocumentPrototype, scrollState: LazyListState) {
         val context = LocalContext.current
@@ -233,28 +228,50 @@ class DocumentScreen() : Screen, Parcelable  {
         var isOpenDescription by remember { mutableStateOf(false) }
         val position = remember { mutableStateOf(0.dp) }
 
-        val openFileResultLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            // Handle the result of the file opening activity
-            if (result.resultCode == RESULT_OK) {
-                // File opened successfully
+        val openFileResultLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+
+                }
             }
-        }
 
         MainInformationDocument(document, position, isOpenDescription) { isOpenDescription = it }
-        DescriptionDocument(isOpenDescription, document.description?: "") {
-            val fileName = "${document.title}.pdf"
-            try {
-                val outputUri = workWithPDF.createNewPdfFileUri(context, fileName)
-                val outputStream = context.contentResolver.openOutputStream(outputUri)
-                outputStream?.use { output ->
-                    output.write(document.document)
-                }
-                Toast.makeText(context, "Файл успешно загружен в ${Environment.DIRECTORY_DOCUMENTS}", Toast.LENGTH_LONG).show()
+        DescriptionDocument(isOpenDescription, document.description ?: "") {
+            CoroutineScope(Dispatchers.Main).launch {
+                val fileName = "${document.title}.pdf"
 
-                openFileResultLauncher.launch(workWithPDF.openFile(context, "${Environment.DIRECTORY_DOCUMENTS}/$fileName"))
-            } catch (exception: Exception) {
-                Toast.makeText(context, "Возникла ошибка при загрузке файла", Toast.LENGTH_LONG).show()
-                Log.i("Ошибка", "Ошибка в загрузке файла: ${exception.message}")
+                val fileInByteArray: ByteArray?
+                val fileRequestService = FileRequestServicesImpl()
+
+                fileInByteArray = fileRequestService.getFile(document.document)?.file
+
+                Log.i("Полученный файл", fileInByteArray.toString())
+
+                if (fileInByteArray != null) {
+                    try {
+                        val outputUri = workWithPDF.createNewPdfFileUri(context = context, fileName = fileName)
+                        val outputStream = context.contentResolver.openOutputStream(outputUri)
+                        outputStream?.use { output ->
+                            output.write(fileInByteArray)
+                        }
+                        Toast.makeText(
+                            context,
+                            "Файл успешно загружен в ${Environment.DIRECTORY_DOCUMENTS}",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        openFileResultLauncher.launch(
+                            workWithPDF.openFile(
+                                context = context,
+                                filePath = "${Environment.DIRECTORY_DOCUMENTS}/$fileName"
+                            )
+                        )
+                    } catch (exception: Exception) {
+                        Toast.makeText(context, "Возникла ошибка при загрузке файла", Toast.LENGTH_LONG)
+                            .show()
+                        Log.i("Ошибка", "Ошибка в загрузке файла: ${exception.message}")
+                    }
+                }
             }
         }
 
@@ -457,7 +474,10 @@ class DocumentScreen() : Screen, Parcelable  {
     }
 
     @Composable
-    private fun DescriptionArrow(isOpenDescription: Boolean, onDescriptionChange: (Boolean) -> Unit) {
+    private fun DescriptionArrow(
+        isOpenDescription: Boolean,
+        onDescriptionChange: (Boolean) -> Unit
+    ) {
         val animatedRotate by animateFloatAsState(if (isOpenDescription) 180f else 0f, label = "")
         Box(
             modifier = Modifier
@@ -468,28 +488,30 @@ class DocumentScreen() : Screen, Parcelable  {
             Icon(
                 Icons.Default.ArrowDropDown,
                 contentDescription = "Open",
+                tint = MainColorDark,
                 modifier = Modifier
                     .size(90.dp)
                     .padding(start = 5.dp)
+                    .align(Alignment.Center)
+                    .rotate(animatedRotate)
                     .clickable {
                         onDescriptionChange(!isOpenDescription)
                     }
-                    .align(Alignment.Center)
-                    .rotate(animatedRotate),
-                tint = MainColorDark,
             )
         }
     }
 
     @Composable
-    private fun DescriptionDocument(isOpenDescription: Boolean, description: String, onClickDownloadChange: () -> Unit) {
+    private fun DescriptionDocument(
+        isOpenDescription: Boolean,
+        description: String,
+        onClickDownloadChange: () -> Unit
+    ) {
         AnimatedVisibility(
             visible = isOpenDescription,
             enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
             exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-            modifier = Modifier
-                .zIndex(1f)
-                .padding(top = 90.dp)
+            modifier = Modifier.zIndex(1f).padding(top = 90.dp)
         ) {
             Box(
                 modifier = Modifier

@@ -13,10 +13,10 @@ class MessageRequestServicesImpl {
     private val updateServiceInMessageDelegate = UpdateServiceInMessage()
 
     suspend fun getMessagesFromMessenger(idMessenger: Long): MutableList<MessagePrototype> {
-        return receivingServiceInMessageDelegate.getMessagesFromMessenger(idMessenger)
+        return receivingServiceInMessageDelegate.getMessagesFromMessenger(idMessenger = idMessenger)
     }
 
-    suspend fun addMessage(message: MessagePrototype): Boolean {
-        return additionsServiceInMessageDelegate.addMessage(message)
+    suspend fun addMessage(message: MessagePrototype): MessagePrototype? {
+        return additionsServiceInMessageDelegate.addMessage(message = message)
     }
 }

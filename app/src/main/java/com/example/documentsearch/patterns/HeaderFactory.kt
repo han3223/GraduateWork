@@ -1,6 +1,5 @@
 package com.example.documentsearch.patterns
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,9 +23,9 @@ import com.example.documentsearch.ui.theme.MainColorDark
 class HeaderFactory {
     @Composable
     fun HeaderPrototype(
+        modifier: Modifier = Modifier,
         height: Dp,
         element: String = "",
-        @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
         leftEllipseColor: Color = MainColor,
         rightEllipseColor: Color = MainColor,
     ) {
@@ -34,8 +33,8 @@ class HeaderFactory {
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Center
         ) {
-            MainHeader(modifier, height, element)
-            Corners(leftEllipseColor, rightEllipseColor)
+            MainHeader(modifier = modifier, height = height, element = element)
+            Corners(leftEllipseColor = leftEllipseColor, rightEllipseColor = rightEllipseColor)
         }
     }
 
@@ -60,18 +59,14 @@ class HeaderFactory {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            LeftCorner(leftEllipseColor)
-            RightCorner(rightEllipseColor)
+            LeftCorner(leftEllipseColor = leftEllipseColor)
+            RightCorner(rightEllipseColor = rightEllipseColor)
         }
     }
 
     @Composable
     private fun LeftCorner(leftEllipseColor: Color) {
-        Box(
-            modifier = Modifier
-                .size(33.dp)
-                .zIndex(2f)
-        ) {
+        Box(modifier = Modifier.size(33.dp).zIndex(2f)) {
             val svgFactory = SVGFactory()
             svgFactory.GetShapeFromSVG(svgCode = HEADER_LEFT, colorShape = leftEllipseColor)
         }
@@ -79,11 +74,7 @@ class HeaderFactory {
 
     @Composable
     private fun RightCorner(rightEllipseColor: Color) {
-        Box(
-            modifier = Modifier
-                .size(33.dp)
-                .zIndex(2f)
-        ) {
+        Box(modifier = Modifier.size(33.dp).zIndex(2f)) {
             val svgFactory = SVGFactory()
             svgFactory.GetShapeFromSVG(svgCode = HEADER_RIGHT, colorShape = rightEllipseColor)
         }

@@ -8,9 +8,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 
 class PhoneVisualTransformation(private val mask: String, private val maskNumber: Char) :
     VisualTransformation {
-
     private val maxLength = mask.count { it == maskNumber }
-
 
     override fun filter(text: AnnotatedString): TransformedText {
         val trimmed = if (text.length > maxLength) text.take(maxLength) else text
@@ -36,6 +34,17 @@ class PhoneVisualTransformation(private val mask: String, private val maskNumber
 
     override fun hashCode(): Int {
         return mask.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PhoneVisualTransformation
+
+        if (mask != other.mask) return false
+        if (maskNumber != other.maskNumber) return false
+        return maxLength == other.maxLength
     }
 }
 

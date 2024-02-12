@@ -1,6 +1,7 @@
 package com.example.documentsearch.navbar
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -25,7 +26,6 @@ import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServices
 import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
 import com.example.documentsearch.cache.CacheAllUsersProfile
 import com.example.documentsearch.cache.CacheDocumentTags
-import com.example.documentsearch.cache.CacheDocuments
 import com.example.documentsearch.cache.CacheProfileTags
 import com.example.documentsearch.cache.CacheUserMessengers
 import com.example.documentsearch.cache.CacheUserProfile
@@ -41,9 +41,13 @@ import com.example.documentsearch.screens.messenger.MessengerScreen
 import com.example.documentsearch.screens.profile.ProfileScreen
 import com.example.documentsearch.screens.profile.authenticationUser.LoginScreen
 import com.example.documentsearch.ui.theme.BackgroundColor
+import com.example.documentsearch.ui.theme.cacheDocuments
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.system.measureTimeMillis
 
 enum class StatusAddDocumentForm { OPEN, CLOSE, NEUTRAL }
 
@@ -53,7 +57,6 @@ class Navigator {
     private val cacheAllUsersProfile = CacheAllUsersProfile()
     private val cacheProfileTags = CacheProfileTags()
     private val cacheDocumentTags = CacheDocumentTags()
-    private val cacheDocuments = CacheDocuments()
 
     private val profileRequestService = ProfileRequestServicesImpl()
     private val messengerRequestService = MessengersRequestServicesImpl()
@@ -74,11 +77,7 @@ class Navigator {
         savedPassword = preferencesManager.getData(passwordKeyPreferences)
 
         var isInternetConnection by remember {
-            mutableStateOf(
-                internetConnectionFactory.internetConnectionCheck(
-                    context
-                )
-            )
+            mutableStateOf(internetConnectionFactory.internetConnectionCheck(context))
         }
         var isCompletedDataDownload by remember { mutableStateOf(false) }
 
@@ -137,11 +136,16 @@ class Navigator {
     }
 
     private suspend fun getBaseInformationFromDatabase() {
-        getUserProfile()
-        getAllUsers()
-        getProfileTags()
-        getDocumentTags()
-        getDocuments()
+        val time  = measureTimeMillis {
+            coroutineScope {
+                launch { getUserProfile() }
+                launch { getAllUsers() }
+                launch { getProfileTags() }
+                launch { getDocumentTags() }
+                launch { getDocuments() }
+            }
+        }
+        Log.i("Время запросов", "${(time/1000)} секунд")
     }
 
     private suspend fun getUserProfile() {
@@ -157,26 +161,28 @@ class Navigator {
     private suspend fun getUserMessengers() {
         val userProfile = cacheUserProfile.getUserFromCache()
         if (userProfile != null) {
-            val userMessengers =
-                messengerRequestService.getMessengersPrototype(userProfile)
-            cacheUserMessengers.loadMessengers(userMessengers)
+            val userMessengers = messengerRequestService.getPrototypeMessengers(userProfile = userProfile)
+            cacheUserMessengers.loadMessengers(messengers = userMessengers)
         }
     }
 
     private suspend fun getAllUsers() {
-        cacheAllUsersProfile.loadAllUsersProfile(profileRequestService.getAllUsersProfile())
+        val allUsersProfile = profileRequestService.getAllUsersProfile()
+        cacheAllUsersProfile.loadAllUserProfile(allUserProfile = allUsersProfile)
     }
 
     private suspend fun getProfileTags() {
-        cacheProfileTags.loadProfileTags(tagRequestService.getProfileTags())
+        val profileTags = tagRequestService.getProfileTags()
+        cacheProfileTags.loadProfileTags(profileTags = profileTags)
     }
 
     private suspend fun getDocumentTags() {
-        cacheDocumentTags.loadDocumentTags(tagRequestService.getDocumentTags())
+        val documentTags = tagRequestService.getDocumentTags()
+        cacheDocumentTags.loadDocumentTags(documentTags)
     }
 
     private suspend fun getDocuments() {
-        cacheDocuments.loadDocuments(documentRequestService.getAllDocuments())
+        cacheDocuments.value = documentRequestService.getAllDocuments()
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -185,11 +191,7 @@ class Navigator {
         Navigator(DocumentScreen()) { navigator ->
             Scaffold(
                 content = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(BackgroundColor)
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize().background(BackgroundColor)) {
                         FadeTransition(navigator)
                     }
                 },
@@ -204,11 +206,11 @@ class Navigator {
 
         if (navigator.lastItem.key != "com.example.documentsearch.screens.messenger.communication.CommunicationScreen") {
             Box(
+                contentAlignment = Alignment.BottomCenter,
                 modifier = Modifier
                     .fillMaxSize()
                     .imePadding()
-                    .zIndex(10f),
-                contentAlignment = Alignment.BottomCenter
+                    .zIndex(10f)
             ) {
                 AddDocumentForm().Content(statusAddDocumentForm) { statusAddDocumentForm = it }
             }

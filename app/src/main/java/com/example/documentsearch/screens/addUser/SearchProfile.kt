@@ -30,10 +30,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
-import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.isClickBlock
 
 class SearchProfile {
     @Composable
@@ -49,7 +49,7 @@ class SearchProfile {
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                SearchTextField(text) { text = it }
+                SearchTextField(text = text) { text = it }
             }
 
             SearchButton()

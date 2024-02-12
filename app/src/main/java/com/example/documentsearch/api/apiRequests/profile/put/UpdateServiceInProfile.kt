@@ -1,139 +1,238 @@
 package com.example.documentsearch.api.apiRequests.profile.put
 
+import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Profile.profileService
 
 class UpdateServiceInProfile : ClientAPI() {
-    suspend fun updatePersonalNameUsingEmail(email: String, personalName: String): String? {
-        var resultPersonalName: String? = null
+    suspend fun updatePersonalNameUsingEmail(email: String, personalName: String): Boolean {
         try {
-            resultPersonalName = requestHandling(profileService.updatePersonalNameUsingEmail(email, personalName))
+            val response = profileService.updatePersonalNameUsingEmail(
+                email = email,
+                personalName = personalName
+            )
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось обновить пользовательское имя")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на обновление пользовательского имени произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return resultPersonalName
+        return  false
     }
 
-    suspend fun updatePersonalInfoUsingEmail(email: String, personalInfo: String): String? {
-        var resultPersonalInfo: String? = null
+    suspend fun updatePersonalInfoUsingEmail(email: String, personalInfo: String): Boolean {
         try {
-            resultPersonalInfo = requestHandling(profileService.updatePersonalInfoUsingEmail(email, personalInfo))
+            val response = profileService.updatePersonalInfoUsingEmail(
+                email = email,
+                personalInfo = personalInfo
+            )
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось обновить информацию о профиле")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на обновление информации о профиле произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return resultPersonalInfo
+        return false
     }
 
-    suspend fun updateNumberPhoneUsingEmail(email: String, phoneNumber: String): String? {
-        var resultNumberPhone: String? = null
+    suspend fun updateNumberPhoneUsingEmail(email: String, phoneNumber: String): Boolean {
         try {
-            resultNumberPhone = requestHandling(profileService.updateNumberPhoneUsingEmail(email, phoneNumber))
+            val response = profileService.updateNumberPhoneUsingEmail(
+                email = email,
+                phoneNumber = phoneNumber
+            )
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось обновить номер телефона")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на обновление номера телефона произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return resultNumberPhone
+        return false
     }
 
-    suspend fun updateEmailUsingOldEmail(oldEmail: String, newEmail: String): String? {
-        var resultEmail: String? = null
+    suspend fun updateEmailUsingOldEmail(oldEmail: String, newEmail: String): Boolean {
         try {
-            resultEmail = requestHandling(profileService.updateEmailUsingOldEmail(oldEmail, newEmail))
+            val response = profileService.updateEmailUsingOldEmail(
+                oldEmail = oldEmail,
+                newEmail = newEmail
+            )
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось обновить почту")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на обновление почты произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return resultEmail
+        return false
     }
 
-    suspend fun updatePasswordUsingEmail(email: String, oldPassword: String, newPassword: String): String? {
-        var resultPassword: String? = null
+    suspend fun updatePasswordUsingEmail(email: String, oldPassword: String, newPassword: String): Boolean {
         try {
-            resultPassword = requestHandling(profileService.updatePasswordUsingEmail(email, oldPassword, newPassword))
+            val response = profileService.updatePasswordUsingEmail(
+                email = email,
+                oldPassword = oldPassword,
+                newPassword = newPassword
+            )
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось обновить пароль")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на обновление пароля произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return resultPassword
+        return false
     }
 
     suspend fun updateTagsUsingEmail(email: String, tags: String): Boolean {
-        var isSuccessful = false
         try {
-            val response = requestHandling(profileService.updateTagsUsingEmail(email, tags))
-            if (response != null)
-                isSuccessful = true
+            val response = profileService.updateTagsUsingEmail(email = email, tags = tags)
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось обновить теги")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на обновление тегов произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return isSuccessful
+        return false
     }
 
     suspend fun addTagUsingEmail(email: String, tag: String): Boolean {
-        var isSuccessful = false
         try {
-            val response = requestHandling(profileService.addTagUsingEmail(email, tag))
-            if (response != null)
-                isSuccessful = true
+            val response = profileService.addTagUsingEmail(email = email, tag = tag)
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось добавить тег пользователю")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на добавление тега пользователю произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return isSuccessful
+        return false
     }
 
     suspend fun deleteTagUsingEmail(email: String, tag: String): Boolean {
-        var isSuccessful = false
         try {
-            val response = requestHandling(profileService.deleteTagUsingEmail(email, tag))
-            if (response != null)
-                isSuccessful = true
+            val response = profileService.deleteTagUsingEmail(email = email, tag = tag)
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось удалить тег пользователю")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на удаление тега пользователю произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return isSuccessful
+        return false
     }
 
     suspend fun addFriendUsingEmail(email: String, friend: String): Boolean {
-        var isSuccessful = false
         try {
-            val response = requestHandling(profileService.addFriendUsingEmail(email, friend))
-            if (response != null)
-                isSuccessful = true
+            val response = profileService.addFriendUsingEmail(email = email, friend = friend)
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось добавить друга пользователю")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на добавление друга пользователю произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return isSuccessful
+        return false
     }
 
     suspend fun updatePasswordUsingPhoneNumber(phoneNumber: String, newPassword: String): Boolean {
-        var isSuccessful = false
         try {
-            val response = requestHandling(profileService.updatePasswordUsingPhoneNumber(phoneNumber, newPassword))
-            if (response != null)
-                isSuccessful = true
+            val response = profileService.updatePasswordUsingPhoneNumber(
+                phoneNumber = phoneNumber,
+                newPassword = newPassword
+            )
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось обновить друзей пользователю")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на обновление друзей пользователю произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return isSuccessful
+        return false
     }
 
     suspend fun updatePasswordUsingEmail(email: String, newPassword: String): Boolean {
-        var isSuccessful = false
         try {
-            val response = requestHandling(profileService.updatePasswordUsingEmail(email, newPassword))
-            if (response != null)
-                isSuccessful = true
+            val response = profileService.updatePasswordUsingEmail(
+                email = email,
+                newPassword = newPassword
+            )
+            val result = requestHandling(response = response)?.toInt()
+            if (result != 0)
+                return true
+
+            Log.i("Запрос", "Не удалось удалить друга пользователю")
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на удаление друга пользователю произошла ошибка! " +
+                        "Ошибка: ${exception.message}"
+            )
         }
 
-        return isSuccessful
+        return false
     }
 }

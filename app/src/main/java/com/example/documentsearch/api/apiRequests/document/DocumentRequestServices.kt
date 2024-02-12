@@ -12,10 +12,10 @@ interface DocumentRequestServices {
     @POST("requests/document/addDocument")
     suspend fun addDocument(@Body jsonPrototypeDocument: RequestBody): Response<ResponseBody>
 
-    @GET("/requests/document/getAllDocuments")
+    @GET("requests/document/getAllDocuments")
     suspend fun getAllDocuments(): Response<ResponseBody>
 
-    @GET("/requests/document/getDocumentsByTitleAndCategoryAndDateAndTags")
+    @GET("requests/document/getDocumentsByTitleAndCategoryAndDateAndTags")
     suspend fun getDocuments(
         @Query("title") title: String,
         @Query("category") category: String?,

@@ -48,7 +48,6 @@ import com.example.documentsearch.cache.CacheUserMessengers
 import com.example.documentsearch.navbar.SVGFactory
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.prototypes.MessengerPrototype
-import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
@@ -58,6 +57,7 @@ import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.isClickBlock
 
 class MessengerScreen() : Screen, Parcelable {
     private val heightHeader = 120.dp
@@ -65,8 +65,7 @@ class MessengerScreen() : Screen, Parcelable {
 
     private val cacheUserMessengers = CacheUserMessengers()
 
-    constructor(parcel: Parcel) : this() {
-    }
+    constructor(parcel: Parcel) : this()
 
 
     @Composable
@@ -82,7 +81,7 @@ class MessengerScreen() : Screen, Parcelable {
         var isOpenMenu by remember { mutableStateOf(false) }
 
         Box(modifier = Modifier.zIndex(2f).fillMaxWidth()) {
-            headerFactory.HeaderPrototype(heightHeader)
+            headerFactory.HeaderPrototype(height = heightHeader)
             if (isOpenMenu) {
                 Box(modifier = Modifier
                     .align(Alignment.BottomStart)

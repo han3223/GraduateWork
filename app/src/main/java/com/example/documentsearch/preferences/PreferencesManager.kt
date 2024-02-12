@@ -7,7 +7,6 @@ import android.preference.PreferenceManager
 import androidx.core.content.edit
 
 class PreferencesManager(context: Context) {
-
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     fun saveData(key: String, value: String) {

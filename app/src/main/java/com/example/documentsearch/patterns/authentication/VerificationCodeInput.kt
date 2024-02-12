@@ -40,6 +40,7 @@ class VerificationCodeInput {
     fun Input(onCodeEntered: (String) -> Unit) {
         val code = remember { mutableStateOf("") }
         val focusRequesters = remember { List(4) { FocusRequester() } }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -90,18 +91,18 @@ class VerificationCodeInput {
 
         ClickableText(
             text = AnnotatedString(buttonText),
+            modifier = Modifier.padding(top = 8.dp),
+            style = TextStyle(
+                color = TextColor,
+                fontFamily = FontFamily(Font(R.font.montserrat_medium)),
+                textDecoration = if ((timerState.intValue == 0)) TextDecoration.Underline else TextDecoration.None
+            ),
             onClick = { offset ->
                 if ((timerState.intValue == 0) && (offset == 0)) {
                     timerState.intValue = timerDurationInSeconds
                     onResendClicked()
                 }
             },
-            modifier = Modifier.padding(top = 8.dp),
-            style = TextStyle(
-                color = TextColor,
-                fontFamily = FontFamily(Font(R.font.montserrat_medium)),
-                textDecoration = if ((timerState.intValue == 0)) TextDecoration.Underline else TextDecoration.None
-            )
         )
     }
 
@@ -115,11 +116,14 @@ class VerificationCodeInput {
             value = value,
             onValueChange = onValueChange,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            textStyle = TextStyle(color = Color.Black, fontSize = 35.sp, fontFamily = FontFamily(
-                Font(R.font.montserrat_bold)
-            )
-            ),
             singleLine = true,
+            cursorBrush = SolidColor(Color.Black),
+            modifier = modifier,
+            textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = 35.sp,
+                fontFamily = FontFamily(Font(R.font.montserrat_bold))
+            ),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
@@ -135,9 +139,7 @@ class VerificationCodeInput {
                         innerTextField()
                     }
                 }
-            },
-            cursorBrush = SolidColor(Color.Black),
-            modifier = modifier
+            }
         )
     }
 }

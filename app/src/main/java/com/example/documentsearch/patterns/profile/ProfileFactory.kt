@@ -16,13 +16,10 @@ class ProfileFactory {
         label: String,
         styleLabel: TextStyle,
         value: String,
-        styleValue: TextStyle,
+        styleValue: TextStyle
     ) {
         Column(modifier = modifier) {
-            Text(
-                text = label,
-                style = styleLabel
-            )
+            Text(text = label, style = styleLabel)
 
             Text(
                 text = value,
@@ -34,4 +31,3 @@ class ProfileFactory {
         }
     }
 }
-

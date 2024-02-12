@@ -8,11 +8,8 @@ import com.example.documentsearch.api.apiRequests.tag.put.UpdateServiceInTag
 import com.example.documentsearch.prototypes.TagPrototype
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 
 class TagRequestServicesImpl {
-    private val coroutine = CoroutineScope(Dispatchers.Main)
-
     private val additionsServiceInTagDelegate = AdditionsServiceInTag()
     private val deletionServiceInTagDelegate = DeletionServiceInTag()
     private val receivingServiceInTagDelegate = ReceivingServiceInTag()
@@ -20,15 +17,11 @@ class TagRequestServicesImpl {
 
     @SuppressLint("CoroutineCreationDuringComposition")
     suspend fun getDocumentTags(): List<TagPrototype> {
-        return coroutine.async {
-            receivingServiceInTagDelegate.getDocumentTags()
-        }.await()
+        return receivingServiceInTagDelegate.getDocumentTags()
     }
 
     @SuppressLint("CoroutineCreationDuringComposition")
     suspend fun getProfileTags(): List<TagPrototype> {
-        return coroutine.async {
-            receivingServiceInTagDelegate.getProfileTags()
-        }.await()
+        return receivingServiceInTagDelegate.getProfileTags()
     }
 }

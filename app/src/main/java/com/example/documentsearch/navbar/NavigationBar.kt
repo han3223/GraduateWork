@@ -50,13 +50,13 @@ class NavigationBar {
     @Composable
     fun Content(onSelectedScreen: (String) -> Unit, onClickAddDocumentChange: () -> Unit) {
         Box(
+            contentAlignment = Alignment.BottomCenter,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 15.dp),
-            contentAlignment = Alignment.BottomCenter
+                .padding(bottom = 15.dp)
         ) {
             MainNavigation { onSelectedScreen(it) }
-            AddDocument() { onClickAddDocumentChange() }
+            AddDocument { onClickAddDocumentChange() }
         }
     }
 
@@ -80,6 +80,7 @@ class NavigationBar {
                 }
 
                 Box(
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .height(40.dp)
                         .weight(weight)
@@ -93,12 +94,11 @@ class NavigationBar {
                                 activeItem.value = item.route
                                 onSelectedScreen(item.route)
                             })
-                        },
-                    contentAlignment = Alignment.Center
+                        }
                 ) {
-                    BorderNavigationItems(item.route)
-                    BodyNavigationItem(item.route)
-                    IconNavigationItem(item, width)
+                    BorderNavigationItems(route = item.route)
+                    BodyNavigationItem(route = item.route)
+                    IconNavigationItem(navigationItem = item, width = width)
                 }
             }
         }
@@ -106,22 +106,18 @@ class NavigationBar {
 
     @Composable
     private fun BorderNavigationItems(route: String) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(2f)
-        ) {
+        Box(modifier = Modifier.fillMaxSize().zIndex(2f)) {
             val svgFactory = SVGFactory()
             svgFactory.GetShapeFromSVG(
+                colorShape = Color(0x4D000000),
+                stroke = Stroke(1f),
                 svgCode = when (route) {
                     "documents" -> DOCUMENTS_NAVBAR
                     "messenger" -> MESSENGER_NAVBAR
                     "add user" -> ADD_FRIEND_NAVBAR
                     "profile" -> PROFILE_NAVBAR
                     else -> ""
-                },
-                colorShape = Color(0x4D000000),
-                stroke = Stroke(1f)
+                }
             )
         }
     }
@@ -131,21 +127,17 @@ class NavigationBar {
         var isActive by remember { mutableStateOf(false) }
         isActive = route == activeItem.value
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(1f)
-        ) {
+        Box(modifier = Modifier.fillMaxSize().zIndex(1f)) {
             val svgFactory = SVGFactory()
             svgFactory.GetShapeFromSVG(
+                colorShape = if (isActive) MainColorDark else MainColor,
                 svgCode = when (route) {
                     "documents" -> DOCUMENTS_NAVBAR
                     "messenger" -> MESSENGER_NAVBAR
                     "add user" -> ADD_FRIEND_NAVBAR
                     "profile" -> PROFILE_NAVBAR
                     else -> ""
-                },
-                colorShape = if (isActive) MainColorDark else MainColor,
+                }
             )
         }
     }
@@ -163,7 +155,7 @@ class NavigationBar {
                 )
         ) {
             Icon(
-                painter = painterResource(navigationItem.icon),
+                painter = painterResource(id = navigationItem.icon),
                 contentDescription = navigationItem.title,
                 modifier = Modifier.size(24.dp),
                 tint = Color.White,
@@ -174,6 +166,7 @@ class NavigationBar {
     @Composable
     private fun AddDocument(onClickAddDocumentChange: () -> Unit) {
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(80.dp)
                 .padding(10.dp)
@@ -183,14 +176,12 @@ class NavigationBar {
                     detectTapGestures(
                         onTap = {
                             onClickAddDocumentChange()
-//                              TODO(Добавить нажатие чтобы вызывалась форма добавления документа)
-                        },
+                        }
                     )
-                },
-            contentAlignment = Alignment.Center
+                }
         ) {
             Icon(
-                painter = painterResource(R.drawable.plus_white),
+                painter = painterResource(id = R.drawable.plus_white),
                 contentDescription = "Добавить документ",
                 modifier = Modifier.size(24.dp),
                 tint = Color.White,

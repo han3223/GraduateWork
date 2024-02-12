@@ -4,15 +4,15 @@ import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
 import com.example.documentsearch.ui.theme.cacheAllUsersProfile
 
 class CacheAllUsersProfile {
-    fun getAllUsersProfileFromCache(): List<AnotherUserProfilePrototype>? {
+    fun getAllUserProfileFromCache(): List<AnotherUserProfilePrototype>? {
         return cacheAllUsersProfile.value.getData()
     }
 
-    fun loadAllUsersProfile(allUsersProfile: List<AnotherUserProfilePrototype>) {
-        cacheAllUsersProfile.value.loadData(allUsersProfile)
+    fun loadAllUserProfile(allUserProfile: List<AnotherUserProfilePrototype>) {
+        cacheAllUsersProfile.value.loadData(allUserProfile)
     }
 
-    fun clearAllUsersProfile() {
+    fun clearAllUserProfile() {
         cacheAllUsersProfile.value.clearData()
     }
 }

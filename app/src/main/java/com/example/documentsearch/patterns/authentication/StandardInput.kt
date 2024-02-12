@@ -110,6 +110,7 @@ class StandardInput(
     @Composable
     fun Input(value: String, onValueChanged: (String) -> Unit) {
         val focused = remember { mutableStateOf(false) }
+
         Column(modifier = mainBoxModifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = label,
@@ -122,7 +123,6 @@ class StandardInput(
             )
         }
 
-        // Блок с ошибкой валидации (текст с ошибкой валидации)
         AnimatedVisibility(
             visible = focused.value,
             enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
@@ -175,6 +175,7 @@ class StandardInput(
             textStyle = textStyle,
             singleLine = singleLine,
             keyboardActions = keyboardActions,
+            cursorBrush = SolidColor(TextColor),
             decorationBox = { innerTextField ->
                 if (value.isEmpty()) {
                     Text(
@@ -235,8 +236,7 @@ class StandardInput(
                         )
                     }
                 }
-            },
-            cursorBrush = SolidColor(TextColor),
+            }
         )
     }
 }

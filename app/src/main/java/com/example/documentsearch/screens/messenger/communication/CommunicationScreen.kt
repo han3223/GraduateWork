@@ -52,6 +52,8 @@ data class CommunicationScreen(val messenger: MessengerPrototype? = null) : Scre
     private val headerFactory = HeaderFactory()
     private val messageFactory = MessageFactory()
 
+    constructor(parcel: Parcel) : this()
+
     @Composable
     override fun Content() {
         val rememberScrollState = rememberScrollState()
@@ -65,7 +67,7 @@ data class CommunicationScreen(val messenger: MessengerPrototype? = null) : Scre
 
     @Composable
     private fun Header() {
-        headerFactory.HeaderPrototype(heightHeader)
+        headerFactory.HeaderPrototype(height = heightHeader)
     }
 
     @Composable
@@ -80,12 +82,12 @@ data class CommunicationScreen(val messenger: MessengerPrototype? = null) : Scre
             messenger!!.listMessage.forEachIndexed { index, item ->
                 Box(
                     modifier = Modifier
+                        .align(if (item.myMessage) Alignment.End else Alignment.Start)
                         .padding(
                             start = if (item.myMessage) 30.dp else 5.dp,
                             end = if (!item.myMessage) 30.dp else 5.dp,
                             top = if (index != 0 && messenger.listMessage[index - 1].myMessage) 2.dp else 10.dp
                         )
-                        .align(if (item.myMessage) Alignment.End else Alignment.Start)
                 ) {
                     messageFactory.Message(
                         message = item,
@@ -102,8 +104,7 @@ data class CommunicationScreen(val messenger: MessengerPrototype? = null) : Scre
         val coroutine = rememberCoroutineScope()
 
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom
         ) {
             Row(
@@ -112,26 +113,16 @@ data class CommunicationScreen(val messenger: MessengerPrototype? = null) : Scre
                     .rotate(180f),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                    Box(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .zIndex(2f)
-                    ) {
+                    Box(modifier = Modifier.size(33.dp).zIndex(2f)) {
                         val svgFactory = SVGFactory()
                         svgFactory.GetShapeFromSVG(svgCode = HEADER_LEFT, colorShape = MainColor)
                     }
-                    Box(
-                        modifier = Modifier
-                            .size(33.dp)
-                            .zIndex(2f)
-                    ) {
+                    Box(modifier = Modifier.size(33.dp).zIndex(2f)) {
                         val svgFactory = SVGFactory()
                         svgFactory.GetShapeFromSVG(svgCode = HEADER_RIGHT, colorShape = MainColor)
                     }
             }
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .background(MainColor)) {
+            Box(modifier = Modifier.fillMaxWidth().background(MainColor)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,5 +181,15 @@ data class CommunicationScreen(val messenger: MessengerPrototype? = null) : Scre
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         TODO("Not yet implemented")
+    }
+
+    companion object CREATOR : Parcelable.Creator<CommunicationScreen> {
+        override fun createFromParcel(parcel: Parcel): CommunicationScreen {
+            return CommunicationScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<CommunicationScreen?> {
+            return arrayOfNulls(size)
+        }
     }
 }

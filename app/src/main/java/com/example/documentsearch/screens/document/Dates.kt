@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +26,7 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.dateFormat
 import com.marosseleng.compose.material3.datetimepickers.date.domain.DatePickerDefaults
 import com.marosseleng.compose.material3.datetimepickers.date.domain.DatePickerStroke
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
@@ -35,6 +35,8 @@ import java.time.LocalDate
 class Dates {
     @Composable
     fun ContainerWithDates(
+        dateFrom: LocalDate,
+        dateBefore: LocalDate,
         onDateFromChange: (LocalDate) -> Unit,
         onDateBeforeChange: (LocalDate) -> Unit
     ) {
@@ -49,25 +51,23 @@ class Dates {
         ) {
             Text(text = "от ", style = HIGHLIGHTING_BOLD_TEXT)
             Box(modifier = Modifier.weight(0.45f)) {
-                DateTextField { onDateFromChange(it) }
+                DateTextField(dateFrom) { onDateFromChange(it) }
             }
             Text(text = " - ", style = HIGHLIGHTING_BOLD_TEXT)
             Text(text = "до ", style = HIGHLIGHTING_BOLD_TEXT)
             Box(modifier = Modifier.weight(0.45f)) {
-                DateTextField { onDateBeforeChange(it) }
+                DateTextField(dateBefore) { onDateBeforeChange(it) }
             }
         }
 
     }
 
     @Composable
-    private fun DateTextField(onDateChange: (LocalDate) -> Unit) {
-        var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    private fun DateTextField(selectedDate: LocalDate, onDateChange: (LocalDate) -> Unit) {
         var isClicked by remember { mutableStateOf(false) }
         if (isClicked) {
             SelectDate(
                 onDateChange = {
-                    selectedDate = it
                     isClicked = false
                     onDateChange(it)
                 }
@@ -76,25 +76,23 @@ class Dates {
 
         Row(modifier = Modifier) {
             BasicTextField(
-                value = selectedDate.toString(),
+                value = selectedDate.format(dateFormat),
                 onValueChange = {},
                 textStyle = ORDINARY_TEXT,
+                enabled = false,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.45f)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = {
-                            isClicked = true
-                        })
-                    }
                     .border(1.dp, TextColor, shape = RoundedCornerShape(10.dp))
-                    .padding(8.dp),
-                enabled = false
+                    .padding(8.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { isClicked = true } )
+                    }
             )
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     private fun SelectDate(onDateChange: (LocalDate) -> Unit) {
         val colorsDatePicker = DatePickerDefaults.colors(

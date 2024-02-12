@@ -15,13 +15,26 @@ import com.example.documentsearch.prototypes.DocumentPrototype
 import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
+import java.time.format.DateTimeFormatter
+
+val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+val isClickBlock = mutableStateOf(false)
+val documents = mutableStateOf(listOf<DocumentPrototype>())
 
 val cacheUserProfile = mutableStateOf(CacheFactory<UserProfilePrototype>())
 val cacheMessengers = mutableStateOf(CacheFactory<List<MessengerPrototype>>())
 val cacheAllUsersProfile = mutableStateOf(CacheFactory<List<AnotherUserProfilePrototype>>())
 val cacheProfileTags = mutableStateOf(CacheFactory<List<TagPrototype>>())
 val cacheDocumentTags = mutableStateOf(CacheFactory<List<TagPrototype>>())
-val cacheDocuments = mutableStateOf(CacheFactory<List<DocumentPrototype>>())
+val cacheDocuments = mutableStateOf(listOf<DocumentPrototype>())
+
+enum class EnumCategories(val category: String) {
+    NOT_SELECTED("Не выбрано"),
+    SCIENTIFIC_ARTICLE("Научная статья"),
+    COURSE_WORK("Курсовая работа"),
+    GRADUATE_WORK("Дипломная работа")
+}
 
 const val DOCUMENTS_NAVBAR = "M0 25C0 11.1929 11.1929 0 25 0H80V50H25C11.1929 50 0 38.8071 0 25V25Z"
 const val MESSENGER_NAVBAR = "M73.5 0H0V50H128V42C108.481 42 89.7035 28.8923 84.759 9.89665C83.3677 4.5519 79.0229 0 73.5 0Z"

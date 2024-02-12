@@ -73,9 +73,7 @@ class LoginScreen() : HeadersProfile(), Screen, Parcelable {
         .height(40.dp)
         .background(color = Color.Transparent)
 
-    constructor(parcel: Parcel) : this() {
-
-    }
+    constructor(parcel: Parcel) : this()
 
     @Composable
     override fun Content() {

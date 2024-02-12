@@ -77,7 +77,7 @@ class SearchTag {
                         .background(AdditionalMainColorDark, RoundedCornerShape(13.dp))
                         .padding(10.dp)
                 ) {
-                    SelectedTags(selectedTags) {
+                    SelectedTags(selectedTags = selectedTags) {
                         selectedTags.remove(it)
                         onSelectedTagsChanged(selectedTags)
                     }
@@ -104,8 +104,8 @@ class SearchTag {
                         .background(AdditionalMainColorDark, RoundedCornerShape(13.dp))
                         .padding(10.dp)
                 ) {
-                    SearchTags(titleTag) { onTitleChange(it) }
-                    Tags(titleTag, selectedTags, tags) {
+                    SearchTags(titleTag = titleTag) { onTitleChange(it) }
+                    Tags(titleTag = titleTag, userSelectedTags = selectedTags, allTags = tags) {
                         selectedTags.add(it)
                         onSelectedTagsChanged(selectedTags)
                     }
@@ -136,19 +136,16 @@ class SearchTag {
                     items(items = selectedTags) { tag: TagPrototype ->
                         Box(
                             modifier = Modifier
+                                .clickable { onSelectedTagChanged(tag) }
                                 .background(
                                     color = Color.Transparent,
                                     shape = RoundedCornerShape(size = 14.dp)
                                 )
-                                .clickable { onSelectedTagChanged(tag) }
                         ) {
                             Text(
                                 text = tag.title,
                                 style = ORDINARY_TEXT.merge(TextStyle(textAlign = TextAlign.Center)),
-                                modifier = Modifier.padding(
-                                    vertical = 5.dp,
-                                    horizontal = 5.dp
-                                )
+                                modifier = Modifier.padding(vertical = 5.dp, horizontal = 5.dp)
                             )
                         }
                         Spacer(modifier = Modifier.width(2.5.dp))
@@ -221,10 +218,7 @@ class SearchTag {
             ) {
                 items(items = sortedTags) { tag: TagPrototype ->
                     Spacer(modifier = Modifier.width(2.5.dp))
-                    Box(
-                        modifier = Modifier
-                            .clickable { onSelectedTagChanged(tag) }
-                    ) {
+                    Box(modifier = Modifier.clickable { onSelectedTagChanged(tag) }) {
                         Text(
                             text = tag.title,
                             style = ORDINARY_TEXT.merge(TextStyle(textAlign = TextAlign.Center)),

@@ -86,13 +86,12 @@ class PhoneInput(
     fun Input(phoneNumber: String, onPhoneNumberChanged: (String) -> Unit) {
         val focused = remember { mutableStateOf(false) }
 
-        Box(
-            modifier = mainBoxModifier
-        ) {
+        Box(modifier = mainBoxModifier) {
             Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 Text(text = label, style = styleLabel)
+
                 PhoneTextField(
-                    phoneNumber,
+                    phoneNumber = phoneNumber,
                     onPhoneNumberChanged = { onPhoneNumberChanged(it) },
                     onFocusChange = { focused.value = it },
                 )
@@ -115,10 +114,7 @@ class PhoneInput(
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                        Text(
-                            text = it.text,
-                            style = SECONDARY_TEXT
-                        )
+                        Text(text = it.text, style = SECONDARY_TEXT)
                     }
                 }
             }
@@ -133,7 +129,8 @@ class PhoneInput(
         mask: String = "+0 (000) 000-00-00",
         maskNumber: Char = '0',
     ) {
-        var active by remember { mutableStateOf(true) } // Проверяет текстовое поле на фокус
+        var active by remember { mutableStateOf(true) }
+
         BasicTextField(
             value = phoneNumber,
             onValueChange = { value -> onPhoneNumberChanged(value.take(mask.count { it == maskNumber })) },
@@ -146,6 +143,7 @@ class PhoneInput(
             textStyle = textStyle,
             singleLine = true,
             keyboardActions = keyboardActions,
+            cursorBrush = SolidColor(TextColor),
             decorationBox = { innerTextField ->
                 if (phoneNumber.isEmpty()) {
                     Text(
@@ -161,20 +159,12 @@ class PhoneInput(
                         modifier = Modifier
                             .horizontalScroll(rememberScrollState())
                             .padding(horizontal = 2.dp)
-                    ) {
-                        innerTextField()
-                    }
+                    ) { innerTextField() }
                     if (activeTextField || active) {
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(validColor)
-                        )
+                        Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(validColor))
                     }
                 }
-            },
-            cursorBrush = SolidColor(TextColor)
+            }
         )
     }
 }

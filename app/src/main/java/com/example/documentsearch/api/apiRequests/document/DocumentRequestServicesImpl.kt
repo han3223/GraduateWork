@@ -2,23 +2,18 @@ package com.example.documentsearch.api.apiRequests.document
 
 import com.example.documentsearch.api.apiRequests.document.get.ReceivingServiceInDocument
 import com.example.documentsearch.api.apiRequests.document.post.AdditionsServiceInDocument
-import com.example.documentsearch.prototypes.AddDocumentPrototype
 import com.example.documentsearch.prototypes.DocumentPrototype
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 class DocumentRequestServicesImpl {
-    private val coroutine = CoroutineScope(Dispatchers.Main)
     private val additionsServiceInDocumentDelegate = AdditionsServiceInDocument()
-    private val receivingServiceInDocument = ReceivingServiceInDocument()
-
+    private val receivingServiceInDocumentDelegate = ReceivingServiceInDocument()
 
     suspend fun getAllDocuments(): List<DocumentPrototype> {
-        return receivingServiceInDocument.getAllDocuments()
+        return receivingServiceInDocumentDelegate.getAllDocuments()
     }
 
-    suspend fun addDocument(document: AddDocumentPrototype): String {
-        return additionsServiceInDocumentDelegate.addDocument(document)
+    suspend fun addDocument(document: DocumentPrototype): DocumentPrototype? {
+        return additionsServiceInDocumentDelegate.addDocument(document = document)
     }
 
     suspend fun getDocuments(
@@ -26,8 +21,14 @@ class DocumentRequestServicesImpl {
         category: String?,
         dateAfter: String?,
         dateBefore: String?,
-        tags: String?
+        tags: List<String>?
     ): List<DocumentPrototype> {
-        return receivingServiceInDocument.getDocuments(title, category, dateAfter, dateBefore, tags)
+        return receivingServiceInDocumentDelegate.getDocuments(
+            title = title,
+            category = category,
+            dateAfter = dateAfter,
+            dateBefore = dateBefore,
+            tags = tags
+        )
     }
 }

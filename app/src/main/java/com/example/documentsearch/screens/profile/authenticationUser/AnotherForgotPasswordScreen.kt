@@ -52,8 +52,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AnotherForgotPasswordScreen() : HeadersProfile(), Screen, Parcelable {
-    constructor(parcel: Parcel) : this() {
-    }
+    constructor(parcel: Parcel) : this()
 
     @Composable
     override fun Content() {
@@ -116,7 +115,7 @@ class AnotherForgotPasswordScreen() : HeadersProfile(), Screen, Parcelable {
                         ) { email = it }
 
                         Separator()
-                        ButtonGetCode(lastName, email)
+                        ButtonGetCode(lastName = lastName, email = email)
                     }
                 }
                 Spacer(modifier = Modifier.height(75.dp))

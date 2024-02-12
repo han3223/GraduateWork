@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -27,10 +28,10 @@ import androidx.compose.ui.zIndex
 import com.example.documentsearch.R
 import com.example.documentsearch.patterns.SearchTag
 import com.example.documentsearch.prototypes.TagPrototype
-import com.example.documentsearch.screens.document.addDocument.isClickBlock
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.isClickBlock
 import java.time.LocalDate
 
 class Filter {
@@ -65,10 +66,13 @@ class Filter {
         onDateFromChange: (LocalDate) -> Unit,
         onDateBeforeChange: (LocalDate) -> Unit,
         onCategoryChange: (String) -> Unit,
-        onSelectedTagsChange: (List<TagPrototype>) -> Unit
+        onSelectedTagsChange: (List<TagPrototype>) -> Unit,
+        dateFrom: LocalDate,
+        dateBefore: LocalDate,
+        category: String,
+        selectedTags: List<TagPrototype>
     ) {
         var titleTag by remember { mutableStateOf("") }
-        var selectedTags = remember { mutableStateListOf<TagPrototype>() }
         val dates = Dates()
         val categories = Categories()
         val searchTag = SearchTag()
@@ -85,16 +89,17 @@ class Filter {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             dates.ContainerWithDates(
+                dateFrom = dateFrom,
+                dateBefore = dateBefore,
                 onDateFromChange = { onDateFromChange(it) },
                 onDateBeforeChange = { onDateBeforeChange(it) }
             )
-            categories.DropDownContainer(onCategoryChange = { onCategoryChange(it) })
+            categories.DropDownContainer(selectedCategory = category, onCategoryChange = { onCategoryChange(it) })
             searchTag.Container(
                 titleTag = titleTag,
                 onTitleChange = { titleTag = it },
-                selectedTags = selectedTags,
+                selectedTags = selectedTags.toMutableStateList(),
                 onSelectedTagsChanged = {
-                    selectedTags = it
                     onSelectedTagsChange(it.toList())
                 },
                 tags = tags
@@ -103,7 +108,7 @@ class Filter {
     }
 
     @Composable
-    fun ActiveProfile(tags: List<TagPrototype>, onTapChange: (Unit) -> Unit) {
+    fun ActiveProfile(tags: List<TagPrototype>) {
         var titleTag by remember { mutableStateOf("") }
         var selectedTags = remember { mutableStateListOf<TagPrototype>() }
         val searchTag = SearchTag()
@@ -114,11 +119,6 @@ class Filter {
             .heightIn(0.dp, 650.dp)
             .background(MainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp))
             .padding(20.dp, 150.dp, 20.dp, 20.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-//                    onTapChange(Unit)
-                })
-            }
 
         Column(
             modifier = mainContainerModifier,

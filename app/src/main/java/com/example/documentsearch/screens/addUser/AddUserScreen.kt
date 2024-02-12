@@ -69,14 +69,13 @@ class AddUserScreen() : Screen, Parcelable {
     private val searchProfile = SearchProfile()
     private val filter = Filter()
 
-    constructor(parcel: Parcel) : this() {
-    }
+    constructor(parcel: Parcel) : this()
 
     @Composable
     override fun Content() {
         var isCompleted by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            getAllUsersProfileAndProfileTags()
+            getAllUserProfileAndProfileTags()
             isCompleted = true
         }
 
@@ -88,9 +87,9 @@ class AddUserScreen() : Screen, Parcelable {
         }
     }
 
-    private suspend fun getAllUsersProfileAndProfileTags() {
-        if (cacheAllUsersProfile.getAllUsersProfileFromCache() == null)
-            cacheAllUsersProfile.loadAllUsersProfile(profileRequestService.getAllUsersProfile())
+    private suspend fun getAllUserProfileAndProfileTags() {
+        if (cacheAllUsersProfile.getAllUserProfileFromCache() == null)
+            cacheAllUsersProfile.loadAllUserProfile(profileRequestService.getAllUsersProfile())
         if (cacheProfileTags.getProfileTagsFromCache() == null)
             cacheProfileTags.loadProfileTags(tagRequestService.getProfileTags())
     }
@@ -139,11 +138,9 @@ class AddUserScreen() : Screen, Parcelable {
             visible = isActiveFilter,
             enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
             exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-            modifier = Modifier
-                .zIndex(1f)
-                .fillMaxWidth()
+            modifier = Modifier.zIndex(1f).fillMaxWidth()
         ) {
-            filter.ActiveProfile(tags = cacheProfileTags.getProfileTagsFromCache()!!) { }
+            filter.ActiveProfile(tags = cacheProfileTags.getProfileTagsFromCache()?: listOf())
         }
     }
 
@@ -155,7 +152,7 @@ class AddUserScreen() : Screen, Parcelable {
             .padding(top = 127.dp)
             .fillMaxWidth()
             .background(MainColorLight)) {
-            cacheAllUsersProfile.getAllUsersProfileFromCache()?.let { usersProfile ->
+            cacheAllUsersProfile.getAllUserProfileFromCache()?.let { usersProfile ->
                 items(items = usersProfile) { userProfile ->
                     Row(
                         modifier = Modifier
@@ -169,15 +166,17 @@ class AddUserScreen() : Screen, Parcelable {
                                                 cacheUserProfile.getUserFromCache()!!
                                             )
                                         )
-                                    },
+                                    }
                                 )
                             },
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         ProfilePicture()
+
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             UserName("${userProfile.lastName} ${userProfile.firstName}")
+
                             if (userProfile.personalInfo != null)
                                 UserInfo(userProfile.personalInfo!!)
                         }
@@ -194,15 +193,12 @@ class AddUserScreen() : Screen, Parcelable {
             modifier = Modifier
                 .size(65.dp)
                 .background(AdditionalColor, CircleShape)
-        ) {}
+        )
     }
 
     @Composable
     private fun UserName(fullName: String) {
-        Text(
-            text = fullName,
-            style = HIGHLIGHTING_BOLD_TEXT,
-        )
+        Text(text = fullName, style = HIGHLIGHTING_BOLD_TEXT)
     }
 
     @Composable
@@ -230,7 +226,7 @@ class AddUserScreen() : Screen, Parcelable {
 
     companion object CREATOR : Parcelable.Creator<AddUserScreen> {
         override fun createFromParcel(parcel: Parcel): AddUserScreen {
-            return AddUserScreen(parcel)
+            return AddUserScreen(parcel = parcel)
         }
 
         override fun newArray(size: Int): Array<AddUserScreen?> {

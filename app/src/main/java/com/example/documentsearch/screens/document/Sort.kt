@@ -24,8 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.example.documentsearch.screens.document.addDocument.isClickBlock
-import com.example.documentsearch.ui.theme.AdditionalMainColorDark
+import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SelectedColor
 import com.example.documentsearch.ui.theme.SortAZ
@@ -33,6 +32,7 @@ import com.example.documentsearch.ui.theme.SortDateNew
 import com.example.documentsearch.ui.theme.SortDateOld
 import com.example.documentsearch.ui.theme.SortZA
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.isClickBlock
 
 class Sort {
     private val activeSortElement = mutableStateOf(SortAZ)
@@ -63,12 +63,12 @@ class Sort {
     }
 
     @Composable
-    fun Active(onTapChange: (Unit) -> Unit) {
+    fun Active() {
         val listSort = listOf(SortAZ, SortZA, SortDateNew, SortDateOld)
         val columnModifier = Modifier
             .zIndex(1f)
             .width(255.dp)
-            .background(AdditionalMainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 0.dp))
+            .background(MainColorDark, RoundedCornerShape(0.dp, 0.dp, 20.dp, 0.dp))
             .padding(top = 150.dp, bottom = 15.dp)
 
         Column(modifier = columnModifier) {
@@ -89,7 +89,6 @@ class Sort {
                                     sizeMultiplier.animateTo(0.95f, animationSpec = spring())
                                     awaitRelease()
                                     sizeMultiplier.animateTo(1f, animationSpec = spring())
-                                    onTapChange(Unit)
                                 }
                             )
                         },

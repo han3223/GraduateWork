@@ -26,11 +26,8 @@ import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 
 class MessageFactory {
     @Composable
-    fun Message(
-        message: MessagePrototype,
-        isRepeatMyMessage: Boolean,
-    ) {
-        // TODO(Разобраться с тем как поставить время, также доделать галочки при прочтении и редектирование сообщения)
+    fun Message(message: MessagePrototype, isRepeatMyMessage: Boolean) {
+        // TODO(Разобраться с тем как поставить время, также доделать галочки при прочтении и редактировании сообщения)
         var widthLastLineText by remember { mutableStateOf(0.dp) }
 
         Box {
@@ -72,6 +69,7 @@ class MessageFactory {
                         widthLastLineText = (9.6 * lastLineLength).dp
                     }
                 )
+
                 Row(modifier = Modifier.align(Alignment.BottomEnd)) {
                     Text(
                         modifier = Modifier.padding(5.dp),

@@ -55,8 +55,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ForgotPasswordScreen() : HeadersProfile(), Screen, Parcelable {
-    constructor(parcel: Parcel) : this() {
-    }
+    constructor(parcel: Parcel) : this()
 
     @Composable
     override fun Content() {

@@ -1,28 +1,36 @@
 package com.example.documentsearch.api.apiRequests.messenger.post
 
+import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Messenger.messengerService
 import com.example.documentsearch.prototypes.AddMessengerPrototypeDataBase
 import com.example.documentsearch.prototypes.GetMessengerPrototypeDataBase
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.Json.Default.decodeFromString
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class AdditionsServiceInMessenger : ClientAPI() {
     suspend fun addMessenger(messenger: AddMessengerPrototypeDataBase): GetMessengerPrototypeDataBase? {
-        val messengerJson: String = Json.encodeToString(messenger)
-        val messengerInRequestBody: RequestBody = messengerJson.toRequestBody(requestMediaType)
+        var resultMessenger: GetMessengerPrototypeDataBase? = null
 
-        var resultMessengerFullInfo: GetMessengerPrototypeDataBase? = null
+        val messengerJson: String = Json.encodeToString(value = messenger)
+        val messengerInRequestBody: RequestBody = messengerJson.toRequestBody(contentType = requestMediaType)
         try {
-            val response = requestHandling(messengerService.addMessenger(messengerInRequestBody))
-            if (response != null)
-                resultMessengerFullInfo = Json.decodeFromString(response)
+            val response = messengerService.addMessenger(jsonPrototypeMessenger = messengerInRequestBody)
+            val json = requestHandling(response = response)
+            if (json == null)
+                Log.i("Запрос", "Запрос на добавление месенжера вернул пустое значение")
+            else
+                resultMessenger = decodeFromString(string = json)
         } catch (exception: Exception) {
-            println(exception.message)
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на добавление месенжера произошла ошибка! Ошибка: ${exception.message}"
+            )
         }
 
-        return resultMessengerFullInfo
+        return resultMessenger
     }
 }

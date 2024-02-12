@@ -7,21 +7,9 @@ data class DocumentPrototype(
     val id: Long? = null,
     val title: String,
     val category: String,
-    val document: ByteArray,
+    val document: Long,
     val date: String,
     val image: String? = null,
     val user: Long,
     val tags: List<String>,
     val description: String? = null)
-
-@Serializable
-data class AddDocumentPrototype(
-    val id: Long? = null,
-    val title: String,
-    val category: String,
-    val document: ByteArray,
-    val date: String,
-    val image: String? = null,
-    val user: Long,
-    val tags: List<String>,
-    val description: String)

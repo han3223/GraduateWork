@@ -1,10 +1,7 @@
 package com.example.documentsearch.screens.document.addDocument
 
-import android.content.ContentValues
-import android.content.Context
 import android.net.Uri
-import android.os.Environment
-import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -60,39 +57,38 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
+import com.example.documentsearch.api.apiRequests.file.FileRequestServicesImpl
 import com.example.documentsearch.cache.CacheDocumentTags
 import com.example.documentsearch.cache.CacheUserProfile
 import com.example.documentsearch.navbar.StatusAddDocumentForm
 import com.example.documentsearch.patterns.SearchTag
 import com.example.documentsearch.patterns.authentication.StandardInput
-import com.example.documentsearch.prototypes.AddDocumentPrototype
+import com.example.documentsearch.prototypes.DocumentPrototype
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.screens.document.Categories
 import com.example.documentsearch.ui.theme.AdditionalColor
+import com.example.documentsearch.ui.theme.EnumCategories
 import com.example.documentsearch.ui.theme.HEADING_TEXT
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.isClickBlock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Base64
-import java.util.Date
-import java.util.Locale
 
-data class DpSize(val width: Dp, val height: Dp) {
-    companion object {
-        val Zero = DpSize(0.dp, 500.dp)
-    }
-}
-
-val isClickBlock = mutableStateOf(false)
 
 class AddDocumentForm {
     private val cacheDocumentTags = CacheDocumentTags()
+
+    data class DpSize(val width: Dp, val height: Dp) {
+        companion object {
+            val Zero = DpSize(0.dp, 500.dp)
+        }
+    }
 
     @Composable
     fun Content(statusAddDocumentForm: String, onStatusAddDocumentFormChange: (String) -> Unit) {
@@ -102,11 +98,11 @@ class AddDocumentForm {
         var offsetY by remember { mutableStateOf(boxSize.height) }
         val animatedOffsetY by animateDpAsState(
             targetValue =
-            when (statusAddDocumentForm) {
-                StatusAddDocumentForm.OPEN.name -> 30.dp
-                StatusAddDocumentForm.CLOSE.name -> boxSize.height
-                else -> offsetY
-            },
+                when (statusAddDocumentForm) {
+                    StatusAddDocumentForm.OPEN.name -> 30.dp
+                    StatusAddDocumentForm.CLOSE.name -> boxSize.height
+                    else -> offsetY
+                },
             animationSpec = spring(),
             label = ""
         ) {
@@ -137,7 +133,7 @@ class AddDocumentForm {
                 )
                 .pointerInput(Unit) {
                     detectDragGestures(
-                        onDrag = { change: PointerInputChange, dragAmount: Offset ->
+                        onDrag = { _: PointerInputChange, dragAmount: Offset ->
                             if (offsetY >= 30.dp)
                                 offsetY += dragAmount.y.toDp()
                         },
@@ -150,15 +146,15 @@ class AddDocumentForm {
                     )
                 }
         ) {
-            FormContainer()
+            FormContainer { onStatusAddDocumentFormChange(StatusAddDocumentForm.CLOSE.name) }
         }
     }
 
     @Composable
-    private fun FormContainer() {
+    private fun FormContainer(onClickButton: () -> Unit) {
         var title by remember { mutableStateOf("") }
         var documentInString by remember { mutableStateOf("") }
-        var category by remember { mutableStateOf("") }
+        var category by remember { mutableStateOf(EnumCategories.NOT_SELECTED.category) }
         var selectedTags = remember { mutableStateListOf<TagPrototype>() }
 
         Column(
@@ -168,24 +164,25 @@ class AddDocumentForm {
         ) {
             ClosingLine()
             Spacer(modifier = Modifier.height(20.dp))
-            TitleDocument(title) { title = it }
+            TitleDocument(title = title) { title = it }
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 Box(modifier = Modifier.weight(0.5f)) { AddFileButton { documentInString = it } }
-                Box(modifier = Modifier.weight(0.5f)) { SelectCategory { category = it } }
+                Box(modifier = Modifier.weight(0.5f)) { SelectCategory(category) { category = it } }
             }
-            SelectTags(selectedTags) { selectedTags = it }
-            ButtonPublish(title, documentInString, category, selectedTags)
+            SelectTags(selectedTags = selectedTags) { selectedTags = it }
+            ButtonPublish(
+                title = title,
+                documentInString = documentInString,
+                category = category,
+                selectedTags = selectedTags
+            ) { onClickButton() }
             Spacer(modifier = Modifier.height(50.dp))
         }
     }
 
     @Composable
     private fun ClosingLine() {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxWidth().height(3.dp)) {
             Box(
                 modifier = Modifier
                     .width(200.dp)
@@ -241,9 +238,12 @@ class AddDocumentForm {
 
 
     @Composable
-    private fun SelectCategory(onCategoryChange: (String) -> Unit) {
+    private fun SelectCategory(category: String, onCategoryChange: (String) -> Unit) {
         val categories = Categories()
-        categories.DropDownContainer(onCategoryChange = { onCategoryChange(it) })
+        categories.DropDownContainer(
+            onCategoryChange = { onCategoryChange(it) },
+            selectedCategory = category
+        )
     }
 
     @Composable
@@ -280,13 +280,13 @@ class AddDocumentForm {
         val searchTag = SearchTag()
 
         searchTag.Container(
+            tags = cacheDocumentTags.getDocumentTagsFromCache() ?: listOf(),
             titleTag = titleTag,
             onTitleChange = { titleTag = it },
             selectedTags = selectedTags,
             onSelectedTagsChanged = {
                 onSelectedTagsChange(it)
-            },
-            tags = cacheDocumentTags.getDocumentTagsFromCache() ?: listOf()
+            }
         )
     }
 
@@ -295,14 +295,13 @@ class AddDocumentForm {
         title: String,
         documentInString: String,
         category: String,
-        selectedTags: SnapshotStateList<TagPrototype>
+        selectedTags: SnapshotStateList<TagPrototype>,
+        onClickButton: () -> Unit
     ) {
         val context = LocalContext.current
         val coroutineContext = Dispatchers.Main
         val cacheUserProfile = CacheUserProfile()
         val user = cacheUserProfile.getUserFromCache()
-
-
 
         val modifierButton = Modifier
             .fillMaxWidth()
@@ -319,22 +318,27 @@ class AddDocumentForm {
                 if (user == null)
                     Toast.makeText(context, "Сначала нужно зарегистрироваться!", Toast.LENGTH_LONG).show()
                 else {
+                    val fileRequestService = FileRequestServicesImpl()
                     val documentRequestService = DocumentRequestServicesImpl()
-
-                    val document = AddDocumentPrototype(
-                        id = null,
-                        title = title,
-                        category = category,
-                        document = Base64.getDecoder().decode(documentInString),
-                        date = LocalDate.now().toString(),
-                        image = null,
-                        user = user.id!!,
-                        tags = selectedTags.map { it.title },
-                        description = ""
-                    )
-
                     CoroutineScope(coroutineContext).launch {
-                        println(documentRequestService.addDocument(document))
+                        val file = fileRequestService.addFile(Base64.getDecoder().decode(documentInString))
+                        Log.i("Тест", file.toString())
+                        if (file?.id != null) {
+                            val document = DocumentPrototype(
+                                id = null,
+                                title = title,
+                                category = category,
+                                document = file.id,
+                                date = LocalDate.now().toString(),
+                                image = null,
+                                user = user.id!!,
+                                tags = selectedTags.map { it.title },
+                                description = ""
+                            )
+
+                            documentRequestService.addDocument(document)
+                            onClickButton()
+                        }
                     }
                 }
             }
