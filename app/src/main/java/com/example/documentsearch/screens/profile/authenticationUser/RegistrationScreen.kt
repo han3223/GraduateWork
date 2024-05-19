@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -43,6 +44,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
+import com.example.documentsearch.api.emailFactory.EmailFactory
 import com.example.documentsearch.patterns.authentication.PhoneInput
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.prototypes.UserProfilePrototype
@@ -114,7 +116,7 @@ class RegistrationScreen() : HeadersProfile(), Screen, Parcelable {
             lastName = lastName,
             firstName = firstName,
             patronymic = patronymic,
-            telephoneNumber = numberPhone,
+            phoneNumber = numberPhone,
             email = email,
             password = password
         )
@@ -122,6 +124,7 @@ class RegistrationScreen() : HeadersProfile(), Screen, Parcelable {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
+                .imePadding()
                 .padding(5.dp, super.getHeightHeader() - 33.dp, 5.dp, 0.dp),
             state = rememberLazyListState()
         ) {
@@ -147,18 +150,18 @@ class RegistrationScreen() : HeadersProfile(), Screen, Parcelable {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Separator()
-                        FirstName(
-                            firstName = firstName,
-                            currentRequester = firstNameFocusRequester,
-                            nextRequester = lastNameFocusRequester,
-                        ) { firstName = it }
-
-                        Separator()
                         LastName(
                             lastName = lastName,
                             currentRequester = lastNameFocusRequester,
                             nextRequester = patronymicFocusRequester,
                         ) { lastName = it }
+
+                        Separator()
+                        FirstName(
+                            firstName = firstName,
+                            currentRequester = firstNameFocusRequester,
+                            nextRequester = lastNameFocusRequester,
+                        ) { firstName = it }
 
                         Separator()
                         Patronymic(
@@ -483,9 +486,12 @@ class RegistrationScreen() : HeadersProfile(), Screen, Parcelable {
         Button(
             enabled = enabled,
             onClick = {
-                signIn(userPrototype) {
-                    navigator.push(VerificationRegistrationScreen(it))
-                }
+                signIn(
+                    userPrototype,
+                    onCodeChange = {
+                        navigator.push(VerificationRegistrationScreen(userPrototype, it))
+                    }
+                )
             },
             modifier = Modifier
                 .padding(top = 20.dp)
@@ -506,17 +512,20 @@ class RegistrationScreen() : HeadersProfile(), Screen, Parcelable {
 
     private fun signIn(
         userPrototype: UserProfilePrototype,
-        onProfileDataChange: (UserProfilePrototype) -> Unit
+        onCodeChange: (String) -> Unit
     ) {
         CoroutineScope(Dispatchers.Main).launch {
             val profileRequestServices = ProfileRequestServicesImpl()
             val checkProfileByEmail =
                 profileRequestServices.getProfileUsingEmail(userPrototype.email)
             val checkProfileByPhoneNumber =
-                profileRequestServices.getProfileUsingPhoneNumber(userPrototype.telephoneNumber)
+                profileRequestServices.getProfileUsingPhoneNumber(userPrototype.phoneNumber)
 
             if (checkProfileByEmail == null && checkProfileByPhoneNumber == null) {
-                onProfileDataChange(userPrototype)
+                val emailFactory = EmailFactory()
+                val code = emailFactory.sendEmail(userPrototype.email)
+
+                onCodeChange(code.toString())
             }
         }
         /*TODO(Сделать рассылку кода пользователю для регистрации)*/

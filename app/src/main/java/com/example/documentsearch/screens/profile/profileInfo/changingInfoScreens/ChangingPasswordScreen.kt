@@ -24,7 +24,7 @@ class ChangingPasswordScreen() : Screen, Parcelable {
         replacePasswordScreen.Screen {
             CoroutineScope(Dispatchers.Main).launch {
                 ProfileRequestServicesImpl().updatePasswordUsingEmail(
-                    cacheUserProfile.value.getData()!!.email,
+                    cacheUserProfile.value!!.email,
                     it.first,
                     it.second
                 )

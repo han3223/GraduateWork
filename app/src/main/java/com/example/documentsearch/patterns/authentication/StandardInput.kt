@@ -132,6 +132,7 @@ class StandardInput(
             Column(modifier = Modifier.fillMaxWidth()) {
                 invalidList.forEach {
                     Row(
+                        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 3.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -187,14 +188,10 @@ class StandardInput(
                     )
                 }
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(modifier = modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Box(modifier = modifier.weight(1f), contentAlignment = Alignment.BottomStart) {
                             innerTextField()
                         }
                         if (visualTransformation != VisualTransformation.None && value.isNotEmpty() && isCheckValue) {

@@ -42,7 +42,8 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
         }
     }
 }
@@ -74,6 +75,12 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
 
     implementation("com.google.accompanist:accompanist-swiperefresh:0.19.0")
+
+    implementation("io.socket:socket.io-client:2.1.0")
+    implementation ("androidx.work:work-runtime:2.9.0")
+
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
 
     implementation("com.itextpdf:itextpdf:5.5.13.3")
 

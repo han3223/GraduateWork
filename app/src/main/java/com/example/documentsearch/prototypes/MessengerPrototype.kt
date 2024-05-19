@@ -2,15 +2,17 @@ package com.example.documentsearch.prototypes
 
 import kotlinx.serialization.Serializable
 
+
+enum class StatusMessage(val status: String) {
+    WAIT("1"),
+    OK("0"),
+    ERROR("-1")
+}
+
 @Serializable
-data class MessengerPrototype(
+data class ChatData(
     val id: Long? = null,
-    val interlocutor: AnotherUserProfilePrototype,
-    val listMessage: MutableList<MessagePrototype>
+    val participants: List<UserProfilePrototype>,
+    var messages: List<MessagePrototype> = listOf(),
+    val status: String? = StatusMessage.WAIT.status
 )
-
-@Serializable
-data class AddMessengerPrototypeDataBase(val id: Long? = null, val user: Long, val interlocutor: Long)
-
-@Serializable
-data class GetMessengerPrototypeDataBase(val id: Long, val user: Long, val interlocutor: Long)

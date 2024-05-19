@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,12 +42,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
-import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
-import com.example.documentsearch.cache.CacheAllUsersProfile
-import com.example.documentsearch.cache.CacheProfileTags
-import com.example.documentsearch.cache.CacheUserProfile
+import com.example.documentsearch.navbar.NavigationItem
+import com.example.documentsearch.navbar.activeItem
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.screens.document.Filter
+import com.example.documentsearch.screens.profile.ProfileScreen
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.FILTER
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
@@ -54,17 +54,18 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
+import com.example.documentsearch.ui.theme.cacheAllUserProfile
+import com.example.documentsearch.ui.theme.cacheProfileTags
+import com.example.documentsearch.ui.theme.cacheUserProfile
+import com.example.documentsearch.ui.theme.isProfilesLoad
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 class AddUserScreen() : Screen, Parcelable {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
 
     private val profileRequestService = ProfileRequestServicesImpl()
-    private val tagRequestService = TagRequestServicesImpl()
-
-    private val cacheUserProfile = CacheUserProfile()
-    private val cacheAllUsersProfile = CacheAllUsersProfile()
-    private val cacheProfileTags = CacheProfileTags()
 
     private val searchProfile = SearchProfile()
     private val filter = Filter()
@@ -73,25 +74,26 @@ class AddUserScreen() : Screen, Parcelable {
 
     @Composable
     override fun Content() {
-        var isCompleted by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            getAllUserProfileAndProfileTags()
-            isCompleted = true
+        var isRefreshing by remember { mutableStateOf(false) }
+        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+        LaunchedEffect(isRefreshing) {
+            if (isRefreshing) {
+                isProfilesLoad.value = false
+                cacheAllUserProfile.value = profileRequestService.getAllUsersProfile()
+                isRefreshing = false
+            }
         }
 
-        if (isCompleted) {
+        SwipeRefresh(
+            state = swipeRefreshState,
+            refreshTriggerDistance = 100.dp,
+            onRefresh = { isRefreshing = true }) {
             Box {
                 Header()
                 Body()
             }
         }
-    }
-
-    private suspend fun getAllUserProfileAndProfileTags() {
-        if (cacheAllUsersProfile.getAllUserProfileFromCache() == null)
-            cacheAllUsersProfile.loadAllUserProfile(profileRequestService.getAllUsersProfile())
-        if (cacheProfileTags.getProfileTagsFromCache() == null)
-            cacheProfileTags.loadProfileTags(tagRequestService.getProfileTags())
     }
 
     @Composable
@@ -138,34 +140,61 @@ class AddUserScreen() : Screen, Parcelable {
             visible = isActiveFilter,
             enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
             exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-            modifier = Modifier.zIndex(1f).fillMaxWidth()
+            modifier = Modifier
+                .zIndex(1f)
+                .fillMaxWidth()
         ) {
-            filter.ActiveProfile(tags = cacheProfileTags.getProfileTagsFromCache()?: listOf())
+            filter.ActiveProfile(tags = cacheProfileTags.value)
         }
     }
 
     @Composable
     private fun Body() {
         val navigator = LocalNavigator.currentOrThrow
-        LazyColumn(modifier = Modifier
-            .zIndex(0f)
-            .padding(top = 127.dp)
-            .fillMaxWidth()
-            .background(MainColorLight)) {
-            cacheAllUsersProfile.getAllUserProfileFromCache()?.let { usersProfile ->
-                items(items = usersProfile) { userProfile ->
+
+        if (cacheAllUserProfile.value.isEmpty() && !isProfilesLoad.value) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp, heightHeader - 33.dp, 5.dp, 0.dp)
+            ) {
+                for (i in 0..20) {
+                    Box(
+                        modifier = Modifier
+                            .height(75.dp)
+                            .fillMaxWidth()
+                            .padding(bottom = 1.dp)
+                            .background(AdditionalColor)
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .zIndex(0f)
+                    .padding(top = 127.dp)
+                    .fillMaxSize()
+            ) {
+                items(items = cacheAllUserProfile.value) { userProfile ->
                     Row(
                         modifier = Modifier
+                            .background(MainColorLight)
+                            .fillMaxWidth()
                             .padding(20.dp, 10.dp, 20.dp, 10.dp)
                             .pointerInput(Unit) {
                                 detectTapGestures(
                                     onTap = {
-                                        navigator.push(
-                                            ProfileInfo(
-                                                userProfile,
-                                                cacheUserProfile.getUserFromCache()!!
+                                        if (userProfile.id == cacheUserProfile.value?.id) {
+                                            navigator.push(ProfileScreen())
+                                            activeItem.value = NavigationItem.Profile.selectionNavbar
+                                        } else {
+                                            navigator.push(
+                                                ProfileInfo(
+                                                    userProfile,
+                                                    cacheUserProfile.value!!
+                                                )
                                             )
-                                        )
+                                        }
                                     }
                                 )
                             },
@@ -213,7 +242,12 @@ class AddUserScreen() : Screen, Parcelable {
 
     @Composable
     private fun Separator() {
-        Spacer(modifier = Modifier.height(1.dp).fillMaxWidth().background(AdditionalColor))
+        Spacer(
+            modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth()
+                .background(AdditionalColor)
+        )
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

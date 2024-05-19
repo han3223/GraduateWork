@@ -22,12 +22,13 @@ import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.RIGHT_INDICATOR
-import com.example.documentsearch.ui.theme.SECONDARY_TEXT
+import com.example.documentsearch.ui.theme.cacheUserProfile
 
 class MessageFactory {
     @Composable
     fun Message(message: MessagePrototype, isRepeatMyMessage: Boolean) {
         // TODO(Разобраться с тем как поставить время, также доделать галочки при прочтении и редактировании сообщения)
+        val user = cacheUserProfile.value
         var widthLastLineText by remember { mutableStateOf(0.dp) }
 
         Box {
@@ -35,12 +36,12 @@ class MessageFactory {
                 Box(
                     modifier = Modifier
                         .size(20.dp, 15.dp)
-                        .align(if (!message.myMessage) Alignment.BottomStart else Alignment.BottomEnd)
+                        .align(if (message.user_id != user?.id) Alignment.BottomStart else Alignment.BottomEnd)
                 ) {
                     val svgFactory = SVGFactory()
                     svgFactory.GetShapeFromSVG(
-                        svgCode = if (!message.myMessage) LEFT_INDICATOR else RIGHT_INDICATOR,
-                        colorShape = if (!message.myMessage) MainColorLight else MainColorDark
+                        svgCode = if (message.user_id != user?.id) LEFT_INDICATOR else RIGHT_INDICATOR,
+                        colorShape = if (message.user_id != user?.id) MainColorLight else MainColorDark
                     )
                 }
             }
@@ -48,16 +49,16 @@ class MessageFactory {
             Box(
                 modifier = Modifier
                     .padding(
-                        start = if (!message.myMessage) 7.dp else 0.dp,
-                        end = if (message.myMessage) 7.dp else 0.dp
+                        start = if (message.user_id != user?.id) 7.dp else 0.dp,
+                        end = if (message.user_id == user?.id) 7.dp else 0.dp
                     )
                     .background(
-                        if (!message.myMessage) MainColorLight else MainColorDark,
+                        if (message.user_id == user?.id) MainColorDark else MainColorLight,
                         RoundedCornerShape(15.dp)
                     )
             ) {
                 Text(
-                    modifier = Modifier.padding(5.dp),
+                    modifier = Modifier.padding(7.dp),
                     text = message.message,
                     style = ORDINARY_TEXT,
                     onTextLayout = {
@@ -71,11 +72,11 @@ class MessageFactory {
                 )
 
                 Row(modifier = Modifier.align(Alignment.BottomEnd)) {
-                    Text(
-                        modifier = Modifier.padding(5.dp),
-                        text = message.time,
-                        style = SECONDARY_TEXT,
-                    )
+//                    Text(
+//                        modifier = Modifier.padding(5.dp),
+//                        text = message.time,
+//                        style = SECONDARY_TEXT,
+//                    )
                 }
             }
         }

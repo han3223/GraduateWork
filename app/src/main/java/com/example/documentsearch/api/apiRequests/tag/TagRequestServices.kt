@@ -5,9 +5,9 @@ import retrofit2.Response
 import retrofit2.http.GET
 
 interface TagRequestServices {
-    @GET("requests/tag/getTagsByType?type=Документы")
+    @GET("tags-get/get-by-type?type=Документы")
     suspend fun getDocumentTags(): Response<ResponseBody>
 
-    @GET("requests/tag/getTagsByType?type=Пользователи")
+    @GET("tags-get/get-by-type?type=Пользователи")
     suspend fun getProfileTags(): Response<ResponseBody>
 }

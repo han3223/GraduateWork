@@ -6,8 +6,8 @@ import com.example.documentsearch.api.apiRequests.profile.get.ReceivingServiceIn
 import com.example.documentsearch.api.apiRequests.profile.get.ReceivingServiceInProfile
 import com.example.documentsearch.api.apiRequests.profile.post.AdditionsServiceInProfile
 import com.example.documentsearch.api.apiRequests.profile.put.UpdateServiceInProfile
-import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
+import com.example.documentsearch.ui.theme.isProfilesLoad
 
 class ProfileRequestServicesImpl : ClientAPI() {
     private val additionsServiceInProfileDelegate = AdditionsServiceInProfile()
@@ -21,11 +21,13 @@ class ProfileRequestServicesImpl : ClientAPI() {
     }
 
 
-    suspend fun getAllUsersProfile(): List<AnotherUserProfilePrototype> {
-        return receivingServiceInAnotherProfileDelegate.getAllAnotherProfile()
+    suspend fun getAllUsersProfile(): List<UserProfilePrototype> {
+        val result = receivingServiceInAnotherProfileDelegate.getAllAnotherProfile()
+        isProfilesLoad.value = true
+        return result
     }
 
-    suspend fun getAnotherProfileUsingId(idProfile: Long): AnotherUserProfilePrototype? {
+    suspend fun getAnotherProfileUsingId(idProfile: Long): UserProfilePrototype? {
         return receivingServiceInAnotherProfileDelegate.getAnotherProfileUsingId(idProfile = idProfile)
     }
 
@@ -53,17 +55,21 @@ class ProfileRequestServicesImpl : ClientAPI() {
     }
 
     suspend fun getProfileRecoveryCodeUsingLastNameAndEmail(lastName: String, email: String): Int? {
-        return receivingServiceInProfileDelegate.getProfileRecoveryCodeUsingLastNameAndEmail(
+        return receivingServiceInProfileDelegate.getRecoveryCodeUsingLastNameAndEmail(
             lastName = lastName,
             email = email
         )
+    }
+
+    suspend fun getVerificationCode(email: String): String {
+        return receivingServiceInProfileDelegate.getVerificationCode(email)
     }
 
     suspend fun getProfileRecoveryCodeUsingLastNameAndPhoneNumber(
         lastName: String,
         phoneNumber: String
     ): Int? {
-        return receivingServiceInProfileDelegate.getProfileRecoveryCodeUsingLastNameAndPhoneNumber(
+        return receivingServiceInProfileDelegate.getRecoveryCodeUsingLastNameAndPhoneNumber(
             lastName = lastName,
             phoneNumber = phoneNumber
         )
@@ -111,20 +117,7 @@ class ProfileRequestServicesImpl : ClientAPI() {
     }
 
     suspend fun updateTagsUsingEmail(email: String, tags: String): Boolean {
-
         return updateServiceInProfileDelegate.updateTagsUsingEmail(email = email, tags = tags)
-    }
-
-    suspend fun addTagUsingEmail(email: String, tag: String): Boolean {
-        return updateServiceInProfileDelegate.addTagUsingEmail(email = email, tag = tag)
-    }
-
-    suspend fun deleteTagUsingEmail(email: String, tag: String): Boolean {
-        return updateServiceInProfileDelegate.deleteTagUsingEmail(email = email, tag = tag)
-    }
-
-    suspend fun addFriendUsingEmail(email: String, friend: String): Boolean {
-        return updateServiceInProfileDelegate.addFriendUsingEmail(email = email, friend = friend)
     }
 
     suspend fun updatePasswordUsingPhoneNumber(phoneNumber: String, newPassword: String): Boolean {

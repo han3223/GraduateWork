@@ -1,5 +1,7 @@
 package com.example.documentsearch.screens.profile.authenticationUser
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,8 +42,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-data class VerificationRegistrationScreen(val registrationData: UserProfilePrototype) : HeadersProfile(), Screen {
+data class VerificationRegistrationScreen(val registrationData: UserProfilePrototype, var code: String) : HeadersProfile(), Screen,
+    Parcelable {
     private lateinit var preferencesManager: PreferencesManager
+
+    constructor(parcel: Parcel) : this(
+        TODO("registrationData"),
+        parcel.readString().toString()
+    )
 
     @Composable
     override fun Content() {
@@ -58,8 +66,7 @@ data class VerificationRegistrationScreen(val registrationData: UserProfileProto
         val navigator = LocalNavigator.currentOrThrow
         preferencesManager = PreferencesManager(context)
 
-        // TODO(Сделать отправку кода на почту)
-        if (codeVerify == "0000") {
+        if (codeVerify == code) {
             codeVerify = ""
             signIn { navigator.replace(ProfileScreen()) }
         }
@@ -102,8 +109,13 @@ data class VerificationRegistrationScreen(val registrationData: UserProfileProto
 
             if (signInProfile != null) {
                 preferencesManager.saveData(emailKeyPreferences, registrationData.email)
-                preferencesManager.saveData(passwordKeyPreferences, registrationData.password)
-                cacheUserProfile.value.loadData(signInProfile)
+                preferencesManager.saveData(passwordKeyPreferences, registrationData.password!!)
+                cacheUserProfile.value = signInProfile
+
+
+//                val socketWorker = SocketWorker()
+//                socketWorker.joinCommonRoom(signInProfile.id!!)
+
                 onProfileChange(signInProfile)
             }
         }
@@ -130,9 +142,31 @@ data class VerificationRegistrationScreen(val registrationData: UserProfileProto
             Box(modifier = Modifier.align(Alignment.Center)) {
                 val verificationCodeInput = VerificationCodeInput()
                 verificationCodeInput.ResendVerificationCode {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val profileRequestServices = ProfileRequestServicesImpl()
+                        code = profileRequestServices.getVerificationCode(registrationData.email)
+                    }
                     /*TODO(Сделать повторную отправку кода пользователю)*/
                 }
             }
+        }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(code)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<VerificationRegistrationScreen> {
+        override fun createFromParcel(parcel: Parcel): VerificationRegistrationScreen {
+            return VerificationRegistrationScreen(parcel)
+        }
+
+        override fun newArray(size: Int): Array<VerificationRegistrationScreen?> {
+            return arrayOfNulls(size)
         }
     }
 }

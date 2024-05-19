@@ -40,11 +40,11 @@ class ChangingPersonalNameScreen() : Screen, Parcelable {
                     val profileRequestServices = ProfileRequestServicesImpl()
                     val personalName =
                         profileRequestServices.updatePersonalNameUsingEmail(
-                            cacheUserProfile.value.getData()!!.email,
+                            cacheUserProfile.value!!.email,
                             it
                         )
                     if (personalName != null) {
-                        cacheUserProfile.value.getData()!!.personalName = it
+                        cacheUserProfile.value!!.personalName = it
                         navigator.pop()
                     }
                 }
@@ -59,7 +59,7 @@ class ChangingPersonalNameScreen() : Screen, Parcelable {
                     val profileByPersonalName =
                         profileRequestServices.getProfileUsingPersonalName(it)
                     isValidPersonalName =
-                        !(profileByPersonalName != null && it.isNotEmpty() && profileByPersonalName != cacheUserProfile.value.getData())
+                        !(profileByPersonalName != null && it.isNotEmpty() && profileByPersonalName != cacheUserProfile.value)
                     validationPersonalName =
                         Regex("^[a-zA-z0-9_]+$").matches(it) && isValidPersonalName
                 }

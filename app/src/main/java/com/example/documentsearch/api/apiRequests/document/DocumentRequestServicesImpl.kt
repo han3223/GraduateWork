@@ -3,13 +3,20 @@ package com.example.documentsearch.api.apiRequests.document
 import com.example.documentsearch.api.apiRequests.document.get.ReceivingServiceInDocument
 import com.example.documentsearch.api.apiRequests.document.post.AdditionsServiceInDocument
 import com.example.documentsearch.prototypes.DocumentPrototype
+import com.example.documentsearch.ui.theme.isDocumentLoad
 
 class DocumentRequestServicesImpl {
     private val additionsServiceInDocumentDelegate = AdditionsServiceInDocument()
     private val receivingServiceInDocumentDelegate = ReceivingServiceInDocument()
 
     suspend fun getAllDocuments(): List<DocumentPrototype> {
-        return receivingServiceInDocumentDelegate.getAllDocuments()
+        val result = receivingServiceInDocumentDelegate.getAllDocuments()
+        isDocumentLoad.value = true
+        return  result
+    }
+
+    suspend fun getDocumentsByUserId(userId: Long): List<DocumentPrototype> {
+        return receivingServiceInDocumentDelegate.getDocumentsByUserId(userId)
     }
 
     suspend fun addDocument(document: DocumentPrototype): DocumentPrototype? {

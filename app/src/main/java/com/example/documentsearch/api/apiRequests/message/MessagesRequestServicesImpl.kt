@@ -6,7 +6,7 @@ import com.example.documentsearch.api.apiRequests.message.post.AdditionsServiceI
 import com.example.documentsearch.api.apiRequests.message.put.UpdateServiceInMessage
 import com.example.documentsearch.prototypes.MessagePrototype
 
-class MessageRequestServicesImpl {
+class MessagesRequestServicesImpl {
     private val additionsServiceInMessageDelegate = AdditionsServiceInMessage()
     private val deletionServiceInMessageDelegate = DeletionServiceInMessage()
     private val receivingServiceInMessageDelegate = ReceivingServiceInMessage()

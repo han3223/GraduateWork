@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.File.fileService
 import com.example.documentsearch.prototypes.FilePrototype
+import com.example.documentsearch.ui.theme.Status
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -16,7 +17,7 @@ class AdditionsServiceInFile : ClientAPI() {
         try {
             val response = fileService.addFile(fileInByteArray = fileInRequestBody)
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.ERROR.status)
                 Log.i("Запрос", "Запрос на добавление файла вернул пустое значение")
             else
                 resultFile = decodeFromString(string = json)

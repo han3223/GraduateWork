@@ -9,7 +9,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface MessageRequestServices {
-    @POST("requests/message/addMessage")
+    @POST("messages-post/add")
     suspend fun addMessage(@Body jsonPrototypeMessage: RequestBody): Response<ResponseBody>
 
     @GET("requests/message/getMessagesByMessenger")

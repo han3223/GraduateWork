@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Document.documentService
 import com.example.documentsearch.prototypes.DocumentPrototype
+import com.example.documentsearch.ui.theme.Status
 import kotlinx.serialization.json.Json.Default.decodeFromString
 
 class ReceivingServiceInDocument : ClientAPI() {
@@ -12,7 +13,7 @@ class ReceivingServiceInDocument : ClientAPI() {
         try {
             val response = documentService.getAllDocuments()
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.EMPTY.status)
                 Log.i("Запрос", "Запрос на получение всех документов вернул пустое значение")
             else
                 resultDocuments = decodeFromString(string = json)
@@ -20,6 +21,25 @@ class ReceivingServiceInDocument : ClientAPI() {
             Log.e(
                 "Ошибка выполнения запроса!",
                 "В запросе на вывод всех документов произошла ошибка! Ошибка: ${exception.message}"
+            )
+        }
+
+        return resultDocuments
+    }
+
+    suspend fun getDocumentsByUserId(userId: Long): List<DocumentPrototype> {
+        var resultDocuments = listOf<DocumentPrototype>()
+        try {
+            val response = documentService.getDocumentsByUserId(userId)
+            val json = requestHandling(response = response)
+            if (json == Status.EMPTY.status)
+                Log.i("Запрос", "Запрос на получение документа по id пользователя вернул пустое значение")
+            else
+                resultDocuments = decodeFromString(string = json)
+        } catch (exception: Exception) {
+            Log.e(
+                "Ошибка выполнения запроса!",
+                "В запросе на вывод документов по id пользователя произошла ошибка! Ошибка: ${exception.message}"
             )
         }
 
@@ -43,7 +63,7 @@ class ReceivingServiceInDocument : ClientAPI() {
                 tags = tags?.toString()
             )
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.EMPTY.status)
                 Log.i("Запрос", "Запрос на получение документа вернул пустое значение")
             else
                 resultDocuments = decodeFromString(string = json)

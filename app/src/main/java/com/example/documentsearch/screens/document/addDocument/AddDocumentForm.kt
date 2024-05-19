@@ -1,7 +1,6 @@
 package com.example.documentsearch.screens.document.addDocument
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -58,8 +57,6 @@ import androidx.compose.ui.unit.dp
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.file.FileRequestServicesImpl
-import com.example.documentsearch.cache.CacheDocumentTags
-import com.example.documentsearch.cache.CacheUserProfile
 import com.example.documentsearch.navbar.StatusAddDocumentForm
 import com.example.documentsearch.patterns.SearchTag
 import com.example.documentsearch.patterns.authentication.StandardInput
@@ -73,17 +70,18 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheDocumentTags
+import com.example.documentsearch.ui.theme.cacheUserProfile
 import com.example.documentsearch.ui.theme.isClickBlock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Base64
 
 
 class AddDocumentForm {
-    private val cacheDocumentTags = CacheDocumentTags()
-
     data class DpSize(val width: Dp, val height: Dp) {
         companion object {
             val Zero = DpSize(0.dp, 500.dp)
@@ -175,7 +173,13 @@ class AddDocumentForm {
                 documentInString = documentInString,
                 category = category,
                 selectedTags = selectedTags
-            ) { onClickButton() }
+            ) {
+                onClickButton()
+                title = ""
+                documentInString = ""
+                category = EnumCategories.NOT_SELECTED.category
+                selectedTags = mutableStateListOf()
+            }
             Spacer(modifier = Modifier.height(50.dp))
         }
     }
@@ -279,8 +283,8 @@ class AddDocumentForm {
         var titleTag by remember { mutableStateOf("") }
         val searchTag = SearchTag()
 
-        searchTag.Container(
-            tags = cacheDocumentTags.getDocumentTagsFromCache() ?: listOf(),
+        searchTag.BasicContainer(
+            tags = cacheDocumentTags.value,
             titleTag = titleTag,
             onTitleChange = { titleTag = it },
             selectedTags = selectedTags,
@@ -300,8 +304,6 @@ class AddDocumentForm {
     ) {
         val context = LocalContext.current
         val coroutineContext = Dispatchers.Main
-        val cacheUserProfile = CacheUserProfile()
-        val user = cacheUserProfile.getUserFromCache()
 
         val modifierButton = Modifier
             .fillMaxWidth()
@@ -315,28 +317,32 @@ class AddDocumentForm {
             modifier = modifierButton,
             colors = colorButton,
             onClick = {
-                if (user == null)
+                if (cacheUserProfile.value == null)
                     Toast.makeText(context, "Сначала нужно зарегистрироваться!", Toast.LENGTH_LONG).show()
                 else {
                     val fileRequestService = FileRequestServicesImpl()
                     val documentRequestService = DocumentRequestServicesImpl()
                     CoroutineScope(coroutineContext).launch {
                         val file = fileRequestService.addFile(Base64.getDecoder().decode(documentInString))
-                        Log.i("Тест", file.toString())
+
                         if (file?.id != null) {
                             val document = DocumentPrototype(
                                 id = null,
                                 title = title,
                                 category = category,
-                                document = file.id,
+                                file_id = file.id,
                                 date = LocalDate.now().toString(),
                                 image = null,
-                                user = user.id!!,
-                                tags = selectedTags.map { it.title },
+                                user_id = cacheUserProfile.value?.id!!,
+                                tags = selectedTags.map { it.title }.toString(),
                                 description = ""
                             )
+                            async {
+                                Toast.makeText(context, "Документация находится в обработке", Toast.LENGTH_LONG).show()
+                                documentRequestService.addDocument(document)
+                                Toast.makeText(context, "Документация успешно загружена", Toast.LENGTH_LONG).show()
+                            }
 
-                            documentRequestService.addDocument(document)
                             onClickButton()
                         }
                     }

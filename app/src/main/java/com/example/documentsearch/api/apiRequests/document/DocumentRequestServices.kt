@@ -9,13 +9,13 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface DocumentRequestServices {
-    @POST("requests/document/addDocument")
-    suspend fun addDocument(@Body jsonPrototypeDocument: RequestBody): Response<ResponseBody>
-
-    @GET("requests/document/getAllDocuments")
+    @GET("documents-get/get-all")
     suspend fun getAllDocuments(): Response<ResponseBody>
 
-    @GET("requests/document/getDocumentsByTitleAndCategoryAndDateAndTags")
+    @GET("documents-get/get-by-user-id")
+    suspend fun getDocumentsByUserId(@Query("user_id") userId: Long): Response<ResponseBody>
+
+    @GET("documents-get/get-by-title-category-date-tags")
     suspend fun getDocuments(
         @Query("title") title: String,
         @Query("category") category: String?,
@@ -23,4 +23,7 @@ interface DocumentRequestServices {
         @Query("dateBefore") dateBefore: String?,
         @Query("tags") tags: String?,
     ): Response<ResponseBody>
+
+    @POST("documents-post/add")
+    suspend fun addDocument(@Body jsonPrototypeDocument: RequestBody): Response<ResponseBody>
 }

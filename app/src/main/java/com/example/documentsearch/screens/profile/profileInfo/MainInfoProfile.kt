@@ -116,7 +116,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
                 .padding(top = 5.dp)
                 .zIndex(2f)
                 .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(size = 33.dp))
+                .clip(shape = RoundedCornerShape(33.dp, 33.dp, 18.dp, 18.dp))
                 .background(color = MainColorLight)
 
         ) {
@@ -295,7 +295,7 @@ data class MainInfoProfile(val profile: UserProfilePrototype, val navigator: Nav
                     .padding(start = 20.dp, top = 10.dp, end = 20.dp),
                 label = "Номер телефона:",
                 styleLabel = HIGHLIGHTING_BOLD_TEXT,
-                value = EditText().getMaskNumberPhone(profile.telephoneNumber),
+                value = EditText().getMaskNumberPhone(profile.phoneNumber),
                 styleValue = ORDINARY_TEXT
             )
             Hint()

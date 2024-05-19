@@ -41,6 +41,8 @@ import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.documentsearch.api.SocketManager
+import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.preferences.PreferencesManager
@@ -57,6 +59,7 @@ import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheMessengers
 import com.example.documentsearch.ui.theme.cacheUserProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -210,7 +213,7 @@ class LoginScreen() : HeadersProfile(), Screen, Parcelable {
             colors = colorButton,
             onClick = {
                 logIn(email, password) {
-                    cacheUserProfile.value.loadData(it)
+                    cacheUserProfile.value = it
                     navigator.replace(ProfileScreen())
                 }
             }
@@ -234,6 +237,14 @@ class LoginScreen() : HeadersProfile(), Screen, Parcelable {
             val getProfile = profileRequestServices.getProfileUsingEmailAndPassword(email, password)
 
             if (getProfile != null) {
+                val  messengerRequestService = MessengersRequestServicesImpl()
+                val userMessengers =
+                    messengerRequestService.getAllMessengersUsingUserId(getProfile.id!!)
+                cacheMessengers.value = userMessengers
+                for (messenger in userMessengers) {
+                    SocketManager.connectCommunicationRoom(messenger.id!!)
+                }
+
                 preferencesManager.saveData(emailKeyPreferences, email)
                 preferencesManager.saveData(passwordKeyPreferences, password)
                 onProfileChange(getProfile)

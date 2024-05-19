@@ -42,16 +42,15 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.R
+import com.example.documentsearch.api.SocketManager
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
-import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.patterns.EditText
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.patterns.profile.ProfileFactory
-import com.example.documentsearch.prototypes.AddMessengerPrototypeDataBase
-import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
-import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
+import com.example.documentsearch.screens.messenger.communication.selectedMessenger
+import com.example.documentsearch.screens.messenger.communication.selectedUser
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColor
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
@@ -67,7 +66,7 @@ import kotlinx.coroutines.launch
 
 @Suppress("UNREACHABLE_CODE")
 data class ProfileInfo(
-    val anotherProfile: AnotherUserProfilePrototype,
+    val anotherProfile: UserProfilePrototype,
     val userProfile: UserProfilePrototype
 ) : Screen, Parcelable {
     private val heightHeader = 120.dp
@@ -139,7 +138,6 @@ data class ProfileInfo(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Communication()
-                            AddUser()
                         }
                     }
                 }
@@ -161,7 +159,7 @@ data class ProfileInfo(
             Separation()
 
             if (!anotherProfile.tags.isNullOrEmpty()) {
-                Tags(anotherProfile.tags)
+                Tags(anotherProfile.tags!!)
             }
 
             Spacer(modifier = Modifier.fillMaxWidth().height(30.dp))
@@ -205,56 +203,22 @@ data class ProfileInfo(
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = {
                         CoroutineScope(Dispatchers.Main).launch {
-                            val request =
-                                MessengersRequestServicesImpl().addMessenger(
-                                    AddMessengerPrototypeDataBase(
-                                        user = userProfile.id!!,
-                                        interlocutor = anotherProfile.id
-                                    )
-                                )
-                            if (request != null) {
-                                val messenger = MessengerPrototype(
-                                    request.id,
-                                    anotherProfile,
-                                    mutableListOf()
-                                )
-                                navigator.push(CommunicationScreen(messenger))
-                                // TODO(Сделать навигацию на переписку)
-                            }
+                            val messengerRequestService = MessengersRequestServicesImpl()
+                            val result = messengerRequestService.getMessengerByParticipants(
+                                listOf(userProfile.id!!, anotherProfile.id!!))
+
+                            selectedMessenger.value = result
+                            if (result != null)
+                                SocketManager.connectCommunicationRoom(result.id!!)
+
+                            selectedUser.value = anotherProfile
+                            navigator.push(CommunicationScreen())
                         }
                     })
                 }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.message_white),
-                contentDescription = null,
-                tint = TextColor,
-                modifier = Modifier.size(17.dp)
-            )
-        }
-    }
-
-    @Composable
-    fun AddUser() {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(34.dp)
-                .background(AdditionalMainColor, CircleShape)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            val profileRequestServices = ProfileRequestServicesImpl()
-                            profileRequestServices.addFriendUsingEmail(
-                                userProfile.email,
-                                anotherProfile.id.toString()
-                            )
-                        }
-                    })
-                },
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.add_user_white),
                 contentDescription = null,
                 tint = TextColor,
                 modifier = Modifier.size(17.dp)
@@ -283,7 +247,7 @@ data class ProfileInfo(
                 .padding(start = 20.dp, top = 10.dp, end = 20.dp),
             label = "Номер телефона:",
             styleLabel = HIGHLIGHTING_BOLD_TEXT,
-            value = EditText().getMaskNumberPhone(anotherProfile.numberPhone),
+            value = EditText().getMaskNumberPhone(anotherProfile.phoneNumber),
             styleValue = ORDINARY_TEXT
         )
     }
@@ -302,7 +266,7 @@ data class ProfileInfo(
     }
 
     @Composable
-    private fun Tags(tags: List<Long>) {
+    private fun Tags(tags: String) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -331,7 +295,11 @@ data class ProfileInfo(
                     .padding(horizontal = 5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                tags.forEach {
+                tags.replace("[", "")
+                    .replace("]", "")
+                    .split(",")
+                    .map { it.trim() }
+                    .forEach {
                     Box(
                         modifier = Modifier
                             .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
@@ -341,7 +309,7 @@ data class ProfileInfo(
                             )
                     ) {
                         Text(
-                            text = it.toString(),
+                            text = it,
                             style = HIGHLIGHTING_BOLD_TEXT,
                             modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp)
                         )

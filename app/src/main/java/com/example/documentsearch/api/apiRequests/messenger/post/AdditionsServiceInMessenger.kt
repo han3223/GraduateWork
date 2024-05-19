@@ -3,8 +3,8 @@ package com.example.documentsearch.api.apiRequests.messenger.post
 import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Messenger.messengerService
-import com.example.documentsearch.prototypes.AddMessengerPrototypeDataBase
-import com.example.documentsearch.prototypes.GetMessengerPrototypeDataBase
+import com.example.documentsearch.prototypes.ChatData
+import com.example.documentsearch.ui.theme.Status
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.Json.Default.decodeFromString
@@ -12,15 +12,17 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class AdditionsServiceInMessenger : ClientAPI() {
-    suspend fun addMessenger(messenger: AddMessengerPrototypeDataBase): GetMessengerPrototypeDataBase? {
-        var resultMessenger: GetMessengerPrototypeDataBase? = null
+    suspend fun addMessenger(messenger: ChatData): ChatData? {
+        var resultMessenger: ChatData? = null
 
         val messengerJson: String = Json.encodeToString(value = messenger)
-        val messengerInRequestBody: RequestBody = messengerJson.toRequestBody(contentType = requestMediaType)
+
+        val messengerInRequestBody: RequestBody = messengerJson.toRequestBody(requestMediaType)
         try {
             val response = messengerService.addMessenger(jsonPrototypeMessenger = messengerInRequestBody)
             val json = requestHandling(response = response)
-            if (json == null)
+
+            if (json == Status.ERROR.status)
                 Log.i("Запрос", "Запрос на добавление месенжера вернул пустое значение")
             else
                 resultMessenger = decodeFromString(string = json)
@@ -31,6 +33,7 @@ class AdditionsServiceInMessenger : ClientAPI() {
             )
         }
 
+        Log.i("TEST", resultMessenger.toString())
         return resultMessenger
     }
 }

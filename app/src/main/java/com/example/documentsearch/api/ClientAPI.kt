@@ -6,6 +6,7 @@ import com.example.documentsearch.api.apiRequests.message.MessageRequestServices
 import com.example.documentsearch.api.apiRequests.messenger.MessengerRequestServices
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServices
 import com.example.documentsearch.api.apiRequests.tag.TagRequestServices
+import com.example.documentsearch.api.apiRequests.testConnection.TestConnectionRequestServices
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
@@ -15,8 +16,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 open class ClientAPI {
     companion object {
-        private const val ADDRESS = "http://10.10.10.13"
-        private const val PORT = "8080"
+        private const val ADDRESS = "http://192.168.43.35"
+        private const val PORT = "5000"
         private const val BASE_URL = "$ADDRESS:$PORT/"
 
         val APIBasicService: Retrofit = Retrofit.Builder()
@@ -53,12 +54,17 @@ open class ClientAPI {
     }
 
     object File {
-        private val javaDocumentServices = FileRequestServices::class.java
-        val fileService: FileRequestServices = APIBasicService.create(javaDocumentServices)
+        private val javaFileServices = FileRequestServices::class.java
+        val fileService: FileRequestServices = APIBasicService.create(javaFileServices)
     }
 
-    fun requestHandling(response: Response<ResponseBody>): String? {
-        var result: String? = null
+    object Connection {
+        private val javaConnectionServices = TestConnectionRequestServices::class.java
+        val connectionService: TestConnectionRequestServices = APIBasicService.create(javaConnectionServices)
+    }
+
+    fun requestHandling(response: Response<ResponseBody>): String {
+        var result: String = "-1"
         if (response.isSuccessful) {
             val responseBody = response.body()
             if (responseBody != null)

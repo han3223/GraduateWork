@@ -3,6 +3,7 @@ package com.example.documentsearch.api.apiRequests.profile.put
 import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Profile.profileService
+import com.example.documentsearch.ui.theme.Status
 
 class UpdateServiceInProfile : ClientAPI() {
     suspend fun updatePersonalNameUsingEmail(email: String, personalName: String): Boolean {
@@ -11,8 +12,8 @@ class UpdateServiceInProfile : ClientAPI() {
                 email = email,
                 personalName = personalName
             )
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось обновить пользовательское имя")
@@ -33,8 +34,8 @@ class UpdateServiceInProfile : ClientAPI() {
                 email = email,
                 personalInfo = personalInfo
             )
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось обновить информацию о профиле")
@@ -55,8 +56,8 @@ class UpdateServiceInProfile : ClientAPI() {
                 email = email,
                 phoneNumber = phoneNumber
             )
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось обновить номер телефона")
@@ -77,8 +78,8 @@ class UpdateServiceInProfile : ClientAPI() {
                 oldEmail = oldEmail,
                 newEmail = newEmail
             )
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось обновить почту")
@@ -100,8 +101,8 @@ class UpdateServiceInProfile : ClientAPI() {
                 oldPassword = oldPassword,
                 newPassword = newPassword
             )
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось обновить пароль")
@@ -119,8 +120,8 @@ class UpdateServiceInProfile : ClientAPI() {
     suspend fun updateTagsUsingEmail(email: String, tags: String): Boolean {
         try {
             val response = profileService.updateTagsUsingEmail(email = email, tags = tags)
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось обновить теги")
@@ -135,71 +136,14 @@ class UpdateServiceInProfile : ClientAPI() {
         return false
     }
 
-    suspend fun addTagUsingEmail(email: String, tag: String): Boolean {
-        try {
-            val response = profileService.addTagUsingEmail(email = email, tag = tag)
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
-                return true
-
-            Log.i("Запрос", "Не удалось добавить тег пользователю")
-        } catch (exception: Exception) {
-            Log.e(
-                "Ошибка выполнения запроса!",
-                "В запросе на добавление тега пользователю произошла ошибка! " +
-                        "Ошибка: ${exception.message}"
-            )
-        }
-
-        return false
-    }
-
-    suspend fun deleteTagUsingEmail(email: String, tag: String): Boolean {
-        try {
-            val response = profileService.deleteTagUsingEmail(email = email, tag = tag)
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
-                return true
-
-            Log.i("Запрос", "Не удалось удалить тег пользователю")
-        } catch (exception: Exception) {
-            Log.e(
-                "Ошибка выполнения запроса!",
-                "В запросе на удаление тега пользователю произошла ошибка! " +
-                        "Ошибка: ${exception.message}"
-            )
-        }
-
-        return false
-    }
-
-    suspend fun addFriendUsingEmail(email: String, friend: String): Boolean {
-        try {
-            val response = profileService.addFriendUsingEmail(email = email, friend = friend)
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
-                return true
-
-            Log.i("Запрос", "Не удалось добавить друга пользователю")
-        } catch (exception: Exception) {
-            Log.e(
-                "Ошибка выполнения запроса!",
-                "В запросе на добавление друга пользователю произошла ошибка! " +
-                        "Ошибка: ${exception.message}"
-            )
-        }
-
-        return false
-    }
-
     suspend fun updatePasswordUsingPhoneNumber(phoneNumber: String, newPassword: String): Boolean {
         try {
             val response = profileService.updatePasswordUsingPhoneNumber(
                 phoneNumber = phoneNumber,
                 newPassword = newPassword
             )
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось обновить друзей пользователю")
@@ -220,8 +164,8 @@ class UpdateServiceInProfile : ClientAPI() {
                 email = email,
                 newPassword = newPassword
             )
-            val result = requestHandling(response = response)?.toInt()
-            if (result != 0)
+            val result = requestHandling(response = response)
+            if (result != Status.ERROR.status)
                 return true
 
             Log.i("Запрос", "Не удалось удалить друга пользователю")

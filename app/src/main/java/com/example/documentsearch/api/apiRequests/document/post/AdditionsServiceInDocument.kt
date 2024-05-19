@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Document.documentService
 import com.example.documentsearch.prototypes.DocumentPrototype
+import com.example.documentsearch.ui.theme.Status
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.Json.Default.decodeFromString
@@ -19,7 +20,7 @@ class AdditionsServiceInDocument: ClientAPI() {
         try {
             val response = documentService.addDocument(jsonPrototypeDocument = documentInRequestBody)
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.ERROR.status)
                 Log.i("Запрос", "Запрос на добавление документа вернул пустое значение")
             else
                 resultDocument = decodeFromString(string = json)

@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Tag.tagService
 import com.example.documentsearch.prototypes.TagPrototype
+import com.example.documentsearch.ui.theme.Status
 import kotlinx.serialization.json.Json.Default.decodeFromString
 
 class ReceivingServiceInTag : ClientAPI() {
@@ -14,7 +15,7 @@ class ReceivingServiceInTag : ClientAPI() {
         try {
             val response = tagService.getDocumentTags()
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.EMPTY.status)
                 Log.i("Запрос", "Запрос на получение тегов для документов вернул пустое значение")
             else
                 resultDocumentTags = decodeFromString(string = json)
@@ -35,7 +36,7 @@ class ReceivingServiceInTag : ClientAPI() {
         try {
             val response = tagService.getProfileTags()
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.EMPTY.status)
                 Log.i("Запрос", "Запрос на получение тегов для пользователей вернул пустое значение")
             else
                 resultProfileTags = decodeFromString(string = json)

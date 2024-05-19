@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.File.fileService
 import com.example.documentsearch.prototypes.FilePrototype
+import com.example.documentsearch.ui.theme.Status
 import kotlinx.serialization.json.Json.Default.decodeFromString
 
 class ReceivingServiceInFile : ClientAPI() {
@@ -12,7 +13,7 @@ class ReceivingServiceInFile : ClientAPI() {
         try {
             val response = fileService.getFile(idFile = id)
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.EMPTY.status)
                 Log.i("Запрос", "Запрос на получение файла вернул пустое значение")
             else
                 resultFile = decodeFromString(string = json)

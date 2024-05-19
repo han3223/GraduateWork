@@ -37,18 +37,21 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
+import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
 
 class SearchTag {
     @Composable
-    fun Container(
+    fun BasicContainer(
         titleTag: String,
         onTitleChange: (String) -> Unit,
         selectedTags: SnapshotStateList<TagPrototype>,
@@ -113,6 +116,54 @@ class SearchTag {
             }
         }
 
+    }
+
+    @Composable
+    fun ProfileContainer(
+        titleTag: String,
+        onTitleChange: (String) -> Unit,
+        selectedTags: SnapshotStateList<TagPrototype>,
+        onSelectedTagsChanged: (SnapshotStateList<TagPrototype>) -> Unit,
+        tags: List<TagPrototype>
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .height(250.dp)
+                    .background(MainColorLight, RoundedCornerShape(18.dp))
+                    .padding(10.dp)
+            ) {
+                Text(
+                    text = "Выбранные теги:",
+                    style = HIGHLIGHTING_BOLD_TEXT,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 2.dp, bottom = 5.dp)
+                )
+                Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(TextColor))
+                SelectedTags(selectedTags = selectedTags) {
+                    selectedTags.remove(it)
+                    onSelectedTagsChanged(selectedTags)
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .height(250.dp)
+                    .background(MainColorLight, RoundedCornerShape(18.dp))
+                    .padding(10.dp)
+            ) {
+                SearchTags(titleTag = titleTag) { onTitleChange(it) }
+                Tags(titleTag = titleTag, userSelectedTags = selectedTags, allTags = tags) {
+                    selectedTags.add(it)
+                    onSelectedTagsChanged(selectedTags)
+                }
+            }
+        }
     }
 
     @Composable
@@ -188,6 +239,15 @@ class SearchTag {
                             .padding(end = 5.dp)
                             .size(20.dp)
                     )
+                    if (titleTag.isEmpty() && !isFocused) {
+                        Text(
+                            text = "Поиск тегов",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.LightGray,
+                            modifier = Modifier.padding(start = 2.dp)
+                        )
+                    }
                     innerTextField()
                 }
             }

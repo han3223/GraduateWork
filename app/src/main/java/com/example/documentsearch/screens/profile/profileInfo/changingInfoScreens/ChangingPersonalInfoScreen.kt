@@ -34,11 +34,11 @@ class ChangingPersonalInfoScreen() : Screen, Parcelable {
                     val profileRequestServices = ProfileRequestServicesImpl()
                     val personalInfo =
                         profileRequestServices.updatePersonalInfoUsingEmail(
-                            cacheUserProfile.value.getData()!!.email,
+                            cacheUserProfile.value!!.email,
                             it
                         )
                     if (personalInfo != null) {
-                        cacheUserProfile.value.getData()!!.personalInfo = it
+                        cacheUserProfile.value!!.personalInfo = it
                         navigator.pop()
                     }
                 }

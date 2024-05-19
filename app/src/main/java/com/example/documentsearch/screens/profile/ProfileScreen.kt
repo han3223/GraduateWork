@@ -25,8 +25,6 @@ import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.documentsearch.cache.CacheProfileTags
-import com.example.documentsearch.cache.CacheUserProfile
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
 import com.example.documentsearch.preferences.passwordKeyPreferences
@@ -36,16 +34,14 @@ import com.example.documentsearch.screens.profile.profileInfo.PersonalDocumentat
 import com.example.documentsearch.screens.profile.profileInfo.ProfileTags
 import com.example.documentsearch.ui.theme.AdditionalMainColorDark
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
+import com.example.documentsearch.ui.theme.cacheMessengers
+import com.example.documentsearch.ui.theme.cacheProfileTags
+import com.example.documentsearch.ui.theme.cacheUserProfile
 
 class ProfileScreen() : HeadersProfile(), Screen, Parcelable {
     private lateinit var preferencesManager: PreferencesManager
 
-    private val cacheUserProfile = CacheUserProfile()
-    private val cacheProfileTags = CacheProfileTags()
-
-    constructor(parcel: Parcel) : this() {
-
-    }
+    constructor(parcel: Parcel) : this()
 
     @Composable
     override fun Content() {
@@ -69,7 +65,7 @@ class ProfileScreen() : HeadersProfile(), Screen, Parcelable {
             state = lazyListState
         ) {
             item(0) {
-                val userProfile = cacheUserProfile.getUserFromCache()
+                val userProfile = cacheUserProfile.value
                 if (userProfile != null) {
                     val mainInfoProfile =
                         MainInfoProfile(userProfile, navigator)
@@ -77,8 +73,8 @@ class ProfileScreen() : HeadersProfile(), Screen, Parcelable {
                 }
             }
             item(1) {
-                val userProfile = cacheUserProfile.getUserFromCache()
-                val profileTags = cacheProfileTags.getProfileTagsFromCache()
+                val userProfile = cacheUserProfile.value
+                val profileTags = cacheProfileTags.value
                 if (userProfile != null && profileTags != null) {
                     val userTags = ProfileTags(
                         tags = profileTags,
@@ -126,7 +122,8 @@ class ProfileScreen() : HeadersProfile(), Screen, Parcelable {
 
                             preferencesManager.removeData(emailKeyPreferences)
                             preferencesManager.removeData(passwordKeyPreferences)
-                            cacheUserProfile.clearData()
+                            cacheUserProfile.value = null
+                            cacheMessengers.value = listOf()
                         })
                     }
             )

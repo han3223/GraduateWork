@@ -9,25 +9,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import com.example.documentsearch.R
-import com.example.documentsearch.cache.CacheFactory
-import com.example.documentsearch.prototypes.AnotherUserProfilePrototype
+import com.example.documentsearch.prototypes.ChatData
 import com.example.documentsearch.prototypes.DocumentPrototype
-import com.example.documentsearch.prototypes.MessengerPrototype
 import com.example.documentsearch.prototypes.TagPrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
 import java.time.format.DateTimeFormatter
 
+enum class Status(val status: String) {
+    OK("0"),
+    ERROR("-1"),
+    EMPTY("1")
+}
+
+val isDocumentLoad = mutableStateOf(false)
+val isProfilesLoad = mutableStateOf(false)
+
 val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
 val isClickBlock = mutableStateOf(false)
-val documents = mutableStateOf(listOf<DocumentPrototype>())
 
-val cacheUserProfile = mutableStateOf(CacheFactory<UserProfilePrototype>())
-val cacheMessengers = mutableStateOf(CacheFactory<List<MessengerPrototype>>())
-val cacheAllUsersProfile = mutableStateOf(CacheFactory<List<AnotherUserProfilePrototype>>())
-val cacheProfileTags = mutableStateOf(CacheFactory<List<TagPrototype>>())
-val cacheDocumentTags = mutableStateOf(CacheFactory<List<TagPrototype>>())
+val cacheUserProfile = mutableStateOf<UserProfilePrototype?>(null)
+val cacheMessengers = mutableStateOf(listOf<ChatData>())
+val cacheAllUserProfile = mutableStateOf(listOf<UserProfilePrototype>())
+val cacheProfileTags = mutableStateOf(listOf<TagPrototype>())
+val cacheDocumentTags = mutableStateOf(listOf<TagPrototype>())
 val cacheDocuments = mutableStateOf(listOf<DocumentPrototype>())
+val cacheUserDocuments = mutableStateOf(listOf<DocumentPrototype>())
 
 enum class EnumCategories(val category: String) {
     NOT_SELECTED("Не выбрано"),

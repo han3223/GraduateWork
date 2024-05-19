@@ -29,7 +29,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.documentsearch.R
-import com.example.documentsearch.prototypes.DocumentPrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.AdditionalMainColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
@@ -37,6 +36,7 @@ import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheUserDocuments
 
 class PersonalDocumentation {
     @Composable
@@ -46,10 +46,10 @@ class PersonalDocumentation {
         Box(
             modifier = Modifier
                 .zIndex(2f)
-                .padding(top = 15.dp)
+                .padding(top = 5.dp)
                 .fillMaxWidth()
                 .heightIn(0.dp, 305.dp)
-                .clip(shape = RoundedCornerShape(size = 33.dp))
+                .clip(shape = RoundedCornerShape(18.dp, 18.dp, 33.dp, 33.dp))
                 .background(color = MainColorLight)
         ) {
             LazyColumn {
@@ -67,7 +67,7 @@ class PersonalDocumentation {
                             .background(AdditionalColor)
                     )
                 }
-                itemsIndexed(items = mutableListOf<DocumentPrototype>()) { index, item ->
+                itemsIndexed(items = cacheUserDocuments.value) { index, item ->
                     if (index <= documentationsVisible) {
                         Row(
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp),

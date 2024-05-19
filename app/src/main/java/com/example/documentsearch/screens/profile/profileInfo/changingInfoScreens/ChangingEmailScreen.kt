@@ -42,11 +42,11 @@ class ChangingEmailScreen() : Screen, Parcelable {
                     val profileRequestServices = ProfileRequestServicesImpl()
                     val email =
                         profileRequestServices.updateEmailUsingOldEmail(
-                            cacheUserProfile.value.getData()!!.email,
+                            cacheUserProfile.value!!.email,
                             it
                         )
                     if (email != null) {
-                        cacheUserProfile.value.getData()!!.email = it
+                        cacheUserProfile.value!!.email = it
                         navigator.pop()
                     }
                 }
@@ -60,7 +60,7 @@ class ChangingEmailScreen() : Screen, Parcelable {
                     val profileRequestServices = ProfileRequestServicesImpl()
                     val profileByEmail = profileRequestServices.getProfileUsingEmail(it)
                     isValidEmail =
-                        !(profileByEmail != null && it.isNotEmpty() && profileByEmail != cacheUserProfile.value.getData())
+                        !(profileByEmail != null && it.isNotEmpty() && profileByEmail != cacheUserProfile.value)
                     validationEmail = validation.isValidEmail(it) && isValidEmail
                 }
             }

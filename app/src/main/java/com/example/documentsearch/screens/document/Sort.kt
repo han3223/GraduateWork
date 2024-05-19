@@ -32,7 +32,9 @@ import com.example.documentsearch.ui.theme.SortDateNew
 import com.example.documentsearch.ui.theme.SortDateOld
 import com.example.documentsearch.ui.theme.SortZA
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheDocuments
 import com.example.documentsearch.ui.theme.isClickBlock
+import java.time.LocalDate
 
 class Sort {
     private val activeSortElement = mutableStateOf(SortAZ)
@@ -89,6 +91,20 @@ class Sort {
                                     sizeMultiplier.animateTo(0.95f, animationSpec = spring())
                                     awaitRelease()
                                     sizeMultiplier.animateTo(1f, animationSpec = spring())
+
+                                    when (activeSortElement.value) {
+                                        SortAZ -> cacheDocuments.value =
+                                            cacheDocuments.value.sortedBy { it.title }
+
+                                        SortZA -> cacheDocuments.value =
+                                            cacheDocuments.value.sortedByDescending { it.title }
+
+                                        SortDateOld -> cacheDocuments.value =
+                                            cacheDocuments.value.sortedBy { LocalDate.parse(it.date) }
+
+                                        SortDateNew -> cacheDocuments.value =
+                                            cacheDocuments.value.sortedByDescending { LocalDate.parse(it.date) }
+                                    }
                                 }
                             )
                         },

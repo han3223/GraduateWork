@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.documentsearch.api.ClientAPI
 import com.example.documentsearch.api.ClientAPI.Message.messageServices
 import com.example.documentsearch.prototypes.MessagePrototype
+import com.example.documentsearch.ui.theme.Status
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.Json.Default.decodeFromString
@@ -19,7 +20,7 @@ class AdditionsServiceInMessage: ClientAPI() {
         try {
             val response = messageServices.addMessage(jsonPrototypeMessage = messageInRequestBody)
             val json = requestHandling(response = response)
-            if (json == null)
+            if (json == Status.EMPTY.status)
                 Log.i("Запрос", "Запрос на добавление сообщения вернул пустое значение")
             else
                 resultMessage = decodeFromString(string = json)

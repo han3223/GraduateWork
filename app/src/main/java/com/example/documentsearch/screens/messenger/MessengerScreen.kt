@@ -2,6 +2,7 @@ package com.example.documentsearch.screens.messenger
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,18 +38,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.documentsearch.R
-import com.example.documentsearch.cache.CacheUserMessengers
 import com.example.documentsearch.navbar.SVGFactory
 import com.example.documentsearch.patterns.HeaderFactory
-import com.example.documentsearch.prototypes.MessengerPrototype
+import com.example.documentsearch.prototypes.ChatData
 import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
+import com.example.documentsearch.screens.messenger.communication.selectedMessenger
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
@@ -57,13 +56,12 @@ import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
-import com.example.documentsearch.ui.theme.isClickBlock
+import com.example.documentsearch.ui.theme.cacheMessengers
+import com.example.documentsearch.ui.theme.cacheUserProfile
 
 class MessengerScreen() : Screen, Parcelable {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
-
-    private val cacheUserMessengers = CacheUserMessengers()
 
     constructor(parcel: Parcel) : this()
 
@@ -80,7 +78,9 @@ class MessengerScreen() : Screen, Parcelable {
     private fun Header() {
         var isOpenMenu by remember { mutableStateOf(false) }
 
-        Box(modifier = Modifier.zIndex(2f).fillMaxWidth()) {
+        Box(modifier = Modifier
+            .zIndex(2f)
+            .fillMaxWidth()) {
             headerFactory.HeaderPrototype(height = heightHeader)
             if (isOpenMenu) {
                 Box(modifier = Modifier
@@ -115,23 +115,23 @@ class MessengerScreen() : Screen, Parcelable {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Box(modifier = Modifier.size(25.dp)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.menu),
-                    contentDescription = null,
-                    tint = TextColor,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    if (isClickBlock.value)
-                                        onOpenMenu()
-                                }
-                            )
-                        }
-                )
-            }
+//            Box(modifier = Modifier.size(25.dp)) {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.menu),
+//                    contentDescription = null,
+//                    tint = TextColor,
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .pointerInput(Unit) {
+//                            detectTapGestures(
+//                                onTap = {
+//                                    if (isClickBlock.value)
+//                                        onOpenMenu()
+//                                }
+//                            )
+//                        }
+//                )
+//            }
             Text(
                 text = "Мессенджер",
                 style = HEADING_TEXT
@@ -165,14 +165,22 @@ class MessengerScreen() : Screen, Parcelable {
 
     @Composable
     private fun Body() {
+        var messenger by remember { mutableStateOf(cacheMessengers.value) }
+
+        LaunchedEffect(cacheMessengers.value) {
+            messenger = cacheMessengers.value
+            Log.i("Проверка", messenger.toString())
+        }
+
         LazyColumn(
             modifier = Modifier
                 .zIndex(0f)
+                .padding(top = heightHeader - 33.dp)
                 .fillMaxWidth()
                 .background(MainColorLight)
         ) {
-            items(cacheUserMessengers.getMessengersFromCache()?: listOf()) { messenger ->
-                if (messenger.listMessage.isNotEmpty()) {
+            items(messenger) { messenger ->
+                if (messenger.messages.isNotEmpty()) {
                     Communication(messenger)
                     Spacer(modifier = Modifier
                         .height(1.dp)
@@ -184,25 +192,31 @@ class MessengerScreen() : Screen, Parcelable {
     }
 
     @Composable
-    private fun Communication(messenger: MessengerPrototype) {
+    private fun Communication(messenger: ChatData) {
         val navigator = LocalNavigator.currentOrThrow
+        val interlocutor = messenger.participants.first { it.id != cacheUserProfile.value!!.id}
         Row(
             modifier = Modifier
                 .padding(20.dp, 10.dp, 20.dp, 10.dp)
                 .pointerInput(Unit) {
-                    detectTapGestures(onTap = { navigator.push(CommunicationScreen(messenger)) })
+                    detectTapGestures(onTap = {
+                        selectedMessenger.value = messenger
+                        navigator.push(CommunicationScreen())
+                    })
                 },
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(modifier = Modifier.size(65.dp).background(AdditionalColor, CircleShape))
+            Box(modifier = Modifier
+                .size(65.dp)
+                .background(AdditionalColor, CircleShape))
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "${messenger.interlocutor.lastName} ${messenger.interlocutor.firstName}",
+                    text = "${interlocutor.lastName} ${interlocutor.firstName}",
                     style = HIGHLIGHTING_BOLD_TEXT
                 )
                 Text(
-                    text = "${messenger.listMessage.last().message.substring(0..30)}...",
+                    text = "${messenger.messages.last().message}",
                     style = SECONDARY_TEXT
                 )
             }

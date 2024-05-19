@@ -69,9 +69,9 @@ class SearchDocument {
             Column(modifier = Modifier.weight(1f)) {
                 SearchTextField(title = title) { title = it }
             }
-            Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.BottomCenter) {
-                AddedDocument()
-            }
+//            Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.BottomCenter) {
+//                AddedDocument()
+//            }
             Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.BottomCenter) {
                 SearchButton(
                     title = title,

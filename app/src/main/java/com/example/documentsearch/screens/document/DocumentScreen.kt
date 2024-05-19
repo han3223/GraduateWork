@@ -71,8 +71,8 @@ import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import coil.compose.AsyncImagePainter
 import com.example.documentsearch.R
+import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.file.FileRequestServicesImpl
-import com.example.documentsearch.cache.CacheDocumentTags
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.patterns.WorkWithPDF
 import com.example.documentsearch.prototypes.DocumentPrototype
@@ -90,31 +90,50 @@ import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.SORT
 import com.example.documentsearch.ui.theme.TextColor
+import com.example.documentsearch.ui.theme.cacheDocumentTags
 import com.example.documentsearch.ui.theme.cacheDocuments
-import com.example.documentsearch.ui.theme.documents
+import com.example.documentsearch.ui.theme.isDocumentLoad
+import com.example.documentsearch.ui.theme.isProfilesLoad
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.Base64
 
 class DocumentScreen() : Screen, Parcelable {
     private val heightHeader = 160.dp
     private val headerFactory = HeaderFactory()
 
-    private val cacheDocumentTags = CacheDocumentTags()
-
     private val searchDocument = SearchDocument()
-    private val searchSupport =
-        SearchSupport(cacheDocumentTags.getDocumentTagsFromCache() ?: listOf())
+    private val searchSupport = SearchSupport(cacheDocumentTags.value)
 
     constructor(parcel: Parcel) : this()
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     override fun Content() {
-        Box {
-            Header()
-            Body()
+        var isRefreshing by remember { mutableStateOf(false) }
+        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+        val documentRequestService = DocumentRequestServicesImpl()
+
+        LaunchedEffect(isRefreshing) {
+            if (isRefreshing) {
+                isProfilesLoad.value = false
+                cacheDocuments.value = documentRequestService.getAllDocuments()
+                isRefreshing = false
+            }
+        }
+        SwipeRefresh(
+            state = swipeRefreshState,
+            refreshTriggerDistance = 100.dp,
+            onRefresh = { isRefreshing = true }) {
+            Box {
+                Header()
+                Body()
+            }
         }
     }
 
@@ -180,8 +199,8 @@ class DocumentScreen() : Screen, Parcelable {
         searchSupport.SupportActive(
             isActiveSort = isActiveSort,
             isActiveFilter = isActiveFilter,
-            dateFrom = dateFrom?: LocalDate.parse("1800-01-01"),
-            dateBefore = dateBefore?: LocalDate.now(),
+            dateFrom = dateFrom ?: LocalDate.parse("1800-01-01"),
+            dateBefore = dateBefore ?: LocalDate.now(),
             category = category,
             selectedTags = tags,
             onDateFromChange = { dateFrom = it },
@@ -196,25 +215,43 @@ class DocumentScreen() : Screen, Parcelable {
     private fun Body() {
         val rememberLazyScrollState = rememberLazyListState()
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp, heightHeader - 33.dp, 5.dp, 0.dp),
-            state = rememberLazyScrollState
-        ) {
-            itemsIndexed(
-                items = cacheDocuments.value
-            ) { index, document ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 5.dp)
-                ) {
-                    DocumentElement(document, rememberLazyScrollState)
+        if (cacheDocuments.value.isEmpty() && !isDocumentLoad.value) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp, heightHeader - 33.dp, 5.dp, 0.dp)
+            ) {
+                for (i in 0..20) {
+                    Box(
+                        modifier = Modifier
+                            .height(150.dp)
+                            .fillMaxWidth()
+                            .padding(top = 5.dp)
+                            .background(AdditionalColor, RoundedCornerShape(size = 28.dp))
+                    )
                 }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(5.dp, heightHeader - 33.dp, 5.dp, 0.dp),
+                state = rememberLazyScrollState
+            ) {
+                itemsIndexed(
+                    items = cacheDocuments.value
+                ) { index, document ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 5.dp)
+                    ) {
+                        DocumentElement(document, rememberLazyScrollState)
+                    }
 
-                if (index == documents.value.lastIndex)
-                    Spacer(modifier = Modifier.height(90.dp))
+                    if (index == cacheDocuments.value.lastIndex)
+                        Spacer(modifier = Modifier.height(90.dp))
+                }
             }
         }
     }
@@ -243,13 +280,15 @@ class DocumentScreen() : Screen, Parcelable {
                 val fileInByteArray: ByteArray?
                 val fileRequestService = FileRequestServicesImpl()
 
-                fileInByteArray = fileRequestService.getFile(document.document)?.file
+                fileInByteArray =
+                    Base64.getDecoder().decode(fileRequestService.getFile(document.file_id)?.file)
 
                 Log.i("Полученный файл", fileInByteArray.toString())
 
                 if (fileInByteArray != null) {
                     try {
-                        val outputUri = workWithPDF.createNewPdfFileUri(context = context, fileName = fileName)
+                        val outputUri =
+                            workWithPDF.createNewPdfFileUri(context = context, fileName = fileName)
                         val outputStream = context.contentResolver.openOutputStream(outputUri)
                         outputStream?.use { output ->
                             output.write(fileInByteArray)
@@ -267,7 +306,11 @@ class DocumentScreen() : Screen, Parcelable {
                             )
                         )
                     } catch (exception: Exception) {
-                        Toast.makeText(context, "Возникла ошибка при загрузке файла", Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            context,
+                            "Возникла ошибка при загрузке файла",
+                            Toast.LENGTH_LONG
+                        )
                             .show()
                         Log.i("Ошибка", "Ошибка в загрузке файла: ${exception.message}")
                     }
@@ -383,7 +426,7 @@ class DocumentScreen() : Screen, Parcelable {
     }
 
     @Composable
-    private fun TagsDocument(tags: List<String>) {
+    private fun TagsDocument(tags: String) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -414,7 +457,7 @@ class DocumentScreen() : Screen, Parcelable {
     }
 
     @Composable
-    private fun Tags(tags: List<String>) {
+    private fun Tags(tags: String) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -424,25 +467,30 @@ class DocumentScreen() : Screen, Parcelable {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            tags.forEach { title ->
-                Box(
-                    modifier = Modifier
-                        .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
-                        .background(
-                            color = MainColorDark,
-                            shape = RoundedCornerShape(size = 14.dp)
+            tags
+                .replace("[", "")
+                .replace("]", "")
+                .split(",")
+                .map { it.trim() }
+                .forEach { title ->
+                    Box(
+                        modifier = Modifier
+                            .border(1.dp, Color(0xCC354643), RoundedCornerShape(14.dp))
+                            .background(
+                                color = MainColorDark,
+                                shape = RoundedCornerShape(size = 14.dp)
+                            )
+                    ) {
+                        Text(
+                            text = title,
+                            style = ORDINARY_TEXT,
+                            modifier = Modifier.padding(
+                                vertical = 5.dp,
+                                horizontal = 10.dp
+                            )
                         )
-                ) {
-                    Text(
-                        text = title,
-                        style = ORDINARY_TEXT,
-                        modifier = Modifier.padding(
-                            vertical = 5.dp,
-                            horizontal = 10.dp
-                        )
-                    )
+                    }
                 }
-            }
         }
     }
 
@@ -511,7 +559,9 @@ class DocumentScreen() : Screen, Parcelable {
             visible = isOpenDescription,
             enter = slideInVertically() + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
             exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-            modifier = Modifier.zIndex(1f).padding(top = 90.dp)
+            modifier = Modifier
+                .zIndex(1f)
+                .padding(top = 90.dp)
         ) {
             Box(
                 modifier = Modifier

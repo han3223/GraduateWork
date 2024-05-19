@@ -9,9 +9,12 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface MessengerRequestServices {
-    @GET("requests/messenger/getMessengersByUser")
+    @GET("messengers-get/by-participants")
+    suspend fun getMessengerByParticipants(@Query("participants") participants: String): Response<ResponseBody>
+
+    @GET("messengers-get/by-user")
     suspend fun getAllMessengersUsingUserId(@Query("user") userId: Long): Response<ResponseBody>
 
-    @POST("requests/messenger/addMessenger")
+    @POST("messengers-post/add")
     suspend fun addMessenger(@Body jsonPrototypeMessenger: RequestBody): Response<ResponseBody>
 }

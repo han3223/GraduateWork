@@ -25,11 +25,11 @@ class ChangingNumberPhoneScreen() : Screen, Parcelable {
             CoroutineScope(Dispatchers.Main).launch {
                 val profileRequestServices = ProfileRequestServicesImpl()
                 val phoneNumber = profileRequestServices.updateNumberPhoneUsingEmail(
-                    cacheUserProfile.value.getData()!!.email,
+                    cacheUserProfile.value!!.email,
                     it
                 )
                 if (phoneNumber != null) {
-                    cacheUserProfile.value.getData()!!.telephoneNumber = it
+                    cacheUserProfile.value!!.phoneNumber = it
                     navigator.pop()
                 }
             }

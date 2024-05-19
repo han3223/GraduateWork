@@ -105,7 +105,11 @@ class PhoneInput(
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 invalidList.forEach {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 3.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         if (it.invalid != null) {
                             Icon(
                                 imageVector = if (it.invalid!!) Icons.Default.Close else Icons.Default.Check,
@@ -160,6 +164,7 @@ class PhoneInput(
                             .horizontalScroll(rememberScrollState())
                             .padding(horizontal = 2.dp)
                     ) { innerTextField() }
+
                     if (activeTextField || active) {
                         Spacer(modifier = Modifier.fillMaxWidth().height(1.dp).background(validColor))
                     }

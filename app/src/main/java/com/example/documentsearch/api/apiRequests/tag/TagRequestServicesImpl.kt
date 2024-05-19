@@ -6,8 +6,6 @@ import com.example.documentsearch.api.apiRequests.tag.get.ReceivingServiceInTag
 import com.example.documentsearch.api.apiRequests.tag.post.AdditionsServiceInTag
 import com.example.documentsearch.api.apiRequests.tag.put.UpdateServiceInTag
 import com.example.documentsearch.prototypes.TagPrototype
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 class TagRequestServicesImpl {
     private val additionsServiceInTagDelegate = AdditionsServiceInTag()

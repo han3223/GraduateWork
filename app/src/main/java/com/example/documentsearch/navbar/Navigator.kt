@@ -2,11 +2,18 @@ package com.example.documentsearch.navbar
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.animation.OvershootInterpolator
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,19 +23,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.FadeTransition
+import com.example.documentsearch.R
+import com.example.documentsearch.api.SocketManager
 import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
 import com.example.documentsearch.api.apiRequests.tag.TagRequestServicesImpl
-import com.example.documentsearch.cache.CacheAllUsersProfile
-import com.example.documentsearch.cache.CacheDocumentTags
-import com.example.documentsearch.cache.CacheProfileTags
-import com.example.documentsearch.cache.CacheUserMessengers
-import com.example.documentsearch.cache.CacheUserProfile
+import com.example.documentsearch.api.apiRequests.testConnection.TestConnectionRequestServicesImpl
 import com.example.documentsearch.patterns.InternetConnectionFactory
 import com.example.documentsearch.preferences.PreferencesManager
 import com.example.documentsearch.preferences.emailKeyPreferences
@@ -36,14 +45,22 @@ import com.example.documentsearch.preferences.passwordKeyPreferences
 import com.example.documentsearch.screens.addUser.AddUserScreen
 import com.example.documentsearch.screens.document.DocumentScreen
 import com.example.documentsearch.screens.document.addDocument.AddDocumentForm
+import com.example.documentsearch.screens.errors.FailedConnectionRequest
 import com.example.documentsearch.screens.errors.FailedInternetConnection
 import com.example.documentsearch.screens.messenger.MessengerScreen
 import com.example.documentsearch.screens.profile.ProfileScreen
 import com.example.documentsearch.screens.profile.authenticationUser.LoginScreen
 import com.example.documentsearch.ui.theme.BackgroundColor
+import com.example.documentsearch.ui.theme.cacheAllUserProfile
+import com.example.documentsearch.ui.theme.cacheDocumentTags
 import com.example.documentsearch.ui.theme.cacheDocuments
+import com.example.documentsearch.ui.theme.cacheMessengers
+import com.example.documentsearch.ui.theme.cacheProfileTags
+import com.example.documentsearch.ui.theme.cacheUserDocuments
+import com.example.documentsearch.ui.theme.cacheUserProfile
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,16 +69,11 @@ import kotlin.system.measureTimeMillis
 enum class StatusAddDocumentForm { OPEN, CLOSE, NEUTRAL }
 
 class Navigator {
-    private val cacheUserProfile = CacheUserProfile()
-    private val cacheUserMessengers = CacheUserMessengers()
-    private val cacheAllUsersProfile = CacheAllUsersProfile()
-    private val cacheProfileTags = CacheProfileTags()
-    private val cacheDocumentTags = CacheDocumentTags()
-
     private val profileRequestService = ProfileRequestServicesImpl()
     private val messengerRequestService = MessengersRequestServicesImpl()
     private val tagRequestService = TagRequestServicesImpl()
     private val documentRequestService = DocumentRequestServicesImpl()
+    private val testConnectionRequestService = TestConnectionRequestServicesImpl()
 
     private val internetConnectionFactory = InternetConnectionFactory()
 
@@ -76,41 +88,86 @@ class Navigator {
         savedEmail = preferencesManager.getData(emailKeyPreferences)
         savedPassword = preferencesManager.getData(passwordKeyPreferences)
 
+        var isFinishAnimation by remember { mutableStateOf(false) }
         var isInternetConnection by remember {
             mutableStateOf(internetConnectionFactory.internetConnectionCheck(context))
         }
+        var isConnectionRequest by remember { mutableStateOf(false) }
         var isCompletedDataDownload by remember { mutableStateOf(false) }
 
         if (isInternetConnection) {
-            SuccessfulInternetConnection(isCompletedDataDownload) { isCompletedDataDownload = it }
-        } else {
-            FailInternetConnection(
-                onCompleteChange = { isCompletedDataDownload = it },
-                onConnectionChange = { isInternetConnection = it }
-            )
+            LaunchedEffect(Unit) {
+                isConnectionRequest =
+                    async { testConnectionRequestService.getConnection() }.await()
+                if (isConnectionRequest) {
+                    getBaseInformationFromDatabase()
+                    isCompletedDataDownload = true
+                }
+            }
         }
+
+        if (isFinishAnimation) {
+            if (isInternetConnection) {
+                if (isConnectionRequest)
+                    SuccessfulInternetConnection()
+                else
+                    FailRequests(
+                        onCompleteChange = { isCompletedDataDownload = true },
+                        onRequestChange = { isConnectionRequest = true }
+                    )
+            } else {
+                FailInternetConnection(
+                    onCompleteChange = { isCompletedDataDownload = true },
+                    onConnectionChange = { isInternetConnection = true }
+                )
+            }
+        }
+        else
+            LoadingAnimation { isFinishAnimation = true }
     }
 
     @Composable
-    private fun SuccessfulInternetConnection(
-        isCompletedDataDownload: Boolean,
-        onCompleteChange: (Boolean) -> Unit
-    ) {
-        if (isCompletedDataDownload)
-            ScreenHandler()
-        else {
-            LaunchedEffect(Unit) {
-                getBaseInformationFromDatabase()
-                getUserMessengers()
-                onCompleteChange(true)
+    private fun SuccessfulInternetConnection() {
+        ScreenHandler()
+    }
+
+    @Composable
+    fun LoadingAnimation(isFinishAnimation: () -> Unit) {
+        val scale = remember {
+            Animatable(0f)
+        }
+
+        LaunchedEffect(key1 = true) {
+            scale.animateTo(
+                targetValue = 0.7f,
+                animationSpec = tween(
+                    durationMillis = 800,
+                    easing = { OvershootInterpolator(4f).getInterpolation(it) })
+            )
+
+            isFinishAnimation()
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = BackgroundColor)
+        ) {
+            Row(modifier = Modifier.scale(scale.value)) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_app),
+                    modifier = Modifier.clip(RoundedCornerShape(30.dp)),
+                    contentDescription = "Logo"
+                )
             }
         }
     }
 
     @Composable
     private fun FailInternetConnection(
-        onCompleteChange: (Boolean) -> Unit,
-        onConnectionChange: (Boolean) -> Unit
+        onCompleteChange: () -> Unit,
+        onConnectionChange: () -> Unit
     ) {
         val context = LocalContext.current
         var isRefreshing by remember { mutableStateOf(false) }
@@ -120,32 +177,67 @@ class Navigator {
             if (isRefreshing) {
                 if (internetConnectionFactory.internetConnectionCheck(context)) {
                     getBaseInformationFromDatabase()
-                    getUserMessengers()
-                    onCompleteChange(true)
-                    onConnectionChange(true)
+                    onCompleteChange()
+                    onConnectionChange()
                 }
-                delay(1000)
+                delay(500)
                 isRefreshing = false
             }
         }
 
-        SwipeRefresh(state = swipeRefreshState, onRefresh = { isRefreshing = true }) {
+        SwipeRefresh(indicatorPadding = PaddingValues(top = 30.dp), state = swipeRefreshState, onRefresh = { isRefreshing = true }) {
             val errorInternetConnection = FailedInternetConnection()
             errorInternetConnection.Content()
         }
     }
 
+    @Composable
+    private fun FailRequests(
+        onCompleteChange: () -> Unit,
+        onRequestChange: () -> Unit
+    ) {
+        var isRefreshing by remember { mutableStateOf(false) }
+        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
+        LaunchedEffect(isRefreshing) {
+            if (isRefreshing) {
+                val isConnection = testConnectionRequestService.getConnection()
+                if (isConnection) {
+                    getBaseInformationFromDatabase()
+                    onCompleteChange()
+                    onRequestChange()
+                }
+
+                delay(500)
+                isRefreshing = false
+            }
+        }
+
+        SwipeRefresh(indicatorPadding = PaddingValues(top = 30.dp), state = swipeRefreshState, onRefresh = { isRefreshing = true }) {
+            val errorConnectionRequest = FailedConnectionRequest()
+            errorConnectionRequest.Content()
+        }
+    }
+
     private suspend fun getBaseInformationFromDatabase() {
-        val time  = measureTimeMillis {
+        val time = measureTimeMillis {
             coroutineScope {
-                launch { getUserProfile() }
-                launch { getAllUsers() }
+                launch {
+                    val userProfileDeferred = async { getUserProfile() }
+                    val allUsersDeferred = async { getAllUsers() }
+
+                    userProfileDeferred.await()
+                    allUsersDeferred.await()
+
+                    launch { getUserDocuments() }
+                    launch { getUserMessengers() }
+                }
                 launch { getProfileTags() }
                 launch { getDocumentTags() }
                 launch { getDocuments() }
             }
         }
-        Log.i("Время запросов", "${(time/1000)} секунд")
+        Log.i("Время запросов", "${(time / 1000)} секунд")
     }
 
     private suspend fun getUserProfile() {
@@ -153,32 +245,44 @@ class Navigator {
             val usersProfile =
                 profileRequestService.getProfileUsingEmailAndPassword(savedEmail!!, savedPassword!!)
             if (usersProfile != null) {
-                cacheUserProfile.loadUser(usersProfile)
+                cacheUserProfile.value = usersProfile
             }
         }
     }
 
-    private suspend fun getUserMessengers() {
-        val userProfile = cacheUserProfile.getUserFromCache()
+    private suspend fun getUserDocuments() {
+        val userProfile = cacheUserProfile.value
         if (userProfile != null) {
-            val userMessengers = messengerRequestService.getPrototypeMessengers(userProfile = userProfile)
-            cacheUserMessengers.loadMessengers(messengers = userMessengers)
+            val documents = documentRequestService.getDocumentsByUserId(userProfile.id!!)
+            cacheUserDocuments.value = documents
+        }
+    }
+
+    private suspend fun getUserMessengers() {
+        val userProfile = cacheUserProfile.value
+        if (userProfile != null) {
+            val userMessengers =
+                messengerRequestService.getAllMessengersUsingUserId(userProfile.id!!)
+            cacheMessengers.value = userMessengers
+            for (messenger in userMessengers) {
+                SocketManager.connectCommunicationRoom(messenger.id!!)
+            }
         }
     }
 
     private suspend fun getAllUsers() {
         val allUsersProfile = profileRequestService.getAllUsersProfile()
-        cacheAllUsersProfile.loadAllUserProfile(allUserProfile = allUsersProfile)
+        cacheAllUserProfile.value = allUsersProfile
     }
 
     private suspend fun getProfileTags() {
         val profileTags = tagRequestService.getProfileTags()
-        cacheProfileTags.loadProfileTags(profileTags = profileTags)
+        cacheProfileTags.value = profileTags
     }
 
     private suspend fun getDocumentTags() {
         val documentTags = tagRequestService.getDocumentTags()
-        cacheDocumentTags.loadDocumentTags(documentTags)
+        cacheDocumentTags.value = documentTags
     }
 
     private suspend fun getDocuments() {
@@ -191,7 +295,11 @@ class Navigator {
         Navigator(DocumentScreen()) { navigator ->
             Scaffold(
                 content = {
-                    Box(modifier = Modifier.fillMaxSize().background(BackgroundColor)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(BackgroundColor)
+                    ) {
                         FadeTransition(navigator)
                     }
                 },
@@ -241,7 +349,7 @@ class Navigator {
     }
 
     private fun navigationBarHandler(route: String, navigator: Navigator) {
-        if (route == "profile" && cacheUserProfile.getUserFromCache() == null)
+        if (route == "profile" && cacheUserProfile.value == null)
             navigator.push(LoginScreen())
         else
             when (route) {

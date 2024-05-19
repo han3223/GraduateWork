@@ -7,9 +7,9 @@ data class DocumentPrototype(
     val id: Long? = null,
     val title: String,
     val category: String,
-    val document: Long,
+    val file_id: Long,
     val date: String,
     val image: String? = null,
-    val user: Long,
-    val tags: List<String>,
+    val user_id: Long,
+    val tags: String,
     val description: String? = null)
