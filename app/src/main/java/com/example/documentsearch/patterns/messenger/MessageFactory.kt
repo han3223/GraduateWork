@@ -2,7 +2,9 @@ package com.example.documentsearch.patterns.messenger
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.documentsearch.navbar.SVGFactory
 import com.example.documentsearch.prototypes.MessagePrototype
@@ -22,12 +26,12 @@ import com.example.documentsearch.ui.theme.MainColorDark
 import com.example.documentsearch.ui.theme.MainColorLight
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.RIGHT_INDICATOR
+import com.example.documentsearch.ui.theme.SECONDARY_TEXT
 import com.example.documentsearch.ui.theme.cacheUserProfile
 
 class MessageFactory {
     @Composable
     fun Message(message: MessagePrototype, isRepeatMyMessage: Boolean) {
-        // TODO(Разобраться с тем как поставить время, также доделать галочки при прочтении и редактировании сообщения)
         val user = cacheUserProfile.value
         var widthLastLineText by remember { mutableStateOf(0.dp) }
 
@@ -46,7 +50,7 @@ class MessageFactory {
                 }
             }
 
-            Box(
+            Column(
                 modifier = Modifier
                     .padding(
                         start = if (message.user_id != user?.id) 7.dp else 0.dp,
@@ -58,7 +62,7 @@ class MessageFactory {
                     )
             ) {
                 Text(
-                    modifier = Modifier.padding(7.dp),
+                    modifier = Modifier.padding(10.dp, 5.dp, 10.dp, 5.dp),
                     text = message.message,
                     style = ORDINARY_TEXT,
                     onTextLayout = {
@@ -71,13 +75,11 @@ class MessageFactory {
                     }
                 )
 
-                Row(modifier = Modifier.align(Alignment.BottomEnd)) {
-//                    Text(
-//                        modifier = Modifier.padding(5.dp),
-//                        text = message.time,
-//                        style = SECONDARY_TEXT,
-//                    )
-                }
+                Text(
+                    modifier = Modifier.align(Alignment.End).padding(10.dp, 0.dp, 10.dp, 5.dp),
+                    text = message.time.substringBeforeLast(':'),
+                    style = SECONDARY_TEXT.merge(TextStyle(textAlign = TextAlign.End)),
+                )
             }
         }
     }

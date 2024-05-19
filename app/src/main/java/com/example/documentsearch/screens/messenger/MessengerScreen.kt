@@ -48,6 +48,7 @@ import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.prototypes.ChatData
 import com.example.documentsearch.screens.messenger.communication.CommunicationScreen
 import com.example.documentsearch.screens.messenger.communication.selectedMessenger
+import com.example.documentsearch.screens.messenger.communication.selectedUser
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.HEADING_TEXT
 import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
@@ -200,6 +201,7 @@ class MessengerScreen() : Screen, Parcelable {
                 .padding(20.dp, 10.dp, 20.dp, 10.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = {
+                        selectedUser.value = interlocutor
                         selectedMessenger.value = messenger
                         navigator.push(CommunicationScreen())
                     })

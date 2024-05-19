@@ -22,7 +22,7 @@ object SocketManager {
                 reconnectionDelay = 1000
                 reconnectionDelayMax = 5000
             }
-            socket = IO.socket("http://192.168.43.35:5000", options)
+            socket = IO.socket("http://192.168.0.6:5000", options)
 
             socket?.connect()
         } catch (e: URISyntaxException) {

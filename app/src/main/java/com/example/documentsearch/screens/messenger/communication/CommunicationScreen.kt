@@ -3,14 +3,17 @@ package com.example.documentsearch.screens.messenger.communication
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -23,6 +26,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +47,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.SocketManager
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.navbar.SVGFactory
@@ -51,8 +60,10 @@ import com.example.documentsearch.prototypes.MessagePrototype
 import com.example.documentsearch.prototypes.UserProfilePrototype
 import com.example.documentsearch.ui.theme.AdditionalColor
 import com.example.documentsearch.ui.theme.BackgroundColor
+import com.example.documentsearch.ui.theme.EnumCategories
 import com.example.documentsearch.ui.theme.HEADER_LEFT
 import com.example.documentsearch.ui.theme.HEADER_RIGHT
+import com.example.documentsearch.ui.theme.HIGHLIGHTING_BOLD_TEXT
 import com.example.documentsearch.ui.theme.MainColor
 import com.example.documentsearch.ui.theme.ORDINARY_TEXT
 import com.example.documentsearch.ui.theme.TextColor
@@ -111,6 +122,32 @@ class CommunicationScreen : Screen, Parcelable {
     @Composable
     private fun Header() {
         headerFactory.HeaderPrototype(height = heightHeader)
+        val navigator = LocalNavigator.currentOrThrow
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(heightHeader)
+                .padding(20.dp, 0.dp, 20.dp, 40.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = null,
+                tint = TextColor,
+                modifier = Modifier.padding(bottom = 7.dp)
+                    .clickable {
+                        navigator.pop()
+                        Log.i("test", "test")
+                    }
+            )
+            Box(modifier = Modifier.padding(start = 20.dp).size(40.dp).background(AdditionalColor, CircleShape))
+            Text(
+                modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
+                text = "${selectedUser.value?.lastName} ${selectedUser.value?.firstName}",
+                style = HIGHLIGHTING_BOLD_TEXT
+            )
+        }
     }
 
     @Composable
@@ -136,7 +173,7 @@ class CommunicationScreen : Screen, Parcelable {
                                 .align(if (item.user_id == user?.id) Alignment.CenterEnd else Alignment.CenterStart)
                                 .padding(
                                     start = if (item.user_id == user?.id) 30.dp else 5.dp,
-                                    end = if (item.user_id == user?.id) 30.dp else 5.dp,
+                                    end = if (item.user_id == user?.id) 5.dp else 30.dp,
                                     top = if (index != 0 && messages[index - 1].user_id == user?.id) 2.dp else 10.dp
                                 )
                         ) {

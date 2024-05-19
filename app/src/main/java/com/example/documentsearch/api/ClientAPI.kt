@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 open class ClientAPI {
     companion object {
-        private const val ADDRESS = "http://192.168.43.35"
+        private const val ADDRESS = "http://192.168.0.6"
         private const val PORT = "5000"
         private const val BASE_URL = "$ADDRESS:$PORT/"
 
