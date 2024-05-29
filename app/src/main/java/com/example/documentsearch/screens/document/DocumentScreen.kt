@@ -69,6 +69,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import coil.compose.AsyncImagePainter
 import com.example.documentsearch.R
 import com.example.documentsearch.api.apiRequests.document.DocumentRequestServicesImpl
@@ -109,7 +111,9 @@ class DocumentScreen() : Screen, Parcelable {
     private val searchDocument = SearchDocument()
     private val searchSupport = SearchSupport(cacheDocumentTags.value)
 
-    constructor(parcel: Parcel) : this()
+    override val key: ScreenKey = uniqueScreenKey
+    constructor(parcel: Parcel) : this() {
+    }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
@@ -359,11 +363,11 @@ class DocumentScreen() : Screen, Parcelable {
                     }
                     //PercentageDocument(document.percent.toInt().toString(), percent)
                 }
-                TagsDocument(document.tags)
+//                TagsDocument(document.tags)
 
                 Row(
                     modifier = Modifier
-                        .padding(21.dp, 0.dp, 11.dp, 12.dp)
+                        .padding(11.dp, 5.dp, 11.dp, 12.dp)
                         .fillMaxWidth()
                         .background(Color.Transparent, RoundedCornerShape(14.dp)),
                     verticalAlignment = Alignment.CenterVertically,
@@ -561,7 +565,7 @@ class DocumentScreen() : Screen, Parcelable {
             exit = slideOutVertically() + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
             modifier = Modifier
                 .zIndex(1f)
-                .padding(top = 90.dp)
+                .padding(top = 50.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -603,7 +607,6 @@ class DocumentScreen() : Screen, Parcelable {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-
     }
 
     override fun describeContents(): Int {

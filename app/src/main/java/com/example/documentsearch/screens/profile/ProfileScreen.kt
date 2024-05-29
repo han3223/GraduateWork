@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.preferences.PreferencesManager
@@ -40,6 +42,8 @@ import com.example.documentsearch.ui.theme.cacheUserProfile
 
 class ProfileScreen() : HeadersProfile(), Screen, Parcelable {
     private lateinit var preferencesManager: PreferencesManager
+
+    override val key: ScreenKey = uniqueScreenKey
 
     constructor(parcel: Parcel) : this()
 

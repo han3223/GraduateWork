@@ -167,7 +167,8 @@ class AddDocumentForm {
                 Box(modifier = Modifier.weight(0.5f)) { AddFileButton { documentInString = it } }
                 Box(modifier = Modifier.weight(0.5f)) { SelectCategory(category) { category = it } }
             }
-            SelectTags(selectedTags = selectedTags) { selectedTags = it }
+//            SelectTags(selectedTags = selectedTags) { selectedTags = it }
+            Spacer(modifier = Modifier.height(30.dp))
             ButtonPublish(
                 title = title,
                 documentInString = documentInString,
@@ -186,7 +187,9 @@ class AddDocumentForm {
 
     @Composable
     private fun ClosingLine() {
-        Box(modifier = Modifier.fillMaxWidth().height(3.dp)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(3.dp)) {
             Box(
                 modifier = Modifier
                     .width(200.dp)

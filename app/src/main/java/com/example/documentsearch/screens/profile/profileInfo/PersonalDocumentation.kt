@@ -103,7 +103,9 @@ class PersonalDocumentation {
                             )
                         }
 
-                        if (index <= documentationsVisible) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        
+                        if (index < documentationsVisible) {
                             // Линия разделения
                             Spacer(
                                 modifier = Modifier

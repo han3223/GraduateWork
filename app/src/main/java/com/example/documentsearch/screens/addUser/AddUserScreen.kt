@@ -39,6 +39,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.apiRequests.profile.ProfileRequestServicesImpl
@@ -69,6 +71,8 @@ class AddUserScreen() : Screen, Parcelable {
 
     private val searchProfile = SearchProfile()
     private val filter = Filter()
+
+    override val key: ScreenKey = uniqueScreenKey
 
     constructor(parcel: Parcel) : this()
 

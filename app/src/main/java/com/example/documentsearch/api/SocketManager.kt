@@ -51,6 +51,8 @@ object SocketManager {
                     val updatedMessagesList = selectedMessenger.value!!.messages.toMutableList()
                     updatedMessagesList.add(message)
                     selectedMessenger.value = selectedMessenger.value!!.copy(messages = updatedMessagesList)
+                    Log.i("Данные сообщений обновлены", "Данные обновлены")
+                    selectedMessenger.value = selectedMessenger.value
                 }
 
                 cacheMessengers.value.first { it.id == message.messenger_id }.messages += message

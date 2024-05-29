@@ -95,15 +95,15 @@ class Filter {
                 onDateBeforeChange = { onDateBeforeChange(it) }
             )
             categories.DropDownContainer(selectedCategory = category, onCategoryChange = { onCategoryChange(it) })
-            searchTag.BasicContainer(
-                titleTag = titleTag,
-                onTitleChange = { titleTag = it },
-                selectedTags = selectedTags.toMutableStateList(),
-                onSelectedTagsChanged = {
-                    onSelectedTagsChange(it.toList())
-                },
-                tags = tags
-            )
+//            searchTag.BasicContainer(
+//                titleTag = titleTag,
+//                onTitleChange = { titleTag = it },
+//                selectedTags = selectedTags.toMutableStateList(),
+//                onSelectedTagsChanged = {
+//                    onSelectedTagsChange(it.toList())
+//                },
+//                tags = tags
+//            )
         }
     }
 

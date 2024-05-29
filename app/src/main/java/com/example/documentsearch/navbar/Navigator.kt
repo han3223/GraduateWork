@@ -266,6 +266,7 @@ class Navigator {
             cacheMessengers.value = userMessengers
             for (messenger in userMessengers) {
                 SocketManager.connectCommunicationRoom(messenger.id!!)
+                Log.i("Добавление в комнату", "Пользователь добален в комнату ${messenger.id}")
             }
         }
     }

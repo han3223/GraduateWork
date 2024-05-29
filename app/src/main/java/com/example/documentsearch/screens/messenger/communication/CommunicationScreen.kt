@@ -6,11 +6,15 @@ import android.os.Parcelable
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,14 +48,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.documentsearch.R
 import com.example.documentsearch.api.SocketManager
 import com.example.documentsearch.api.apiRequests.messenger.MessengersRequestServicesImpl
 import com.example.documentsearch.navbar.SVGFactory
+import com.example.documentsearch.navbar.activeItem
 import com.example.documentsearch.patterns.HeaderFactory
 import com.example.documentsearch.patterns.authentication.StandardInput
 import com.example.documentsearch.patterns.messenger.MessageFactory
@@ -79,11 +90,13 @@ import java.time.LocalTime
 val selectedMessenger = mutableStateOf<ChatData?>(null)
 val selectedUser = mutableStateOf<UserProfilePrototype?>(null)
 
-@Suppress("UNREACHABLE_CODE")
-class CommunicationScreen : Screen, Parcelable {
+class CommunicationScreen() : Screen, Parcelable {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
     private val messageFactory = MessageFactory()
+
+    constructor(parcel: Parcel) : this() {
+    }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
@@ -97,7 +110,17 @@ class CommunicationScreen : Screen, Parcelable {
         }
 
         LaunchedEffect(selectedMessenger.value) {
+            Log.i("ТЕСТ", selectedMessenger.value!!.messages.toString())
             messages = selectedMessenger.value!!.messages.toMutableStateList()
+        }
+
+        LaunchedEffect(selectedMessenger.value?.messages) {
+            Log.i("ТЕСТ2", selectedMessenger.value!!.messages.toString())
+            messages = selectedMessenger.value!!.messages.toMutableStateList()
+        }
+
+        LaunchedEffect(Unit) {
+            rememberScrollState.scrollToItem(9999)
         }
 
         Scaffold(
@@ -109,14 +132,13 @@ class CommunicationScreen : Screen, Parcelable {
                 ) {
                     Header()
                     Body(messages, rememberScrollState)
+                    BottomBar(
+                        rememberScrollState = rememberScrollState,
+                        onMessageChange = {}
+                    )
                 }
             },
-            bottomBar = {
-                BottomBar(
-                    rememberScrollState = rememberScrollState,
-                    onMessageChange = {}
-                )
-            })
+        )
     }
 
     @Composable
@@ -127,6 +149,7 @@ class CommunicationScreen : Screen, Parcelable {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .zIndex(3f)
                 .height(heightHeader)
                 .padding(20.dp, 0.dp, 20.dp, 40.dp),
             verticalAlignment = Alignment.Bottom
@@ -135,13 +158,18 @@ class CommunicationScreen : Screen, Parcelable {
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = null,
                 tint = TextColor,
-                modifier = Modifier.padding(bottom = 7.dp)
+                modifier = Modifier
+                    .padding(bottom = 7.dp)
                     .clickable {
                         navigator.pop()
-                        Log.i("test", "test")
                     }
             )
-            Box(modifier = Modifier.padding(start = 20.dp).size(40.dp).background(AdditionalColor, CircleShape))
+            Box(
+                modifier = Modifier
+                    .padding(start = 20.dp)
+                    .size(40.dp)
+                    .background(AdditionalColor, CircleShape)
+            )
             Text(
                 modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
                 text = "${selectedUser.value?.lastName} ${selectedUser.value?.firstName}",
@@ -161,12 +189,14 @@ class CommunicationScreen : Screen, Parcelable {
             state = rememberScrollState,
             modifier = Modifier
                 .fillMaxSize()
-                .imePadding()
-                .padding(bottom = 80.dp),
+                .zIndex(-1f)
+                .imePadding(),
             verticalArrangement = Arrangement.Bottom,
         ) {
             if (messages != null) {
                 itemsIndexed(items = messages) { index, item ->
+                    if (index == 0)
+                        Spacer(modifier = Modifier.height(80.dp))
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Box(
                             modifier = Modifier
@@ -183,6 +213,8 @@ class CommunicationScreen : Screen, Parcelable {
                             )
                         }
                     }
+                    if (index == messages.size - 1)
+                        Spacer(modifier = Modifier.height(90.dp))
                 }
             }
         }
@@ -200,7 +232,10 @@ class CommunicationScreen : Screen, Parcelable {
                 .fillMaxSize()
                 .imePadding()
         ) {
-            Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.Bottom
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -213,7 +248,10 @@ class CommunicationScreen : Screen, Parcelable {
                             .zIndex(2f)
                     ) {
                         val svgFactory = SVGFactory()
-                        svgFactory.GetShapeFromSVG(svgCode = HEADER_LEFT, colorShape = MainColor)
+                        svgFactory.GetShapeFromSVG(
+                            svgCode = HEADER_LEFT,
+                            colorShape = MainColor
+                        )
                     }
                     Box(
                         modifier = Modifier
@@ -221,7 +259,10 @@ class CommunicationScreen : Screen, Parcelable {
                             .zIndex(2f)
                     ) {
                         val svgFactory = SVGFactory()
-                        svgFactory.GetShapeFromSVG(svgCode = HEADER_RIGHT, colorShape = MainColor)
+                        svgFactory.GetShapeFromSVG(
+                            svgCode = HEADER_RIGHT,
+                            colorShape = MainColor
+                        )
                     }
                 }
                 Box(
@@ -230,7 +271,7 @@ class CommunicationScreen : Screen, Parcelable {
                         .background(MainColor)
                 ) {
                     Row(
-                        modifier = Modifier.padding(20.dp, 10.dp),
+                        modifier = Modifier.padding(20.dp, 15.dp),
                         verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -242,20 +283,21 @@ class CommunicationScreen : Screen, Parcelable {
                             keyboardActions = KeyboardActions.Default,
                             validColor = TextColor,
                             activeTextField = false,
-                            textStyle = ORDINARY_TEXT,
+                            textStyle = ORDINARY_TEXT.merge(fontSize = 17.sp, color = Color.Black),
                             singleLine = false,
                             textFieldModifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f)
-                                .background(AdditionalColor, RoundedCornerShape(15.dp))
+                                .background(AdditionalColor, RoundedCornerShape(20.dp))
                         )
                         standardInput.StandardTextField(
                             modifier = Modifier
-                                .heightIn(30.dp, 150.dp)
-                                .padding(5.dp),
+                                .heightIn(35.dp, 150.dp)
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
                             value = textMessage,
                             onValueChanged = { textMessage = it },
-                            onFocusChange = {},
+                            onFocusChange = {
+                            },
                             alwaysDisable = true
                         )
                         SendButton(
@@ -279,7 +321,7 @@ class CommunicationScreen : Screen, Parcelable {
     ) {
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(35.dp)
                 .background(Color.Black, CircleShape)
                 .clickable {
                     if (textMessage.isNotEmpty()) {
@@ -291,8 +333,10 @@ class CommunicationScreen : Screen, Parcelable {
                                     selectedMessenger.value = resultAddMessenger
 
                                     SocketManager.connectCommunicationRoom(resultAddMessenger.id!!)
-                                    val message = createMessage(textMessage, resultAddMessenger.id)
+                                    val message =
+                                        createMessage(textMessage, resultAddMessenger.id)
                                     if (message != null) {
+                                        Log.i("Сообщение", "Сообщение было отправлено")
                                         onMessageChange(message)
                                         postMessage(message)
                                     }
@@ -300,16 +344,26 @@ class CommunicationScreen : Screen, Parcelable {
                             } else {
                                 val message = createMessage(textMessage, messenger.id!!)
                                 if (message != null) {
+                                    Log.i("Сообщение", "Сообщение было отправлено да")
                                     onMessageChange(message)
                                     postMessage(message)
                                 }
                             }
 
-                            rememberScrollState.scrollToItem(0)
+                            rememberScrollState.scrollToItem(999999)
                         }
                     }
                 }
-        )
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.send),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(25.dp)
+                    .align(Alignment.Center),
+                tint = TextColor
+            )
+        }
     }
 
     private fun createMessage(textMessage: String, messengerId: Long): MessagePrototype? {
@@ -342,16 +396,17 @@ class CommunicationScreen : Screen, Parcelable {
         SocketManager.sendMessage(Json.encodeToString(message))
     }
 
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
     override fun describeContents(): Int {
         return 0
     }
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-    }
-
     companion object CREATOR : Parcelable.Creator<CommunicationScreen> {
         override fun createFromParcel(parcel: Parcel): CommunicationScreen {
-            return CommunicationScreen()
+            return CommunicationScreen(parcel)
         }
 
         override fun newArray(size: Int): Array<CommunicationScreen?> {

@@ -39,6 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.api.SocketManager
@@ -75,6 +77,8 @@ class LoginScreen() : HeadersProfile(), Screen, Parcelable {
         .fillMaxWidth()
         .height(40.dp)
         .background(color = Color.Transparent)
+
+    override val key: ScreenKey = uniqueScreenKey
 
     constructor(parcel: Parcel) : this()
 

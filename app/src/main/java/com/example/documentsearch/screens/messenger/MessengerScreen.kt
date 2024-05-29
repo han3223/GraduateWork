@@ -41,6 +41,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.documentsearch.navbar.SVGFactory
@@ -63,6 +65,8 @@ import com.example.documentsearch.ui.theme.cacheUserProfile
 class MessengerScreen() : Screen, Parcelable {
     private val heightHeader = 120.dp
     private val headerFactory = HeaderFactory()
+
+    override val key: ScreenKey = uniqueScreenKey
 
     constructor(parcel: Parcel) : this()
 
@@ -106,7 +110,7 @@ class MessengerScreen() : Screen, Parcelable {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             MenuAndTitle { onOpenMenu() }
-            Search()
+//            Search()
         }
     }
 
